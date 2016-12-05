@@ -13,24 +13,18 @@ module.exports = function* (next) {
     let trace = new Trace(traceReq);
     intensive(this, trace);
     yield next;
-    // logger.info(trace);
 
+    // 如果有debug 参数,会在控制台输出
+    if(process.argv.includes('debug-trace')){
+        console.dir(trace);
+    }
 }
 
 function traceLog(msg, meta) {
     this.trace.logs.push(msg);
-    // let tempLogger = getTraceLogger('test');
-    // tempLogger.info(this, msg, meta);
-    // tempLogger.log.call(this,'info',msg,meta);
 }
 
 function intensive(ctx, trace) {
-    Object.defineProperty(ctx, 'traceLog', {
-        value: traceLog,
-        enumerable: true,
-        configurable: false,
-        writable: false
-    })
 
     Object.defineProperty(ctx, 'trace', {
         value: trace,
@@ -38,4 +32,12 @@ function intensive(ctx, trace) {
         configurable: false,
         writable: false
     })
+
+    Object.defineProperty(ctx, 'traceLog', {
+        value: traceLog,
+        enumerable: true,
+        configurable: false,
+        writable: false
+    })
+
 }

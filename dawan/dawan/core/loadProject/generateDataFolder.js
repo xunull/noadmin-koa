@@ -1,7 +1,7 @@
 const shelljs = require('shelljs');
 const path = require('path');
 const fs = require('fs');
-const businessDataFolder = dawan.config.businessDataFolder;
+const businessDataFolder = dawan.config.directoryConfig.projectsDataFolder;
 
 module.exports =function generate(businessName) {
     let folderPath = path.resolve(businessDataFolder, businessName);

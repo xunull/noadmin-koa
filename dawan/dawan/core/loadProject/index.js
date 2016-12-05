@@ -1,25 +1,22 @@
 const path = require('path');
+var Router = require('koa-router');
 const common = require('../../common');
 const config = global.dawan.config;
 const logger = global.dawan.logger;
 // 非内建业务的目录地址
-const otherBusinessPath = config.otherBusinessPath;
+const projectsPath = config.directoryConfig.projectsPath;
 // 生成 各个业务的logger
 const decorateLogger = require('./decorateLogger');
 // 生成 业务的data 数据文件夹
 const generateDataFolder = require('./generateDataFolder');
 
-// 已经加载的内建的业务
-var loadedInnerBusiness = [];
-// 已经记载的其他的业务
-var loadedOtherBusiness = [];
+// 已经加载的业务
+var loadedProject = [];
 
 (async function() {
     try {
-        // 加载内建业务
-        requireManifest(path.resolve(__dirname, '../../../business'));
-        // 加载添加的业务
-        requireManifest(otherBusinessPath);
+        // 加载业务逻辑
+        requireManifest(projectsPath);
     } catch (err) {
         logger.error(err);
     }
@@ -30,23 +27,21 @@ var loadedOtherBusiness = [];
  * 其实还应该加载package.json
  * @return {Promise} [description]
  */
-async function requireManifest(businessRoot) {
+async function requireManifest(projectsRoot) {
 
-    let businessNames = await findBusinessNames(businessRoot);
-
+    let projectNames = await findProjectNames(projectsRoot);
     /**
      * 生成各个业务的data 目录
      */
-    for(let name of businessNames) {
+    for(let name of projectNames) {
         generateDataFolder(name);
     }
-    logger.focus(businessNames);
 
     /**
      * 寻找index.js文件
      * @type {Boolean}
      */
-    let hasIndexDir = await findFile(businessRoot, 'index.js').catch((err)=>{
+    let hasIndexDir = await findFile(projectsRoot, 'index.js').catch((err)=>{
         logger.error(err);
         // 如果寻找文件的操作出错，那么就直接返回吧
         // 但是这个地方如果直接返回也是有问题的，错误也许会是因为某个业务逻辑的地方发生了错误
@@ -57,9 +52,11 @@ async function requireManifest(businessRoot) {
 
     /**
      * 寻找package.json文件
+     * 可以帮忙寻找依赖,但是目前还不会这么做
+     * 可以考虑使用yarn
      * @type {Boolean}
      */
-    let hasPackageDir = await findFile(businessRoot,'package.json').catch((err)=>{
+    let hasPackageDir = await findFile(projectsRoot,'package.json').catch((err)=>{
         logger.error(err);
         return;
     });
@@ -102,9 +99,11 @@ async function requireManifest(businessRoot) {
      * 因此业务目录下的router 都必须以一个router文件夹的方式引入
      *
      * 当然了 也可以指定require('xxx/index.js') 加上后缀也是可以的
+     * 不过这种方式,对于router文件夹又是不公平的了
+     * 看起来还是保留router文件夹好一些
      */
 
-    let hasRouterDir = await findFile(businessRoot, 'router');
+    let hasRouterDir = await findFile(projectsRoot, 'router');
 
     for (let routerDir of hasRouterDir) {
         try {
@@ -121,13 +120,18 @@ async function requireManifest(businessRoot) {
 /**
  * 挂载一个路由
  * 目前是直接挂载在跟目录上了
- * @param  {[type]} path   [description]
+ * @param  {[type]} path   业务文件夹名字
  * @param  {[type]} router [description]
  * @return {[type]}        [description]
  */
 function mountRouter(path, router) {
+    logger.focus(path)
+    let projectRouter = new Router();
 
-    global.dawan.express_app.use('/' + path, router);
+    projectRouter.use('/'+path,router.routes(),router.allowedMethods());
+
+    global.dawan.koaApp.use(projectRouter.routes())
+                        .use(projectRouter.allowedMethods());
 
 }
 
@@ -135,8 +139,8 @@ function mountRouter(path, router) {
  * 寻找所有业务的业务名字
  * @return {[type]} [description]
  */
-async function findBusinessNames(businessRoot) {
-    return common.file.searchDirNames(businessRoot);
+async function findProjectNames(projectsRoot) {
+    return common.file.searchDirNames(projectsRoot);
 }
 
 /**

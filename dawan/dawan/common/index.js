@@ -7,6 +7,8 @@
  * @type {[type]}
  */
 
+const utils = require('./utils');
+
 const define = require('./utils/defineObjectProperty');
 
 const file = require('./file');
@@ -16,6 +18,8 @@ const nodeOs = require('./utils/node-os');
 const path = require('./utils/path');
 const repl = require('./repl');
 const shell = require('./shell');
+const argv = utils.argv;
+
 
 /**
  * 加固所有的属性

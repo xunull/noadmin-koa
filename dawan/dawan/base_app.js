@@ -28,7 +28,6 @@ common.define.reinforceObjectOneObject(global,'dawan');
 module.exports = global.dawan;
 
 /**
- * 全局错误捕捉
  * 防止出现意外没有想到的错误使整个程序崩溃
  * @param  {[type]} 'uncaughtException' [description]
  * @param  {[type]} function(err        [description]
