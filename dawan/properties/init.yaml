@@ -1,0 +1,72 @@
+basic_menu:
+  - name: 系统管理
+    level: 0
+    uri: null
+    menu_icon: fa fa-user
+    sub:
+      - name: 用户管理
+        uri: /manage/user
+        menu_icon: fa fa-user
+        level: 1
+      - name: 角色管理
+        uri: /manage/role
+        menu_icon: fa fa-th
+        level: 1
+      - name: 菜单管理
+        uri: /manage/menu
+        menu_icon: fa fa-th
+        level: 1
+      - name: 权限管理
+        uri: /manage/authority
+        menu_icon: fa fa-th
+        level: 1
+      - name: 路径管理
+        uri: /manage/path
+        menu_icon: fa fa-th
+        level: 1
+      - name: 业务管理
+        uri: /manage/business
+        menu_icon: fa fa-wrench
+        level: 1
+  - name: 主机监控
+    level: 0
+    uri: null
+    menu_icon: fa fa-th
+    sub:
+      - name: 服务器监控
+        uri: /monitor/server
+        menu_icon: fa fa-th
+        level: 1
+      - name: 程序监控
+        uri: /monitor/program
+        menu_icon: fa fa-th
+        level: 1
+basic_access_path:
+  - name: 系统设置
+    level: 0
+    uri: null
+    sub:
+      - name: 菜单设置
+        uri: /setting/menu
+        level: 1
+      - name: 权限设置
+        uri: /setting/permission
+        level: 1
+  - name: 主机监控
+    level: 0
+    uri: null
+    sub:
+      - name: 服务器监控
+        uri: /monitor/server
+        level: 1
+      - name: 程序监控
+        uri: /monitor/program
+        level: 1
+user_root:
+  name: admin
+  loginname: admin
+  pass: '123456'
+role_root:
+  name: root
+  description: root administrator
+  parent: null

@@ -14,6 +14,11 @@ Vue.use(VueResource);
 
 Vue.config.devtools = true;
 
+// 这个router可以写一个默认的,
+// 当系统工作的时候,可以有一个router的内容是由管理系统配置的
+// ajax 请求这个router 然后替换这个router
+// 写在这里的router 可以作为一个最最基本的
+// 或者可以说这个router是核心的router,业务的router由后台读取
 var router = new VueRouter({
     routes: [
 

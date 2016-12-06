@@ -4,9 +4,11 @@
   "description": "web container",
   "main": "index.js",
   "scripts": {
-    "start":"node index.js",
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "debug-trace":"node index.js debug-trace"
+    "debug-trace": "node index.js debug-trace",
+    "init": "node ./init/index.js",
+    "init-reset": "node ./init/index.js reset"
   },
   "repository": {
     "type": "git",
@@ -38,6 +40,7 @@
     "koa-static": "^2.0.0",
     "lodash": "^4.17.2",
     "log4js": "^1.0.1",
+    "mongoose": "^4.7.1",
     "node-uuid": "^1.4.7",
     "shelljs": "^0.7.5",
     "winston": "^2.3.0"

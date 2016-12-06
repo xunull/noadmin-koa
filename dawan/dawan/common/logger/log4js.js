@@ -1,9 +1,4 @@
-/**
- * 使用log4js 的logger 实现
- * 相比winston 简单一些
- * @type {[type]}
- */
-var config = require('../../../conf/dawan.config');
+
 
 var log4js = require('log4js');
 log4js.configure({
