@@ -51,30 +51,32 @@ var defaultLogger = new (winston.Logger)({
  * info warn error 红绿灯的颜色
  * logger 的颜色设置
  */
-// defaultLogger.filters.push(function (level, msg, meta) {
-//     switch (level) {
-//         case 'debug':
-//             return colors.blue(msg);
-//             break;
-//         case 'verbose':
-//             return colors.blue(msg);
-//             break;
-//         case 'info':
-//             return colors.green(msg);
-//             break;
-//         case 'warn':
-//             return colors.yellow(msg);
-//             break;
-//         case 'error':
-//             // TODO winston 可能会拦截nodejs 系统中的error 的console 输出
-//             console.error(msg);
-//             return msg;
-//             // return colors.red(msg);
-//             break;
-//         default:
-//             return msg;
-//     }
-// });
+defaultLogger.filters.push(function (level, msg, meta) {
+    switch (level) {
+        case 'debug':
+            return colors.blue(msg);
+            break;
+        case 'verbose':
+            return colors.blue(msg);
+            break;
+        case 'info':
+            return colors.green(msg);
+            break;
+        case 'warn':
+            return colors.yellow(msg);
+            break;
+        case 'error':
+            // TODO winston 可能会拦截nodejs 系统中的error 的console 输出
+            console.dir(msg);
+            console.dir(meta);
+            return null;
+            // return msg;
+            // return colors.red(msg);
+            break;
+        default:
+            return msg;
+    }
+});
 
 module.exports = {
     defaultLogger: defaultLogger,

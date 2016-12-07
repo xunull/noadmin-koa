@@ -67,10 +67,6 @@ mongoose.connect(config.db.mongodb);
             logger.info('核心内容已经初始化过');
         }
 
-        if (config.initBuiltinBusiness) {
-            require('./initBuiltinBusiness');
-        }
-
     } catch (err) {
         logger.info(err);
     }

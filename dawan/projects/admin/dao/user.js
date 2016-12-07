@@ -29,6 +29,9 @@ exports.getAll = function() {
  * @return {[type]}             [description]
  */
 exports.getUserByLoginName = function(loginname, callback) {
+    console.log('aaaaaaaaaa')
+    console.log(loginname)
+    console.dir(callback);
 
     if (undefined === callback) {
         return new Promise((resolve, reject) => {

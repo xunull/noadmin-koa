@@ -43,6 +43,7 @@ exports.readFile = function(arg_path, option) {
     return new Promise((resolve, reject) => {
         if (undefined === option) {
             fs.readFile(arg_path, (err, data) => {
+                // console.log(data.toString())
                 if (err) {
                     reject(err);
                 } else {

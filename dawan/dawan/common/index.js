@@ -8,7 +8,7 @@
  */
 
 const utils = require('./utils');
-
+const crypto = require('./crypto');
 const define = require('./utils/defineObjectProperty');
 
 const file = require('./file');
@@ -24,7 +24,7 @@ const argv = utils.argv;
 /**
  * 加固所有的属性
  */
-define.reinforceObject(file, logger, yaml, nodeOs, path, repl, shell);
+define.reinforceObject(file, logger, yaml, nodeOs, path, repl, shell,crypto);
 // 自己重新定义自己
 define.reinforceObject(define);
 
@@ -36,3 +36,4 @@ exports.path = path;
 exports.repl = repl;
 exports.shell = shell;
 exports.define = define;
+exports.crypto = crypto;

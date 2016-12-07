@@ -18,6 +18,8 @@ module.exports = function(app) {
 
     app.use(middlewares.resEnhance)
 
+    app.use(middlewares.nosession)
+
     // 如果开发的时候选择了模式,那么中间价不会被挂载
     if (config.permission) {
         permission(app);

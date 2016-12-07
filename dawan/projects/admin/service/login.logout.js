@@ -1,7 +1,7 @@
 var UserMenu = require('../dao').UserMenu;
 var RoleMenu = require('../dao').RoleMenu;
 var Role = require('../dao').Role;
-var logger = global.thisapp.logger;
+var logger = global.dawan.logger;
 /**
  * [login description]
  * @param  {[type]} user monodb model user
