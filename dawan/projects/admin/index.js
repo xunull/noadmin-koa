@@ -1,4 +1,5 @@
 var path = require('path');
+var co = require('co');
 
 var mongoose= require('../../dawan/common/db/mongoose');
 var config=global.dawan.config;
@@ -7,11 +8,16 @@ var logger = global.dawan.logger;
 var common = global.dawan.common;
 
 
-async function  readBanner(){
-	var banner = await common.file.readFile(path.resolve(__dirname,'./banner.txt'))
-	console.log(banner.toString())
-}
+// async function  readBanner(){
+// 	var banner = await common.file.readFile(path.resolve(__dirname,'./banner.txt'))
+// 	console.log(banner.toString())
+// }
+//
+// readBanner();
 
-readBanner();
+co(function * readBanner() {
+	var banner = yield common.file.readFile(path.resolve(__dirname,'./banner.txt'))
+	console.log(banner.toString())
+})
 
 mongoose.connect(config.db.mongodb);
