@@ -44,6 +44,11 @@ var SiderbarMenu = Vue.extend({
 
 export default {
     data() {
+        this.$http.get('/admin/user/indexMenu').then(response=>{
+            this.$data.menus=response.body.data;
+        },response=>{
+
+        })
         return {
             menus: []
         }

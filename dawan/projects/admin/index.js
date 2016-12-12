@@ -20,4 +20,12 @@ co(function * readBanner() {
 	console.log(banner.toString())
 })
 
+// var fn = co.wrap(function* (val) {
+//   return yield Promise.resolve(val);
+// });
+//
+// fn(true).then(function (val) {
+//
+// });
+
 mongoose.connect(config.db.mongodb);

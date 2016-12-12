@@ -60,6 +60,8 @@ exports.postLogin = function * (next) {
 
 }
 
+
+
 /**
  * 主页
  * @return {Generator} [description]
