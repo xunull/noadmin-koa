@@ -1,7 +1,7 @@
 /**
  * 项目中的一些文件目录的配置
  */
-const path = require('path');
+const path = require('path')
 
 module.exports = {
 	// log 文件目录

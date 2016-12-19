@@ -6,9 +6,9 @@
  * 还有自己添加的验证方法(基于许可的,基于用户角色的,基于请求分类的)
  */
 
-var logger = global.dawan.logger;
-let whiteList = ['/admin/signin', '/admin/login', '/'];
-let blackList = [];
+var logger = global.dawan.logger
+let whiteList = ['/admin/signin', '/admin/login', '/']
+let blackList = []
 
 
 module.exports = function * (next) {
@@ -17,13 +17,13 @@ module.exports = function * (next) {
 		// logger.focus(this.path);
         if (whiteList.indexOf(this.path) !== -1) {
             // 白名单中的路径放行
-            yield next;
+            yield next
         } else {
-            this.status=403;
+            this.status=403
         }
 
     } else {
-        yield next;
+        yield next
     }
 
-};
+}

@@ -6,9 +6,9 @@
  * 还有自己添加的验证方法(基于许可的,基于用户角色的,基于请求分类的)
  */
 
-var logger = global.dawan.logger;
-let whiteList = ['/signin', '/login', '/'];
-let blackList = [];
+var logger = global.dawan.logger
+let whiteList = ['/signin', '/login', '/']
+let blackList = []
 
 // 判断session中是否有user的拦截,是之前在admin系统中的做法
 // 如果想在更大的面上使用拦截,那么拦截的判断 需要更基础,更广泛一些
@@ -23,13 +23,13 @@ module.exports = function * (next) {
 
         if (whiteList.indexOf(this.path) !== -1) {
             // 白名单中的路径放行
-            yield next;
+            yield next
         } else {
-            this.status=403;
+            this.status=403
         }
 
     } else {
-        yield next;
+        yield next
     }
 
-};
+}

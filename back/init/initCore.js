@@ -87,7 +87,7 @@ async function initAdminUser() {
     let hmac = crypto.createHmac('sha256', appConfigYaml.pass_salt);
     // pass 必须是string 或者 buffer 数字是不可以的
     hmac.update(adminUser.pass);
-    adminUser.pass = hmac.digest('hex');
+    adminUser.passwd = hmac.digest('hex');
     user = await User.saveUser(adminUser);
     logger.info('amdin 用户初始化成功');
     return user;

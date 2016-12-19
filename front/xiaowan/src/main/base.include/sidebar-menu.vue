@@ -49,6 +49,14 @@ export default {
         },response=>{
 
         })
+
+         this.$http.get('/admin/user/getRouter').then(response=>{
+           console.log('--------------')
+            console.log(response.body.data)
+        },response=>{
+
+        })
+
         return {
             menus: []
         }

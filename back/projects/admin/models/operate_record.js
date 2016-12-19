@@ -1,5 +1,5 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+var mongoose = require('mongoose')
+var Schema = mongoose.Schema
 
 var OperateRecord = {
     create_date: {
@@ -11,6 +11,6 @@ var OperateRecord = {
     update_user: Schema.Types.ObjectId,
     delete_date: Date,
     delete_user: Schema.Types.ObjectId
-};
+}
 
-module.exports = OperateRecord;
+module.exports = OperateRecord
