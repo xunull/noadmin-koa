@@ -1,23 +1,23 @@
-var winston = require('winston');
-var path = require('path');
-var colors = require('colors/safe');
-var config = require('../../../conf/dawan.config');
+const winston = require('winston')
+const path = require('path')
+const colors = require('colors/safe')
+const config = require('../../../conf/dawan.config')
 
 // 系统默认所有log文件存储的位置
-const defaultLogFileDir = config.logFileDir;
+const defaultLogFileDir = config.logFileDir
 
 const defaultTransportObj = {
     timestamp: function () {
-        let date = new Date();
-        return date.toLocaleDateString().concat(' ', date.toLocaleTimeString());
+        let date = new Date()
+        return date.toLocaleDateString().concat(' ', date.toLocaleTimeString())
     },
     formatter: function (options) {
         // Return string will be passed to logger.
         return options.timestamp() + ' ' + options.level.toUpperCase() + ' ' + (options.message
             ? options.message
             : '') + (options.meta && Object.keys(options.meta).length
-                ? '\n\t' + JSON.stringify(options.meta)
-                : '');
+                ? '\n\t' + JSON.stringify(options.meta,null,4)
+                : '')
     }
 }
 
@@ -44,7 +44,7 @@ var defaultLogger = new (winston.Logger)({
             filename: path.resolve(defaultLogFileDir, config.logger.errorFileName)
         }, defaultTransportObj))
     ]
-});
+})
 
 /**
  * debug blue
@@ -54,33 +54,33 @@ var defaultLogger = new (winston.Logger)({
 defaultLogger.filters.push(function (level, msg, meta) {
     switch (level) {
         case 'debug':
-            return colors.blue(msg);
-            break;
+            return colors.blue(msg)
+            break
         case 'verbose':
-            return colors.blue(msg);
-            break;
+            return colors.blue(msg)
+            break
         case 'info':
-            return colors.green(msg);
-            break;
+            return colors.green(msg)
+            break
         case 'warn':
-            return colors.yellow(msg);
-            break;
+            return colors.yellow(msg)
+            break
         case 'error':
             // TODO winston 可能会拦截nodejs 系统中的error 的console 输出
-            console.dir(msg);
-            console.dir(meta);
-            return null;
+            console.dir(msg)
+            console.dir(meta)
+            return null
             // return msg;
             // return colors.red(msg);
-            break;
+            break
         default:
-            return msg;
+            return msg
     }
-});
+})
 
 module.exports = {
     defaultLogger: defaultLogger,
     // 用户自定义logger时使用
     winstonLogger: winston.Logger,
     defaultTransportObj: defaultTransportObj
-};
+}
