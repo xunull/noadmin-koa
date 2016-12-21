@@ -7,13 +7,22 @@ const config = require('../../../conf/dawan.config')
 const defaultLogFileDir = config.logFileDir
 
 const defaultTransportObj = {
+    // winston 并不是每个方法都会接收
     timestamp: function () {
         let date = new Date()
         return date.toLocaleDateString().concat(' ', date.toLocaleTimeString())
     },
+    // 该方法运行在 filters and rewriters 之后
     formatter: function (options) {
-        // Return string will be passed to logger.
-        return options.timestamp() + ' ' + options.level.toUpperCase() + ' ' + (options.message
+        // 定义在外面 winston 并不会接收该方法
+        function prefix() {
+            let date = options.timestamp()
+            let prefix = date.concat(' [',options.level.toUpperCase(),'] ')
+            return setColor(options.level,prefix)
+        }
+        // console.log('------------')
+        // console.dir(options)
+        return prefix() + (options.message
             ? options.message
             : '') + (options.meta && Object.keys(options.meta).length
                 ? '\n\t' + JSON.stringify(options.meta,null,4)
@@ -41,10 +50,19 @@ var defaultLogger = new (winston.Logger)({
         new (winston.transports.File)(Object.assign({
             name: 'error-file',
             level: 'error',
+            handleExceptions:true,
+            humanReadableUnhandledException:true,
             filename: path.resolve(defaultLogFileDir, config.logger.errorFileName)
         }, defaultTransportObj))
     ]
 })
+
+/**
+ * filters and rewriters
+ * filters 可以让你修改message的内容
+ * rewriters 可以让你修改meta的内容
+ *
+ */
 
 /**
  * debug blue
@@ -77,6 +95,23 @@ defaultLogger.filters.push(function (level, msg, meta) {
             return msg
     }
 })
+
+function setColor(level,msg){
+    switch (level) {
+    case 'debug':
+        return colors.blue(msg)
+    case 'verbose':
+        return colors.blue(msg)
+    case 'info':
+        return colors.green(msg)
+    case 'warn':
+        return colors.yellow(msg)
+    case 'error':
+        return colors.red(msg)
+    default:
+        return msg
+    }
+}
 
 module.exports = {
     defaultLogger: defaultLogger,
