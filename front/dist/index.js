@@ -14434,7 +14434,7 @@
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -14500,30 +14500,224 @@
 	//
 	//
 	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+
+	var selected_user = [];
 
 	exports.default = {
-	    data: function data() {
-	        var userData = [];
-	        this.$http.get('/admin/users').then(function (response) {
+	  data: function data() {
+	    var userData = [];
+	    this.$http.get('/admin/users').then(function (response) {
 
-	            if (response.body.ok) {
-	                userData.push.apply(userData, _toConsumableArray(response.body.data));
+	      if (response.body.ok) {
+	        var _iteratorNormalCompletion = true;
+	        var _didIteratorError = false;
+	        var _iteratorError = undefined;
+
+	        try {
+	          for (var _iterator = response.body.data[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	            var user = _step.value;
+
+	            console.log(user.create_time);
+	            var date = new Date(user.create_time);
+	            // console.log(date.toLocaleDateString())
+	            // console.log(date.toLocaleString())
+	            // console.log(date.toLocaleTimeString())
+	            user.create_time = date.toLocaleString();
+	          }
+	        } catch (err) {
+	          _didIteratorError = true;
+	          _iteratorError = err;
+	        } finally {
+	          try {
+	            if (!_iteratorNormalCompletion && _iterator.return) {
+	              _iterator.return();
 	            }
-	        }, function (response) {});
-	        return {
-	            userData: userData
-	        };
-	    },
-
-	    computed: {},
-	    mounted: function mounted() {},
-
-	    methods: {
-	        toCreateUser: function toCreateUser() {
-	            this.$router.push('/manage/user/userCreate');
+	          } finally {
+	            if (_didIteratorError) {
+	              throw _iteratorError;
+	            }
+	          }
 	        }
+
+	        userData.push.apply(userData, _toConsumableArray(response.body.data));
+	      }
+	    }, function (response) {});
+	    return {
+	      userData: userData
+	    };
+	  },
+
+	  computed: {},
+	  mounted: function mounted() {},
+
+	  methods: {
+	    reloadTable: function reloadTable() {
+	      var _this = this;
+
+	      this.$http.get('/admin/users').then(function (response) {
+
+	        if (response.body.ok) {
+	          var _$data$userData;
+
+	          var _iteratorNormalCompletion2 = true;
+	          var _didIteratorError2 = false;
+	          var _iteratorError2 = undefined;
+
+	          try {
+	            for (var _iterator2 = response.body.data[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	              var user = _step2.value;
+
+	              console.log(user.create_time);
+	              var date = new Date(user.create_time);
+	              // console.log(date.toLocaleDateString())
+	              // console.log(date.toLocaleString())
+	              // console.log(date.toLocaleTimeString())
+	              user.create_time = date.toLocaleString();
+	            }
+	          } catch (err) {
+	            _didIteratorError2 = true;
+	            _iteratorError2 = err;
+	          } finally {
+	            try {
+	              if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	                _iterator2.return();
+	              }
+	            } finally {
+	              if (_didIteratorError2) {
+	                throw _iteratorError2;
+	              }
+	            }
+	          }
+
+	          _this.$data.userData = [];
+	          (_$data$userData = _this.$data.userData).push.apply(_$data$userData, _toConsumableArray(response.body.data));
+	        }
+	      }, function (response) {});
 	    },
-	    components: {}
+	    unLockUser: function unLockUser() {
+	      var _this2 = this;
+
+	      if (!this.selected_user_isNull()) {
+	        this.$http.post('/admin/users/unlock', {
+	          users: selected_user
+	        }).then(function (response) {
+	          if (response.body.ok) {
+	            _this2.$message.success({
+	              duration: 1000,
+	              message: '操作成功'
+	            });
+	            _this2.reloadTable();
+	          } else {
+	            _this2.$message.error({
+	              duration: 1000,
+	              message: response.body.error_msg
+	            });
+	          }
+	        }, function (response) {});
+	      }
+	    },
+	    selected_user_isNull: function selected_user_isNull() {
+	      if (0 === selected_user.length) {
+	        this.$message.error({
+	          duration: 1000,
+	          message: '无目标用户'
+	        });
+	        return true;
+	      } else {
+	        return false;
+	      }
+	    },
+	    toCreateUser: function toCreateUser() {
+	      this.$router.push('/manage/user/userCreate');
+	    },
+	    selectChange: function selectChange(selection) {
+	      var tempArr = [];
+	      var _iteratorNormalCompletion3 = true;
+	      var _didIteratorError3 = false;
+	      var _iteratorError3 = undefined;
+
+	      try {
+	        for (var _iterator3 = selection[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	          var user = _step3.value;
+
+	          tempArr.push(user.id);
+	        }
+	      } catch (err) {
+	        _didIteratorError3 = true;
+	        _iteratorError3 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion3 && _iterator3.return) {
+	            _iterator3.return();
+	          }
+	        } finally {
+	          if (_didIteratorError3) {
+	            throw _iteratorError3;
+	          }
+	        }
+	      }
+
+	      selected_user = tempArr;
+	      console.log(selected_user);
+	    },
+	    blockUser: function blockUser() {
+	      var _this3 = this;
+
+	      if (!this.selected_user_isNull()) {
+	        this.$http.post('/admin/users/block', {
+	          users: selected_user
+	        }).then(function (response) {
+	          if (response.body.ok) {
+	            _this3.$message.success({
+	              duration: 1000,
+	              message: '操作成功'
+	            });
+	            _this3.reloadTable();
+	          } else {
+	            _this3.$message.error({
+	              duration: 1000,
+	              message: response.body.error_msg
+	            });
+	          }
+	        }, function (response) {});
+	      }
+	    },
+	    deleteUser: function deleteUser() {
+	      var _this4 = this;
+
+	      if (0 === selected_user.length) {
+	        this.$message.error({
+	          duration: 1000,
+	          message: '无目标用户'
+	        });
+	      } else {
+	        this.$http.post('/admin/users/delete', {
+	          users: selected_user
+	        }).then(function (response) {
+	          if (response.body.ok) {
+	            _this4.$message.success({
+	              duration: 1000,
+	              message: '操作成功'
+	            });
+	            _this4.reloadTable();
+	          } else {
+	            _this4.$message.error({
+	              duration: 1000,
+	              message: response.body.error_msg
+	            });
+	          }
+	        }, function (response) {});
+	      }
+	    }
+	  },
+	  components: {}
 	};
 
 /***/ },
@@ -14541,11 +14735,24 @@
 	    }
 	  }, ["修改"]), " ", _h('el-button', {
 	    attrs: {
+	      "type": "primary"
+	    },
+	    on: {
+	      "click": _vm.unLockUser
+	    }
+	  }, ["启用"]), " ", _h('el-button', {
+	    attrs: {
 	      "type": "danger"
+	    },
+	    on: {
+	      "click": _vm.blockUser
 	    }
 	  }, ["禁用"]), " ", _h('el-button', {
 	    attrs: {
 	      "type": "danger"
+	    },
+	    on: {
+	      "click": _vm.deleteUser
 	    }
 	  }, ["删除"])]), " ", _h('el-button', {
 	    staticClass: "end-button-group",
@@ -14573,6 +14780,9 @@
 	      "border": true,
 	      "stripe": true,
 	      "selection-mode": "multiple"
+	    },
+	    on: {
+	      "selection-change": _vm.selectChange
 	    }
 	  }, [_h('el-table-column', {
 	    attrs: {
@@ -14586,13 +14796,13 @@
 	    }
 	  }), " ", _h('el-table-column', {
 	    attrs: {
-	      "property": "loginname",
+	      "property": "login_name",
 	      "label": "登录名",
 	      "width": "180"
 	    }
 	  }), " ", _h('el-table-column', {
 	    attrs: {
-	      "property": "name",
+	      "property": "login_name",
 	      "label": "用户名",
 	      "width": "180"
 	    }
@@ -14604,7 +14814,13 @@
 	    }
 	  }), " ", _h('el-table-column', {
 	    attrs: {
-	      "property": "create_date",
+	      "property": "is_block",
+	      "label": "是否禁用",
+	      "width": "180"
+	    }
+	  }), " ", _h('el-table-column', {
+	    attrs: {
+	      "property": "create_time",
 	      "label": "创建时间"
 	    }
 	  }), " ", _h('el-table-column', {

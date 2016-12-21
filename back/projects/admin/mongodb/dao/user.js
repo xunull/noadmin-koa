@@ -1,6 +1,6 @@
 var models = require('../models')
 var User = models.User
-var uuid = require('node-uuid')
+var uuid = require('uuid')
 var _ = require('lodash')
 
 var logger = global.dawan.logger
@@ -29,6 +29,7 @@ exports.getAll = function () {
  * @return {[type]}             [description]
  */
 exports.getUserByLoginName = function (loginname, callback) {
+
     console.log('aaaaaaaaaa')
     console.log(loginname)
     console.dir(callback)
@@ -102,7 +103,7 @@ exports.save = function (username, password, callback) {
     user.loginname = username
     user.passwd = password
     user.accessToken = uuid.v4()
-    if (undefined == callback) { 
+    if (undefined == callback) {
         return new Promise((resolve,reject)=>{
             user.save(function (err, user) {
             if (err) {

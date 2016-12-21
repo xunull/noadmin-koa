@@ -63,9 +63,9 @@ basic_access_path:
         uri: /monitor/program
         level: 1
 user_root:
-  name: admin
-  loginname: admin
-  pass: '123456'
+  name: root
+  login_name: root
+  passwd: '123456'
 role_root:
   name: root
   description: root administrator

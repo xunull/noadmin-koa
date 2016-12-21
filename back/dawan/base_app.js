@@ -1,31 +1,35 @@
-var common = require('./common');
-var logger = common.logger.defaultLogger;
-var config = require('../conf/dawan.config');
+var common = require('./common')
+var logger = common.logger.defaultLogger
+var config = require('../conf/dawan.config')
 
 const dawan = {
     common: common,
     logger: logger,
+    log4js: common.logger.log4js,
     config: config
-};
+}
 
 /**
  * dawan 对象加固
  */
-common.define.reinforceObject(dawan);
+common.define.reinforceObject(dawan)
 
 /**
  * 该对象持有app中一些配置的引用
  *
  * @type {Object}
  */
-global.dawan = dawan;
+global.dawan = dawan
+
+// 各个project的空间
+global.projects = {}
 
 /**
  * global dawan 加固
  */
-common.define.reinforceObjectOneObject(global,'dawan');
+common.define.reinforceObjectOneObject(global,'dawan')
 
-module.exports = global.dawan;
+module.exports = global.dawan
 
 /**
  * 防止出现意外没有想到的错误使整个程序崩溃
@@ -34,5 +38,5 @@ module.exports = global.dawan;
  * @return {[type]}                     [description]
  */
 process.on('uncaughtException', function(err) {
-    console.log(err);
-});
+    console.log(err)
+})

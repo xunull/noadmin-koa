@@ -1,1 +1,1 @@
-require('./monitor');
+require('./monitor')

@@ -1,6 +1,5 @@
 var mongoose = require('mongoose')
-var config = global.dawan.config
-var logger = global.dawan.logger
+var logger = require('../logger/log4js')
 
 // mongoose.connect('mongodb://localhost/noadmin');
 
@@ -21,5 +20,5 @@ exports.connect = function(connect_url){
         logger.info('mongoose has connecting')
     })
 
-    return db;
+    return db
 }

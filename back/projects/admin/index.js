@@ -1,16 +1,24 @@
 const path = require('path')
 const co = require('co')
 const colors = require('colors/safe')
+const yaml = require('js-yaml')
 
-var mongoose= require('../../dawan/common/db/mongoose')
+const mongoose= require('../../dawan/common/db/mongoose')
 
-var config=global.dawan.config
-var logger = global.dawan.logger
+const config=global.dawan.config
+const logger = global.dawan.logger
 
-var common = global.dawan.common
-var mysql = common.db.mysql
+const common = global.dawan.common
+const mysql = common.db.mysql
+
+const appPropertiesPath = config.init.appPropertiesPath
+const initYamlPath = config.init.initYamlPath
+
+const appConfigYaml =yaml.safeLoad(fs.readFileSync(appPropertiesPath))
+const initObj = yaml.safeLoad(fs.readFileSync(initYamlPath))
 
 global.projects.admin={}
+global.projects.admin.project_config=appConfigYaml
 
 // async function  readBanner(){
 // 	var banner = await common.file.readFile(path.resolve(__dirname,'./banner.txt'))

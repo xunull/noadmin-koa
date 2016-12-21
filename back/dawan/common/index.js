@@ -7,33 +7,35 @@
  * @type {[type]}
  */
 
-const utils = require('./utils');
-const crypto = require('./crypto');
-const define = require('./utils/defineObjectProperty');
+const utils = require('./utils')
+const crypto = require('./crypto')
+const define = require('./utils/defineObjectProperty')
 
-const file = require('./file');
-const logger = require('./logger');
-const yaml = require('./utils/yaml');
-const nodeOs = require('./utils/node-os');
-const path = require('./utils/path');
-const repl = require('./repl');
-const shell = require('./shell');
-const argv = utils.argv;
+const file = require('./file')
+const logger = require('./logger')
+const yaml = require('./utils/yaml')
+const nodeOs = require('./utils/node-os')
+const path = require('./utils/path')
+const repl = require('./repl')
+const shell = require('./shell')
+const argv = utils.argv
+const db = require('./db')
 
 
 /**
  * 加固所有的属性
  */
-define.reinforceObject(file, logger, yaml, nodeOs, path, repl, shell,crypto);
+define.reinforceObject(file, logger, yaml, nodeOs, path, repl, shell,crypto,db)
 // 自己重新定义自己
-define.reinforceObject(define);
+define.reinforceObject(define)
 
-exports.file = file;
-exports.logger = logger;
-exports.yaml = yaml;
-exports.nodeOs = nodeOs;
-exports.path = path;
-exports.repl = repl;
-exports.shell = shell;
-exports.define = define;
-exports.crypto = crypto;
+exports.file = file
+exports.logger = logger
+exports.yaml = yaml
+exports.nodeOs = nodeOs
+exports.path = path
+exports.repl = repl
+exports.shell = shell
+exports.define = define
+exports.crypto = crypto
+exports.db = db

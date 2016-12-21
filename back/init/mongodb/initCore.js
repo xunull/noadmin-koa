@@ -3,7 +3,7 @@ var path = require('path');
 var crypto = require('crypto');
 var logger = global.dawan.logger;
 var config = require('../conf/dawan.config');
-var uuid = require('node-uuid');
+var uuid = require('uuid');
 const yaml = require('js-yaml');
 
 var mongoose= require('../dawan/common/db/mongoose');

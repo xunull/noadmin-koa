@@ -4,8 +4,9 @@
         <div class="inner-nav">
             <el-button-group class='start-button-group'>
               <el-button type="primary" >修改</el-button>
-              <el-button type="danger" >禁用</el-button>
-              <el-button type="danger" >删除</el-button>
+              <el-button @click='unLockUser' type="primary" >启用</el-button>
+              <el-button @click='blockUser' type="danger" >禁用</el-button>
+              <el-button @click='deleteUser' type="danger" >删除</el-button>
             </el-button-group>
 
             <el-button class='end-button-group'
@@ -20,6 +21,7 @@
                      :border='true'
                      :stripe='true'
                      selection-mode="multiple"
+                     @selection-change='selectChange'
                      style="width: 100%">
                      <el-table-column
                        type="selection"
@@ -30,12 +32,12 @@
                        width="50">
                      </el-table-column>
                      <el-table-column
-                       property="loginname"
+                       property="login_name"
                        label="登录名"
                        width="180">
                      </el-table-column>
                      <el-table-column
-                       property="name"
+                       property="login_name"
                        label="用户名"
                        width="180">
                      </el-table-column>
@@ -45,7 +47,12 @@
                        width="180">
                      </el-table-column>
                      <el-table-column
-                       property="create_date"
+                       property="is_block"
+                       label="是否禁用"
+                       width="180">
+                     </el-table-column>
+                     <el-table-column
+                       property="create_time"
                        label="创建时间">
                      </el-table-column>
                      <el-table-column
@@ -60,12 +67,22 @@
 </template>
 
 <script>
+var selected_user=[]
+
 export default {
     data() {
         var userData = [];
         this.$http.get('/admin/users').then(response => {
 
             if (response.body.ok) {
+                for(let user of response.body.data) {
+                  console.log(user.create_time)
+                  let date = new Date(user.create_time)
+                  // console.log(date.toLocaleDateString())
+                  // console.log(date.toLocaleString())
+                  // console.log(date.toLocaleTimeString())
+                  user.create_time = date.toLocaleString()
+                }
                 userData.push(...response.body.data);
             }
         }, response => {
@@ -78,8 +95,120 @@ export default {
     computed: {},
     mounted() {},
     methods: {
+        reloadTable(){
+          this.$http.get('/admin/users').then(response => {
+
+              if (response.body.ok) {
+                  for(let user of response.body.data) {
+                    console.log(user.create_time)
+                    let date = new Date(user.create_time)
+                    // console.log(date.toLocaleDateString())
+                    // console.log(date.toLocaleString())
+                    // console.log(date.toLocaleTimeString())
+                    user.create_time = date.toLocaleString()
+                  }
+
+                  this.$data.userData=[]
+                  this.$data.userData.push(...response.body.data)
+              }
+          }, response => {
+
+          });
+        },
+        unLockUser() {
+          if(!this.selected_user_isNull()) {
+            this.$http.post('/admin/users/unlock',{
+              users:selected_user
+            }).then(response=>{
+              if(response.body.ok) {
+                this.$message.success({
+                  duration:1000,
+                  message:'操作成功'
+                });
+                this.reloadTable()
+              } else {
+                this.$message.error({
+                  duration:1000,
+                  message:response.body.error_msg
+                });
+              }
+            },response=>{
+
+            })
+          }
+
+        },
+        selected_user_isNull(){
+          if(0 === selected_user.length) {
+            this.$message.error({
+              duration:1000,
+              message:'无目标用户'
+            });
+            return true
+          } else {
+            return false
+          }
+        },
         toCreateUser() {
             this.$router.push('/manage/user/userCreate');
+        },
+        selectChange(selection) {
+            let tempArr = []
+            for(let user of selection) {
+                tempArr.push(user.id)
+            }
+            selected_user=tempArr
+            console.log(selected_user)
+        },
+        blockUser() {
+          if(!this.selected_user_isNull()) {
+              this.$http.post('/admin/users/block',{
+                users:selected_user
+              }).then(response=>{
+                if(response.body.ok) {
+                  this.$message.success({
+                    duration:1000,
+                    message:'操作成功'
+                  });
+                  this.reloadTable()
+                } else {
+                  this.$message.error({
+                    duration:1000,
+                    message:response.body.error_msg
+                  });
+                }
+              },response=>{
+
+              })
+          }
+
+        },
+        deleteUser() {
+            if(0 === selected_user.length) {
+              this.$message.error({
+                duration:1000,
+                message:'无目标用户'
+              });
+            } else {
+              this.$http.post('/admin/users/delete',{
+                users:selected_user
+              }).then(response=>{
+                  if(response.body.ok) {
+                    this.$message.success({
+                      duration:1000,
+                      message:'操作成功'
+                    });
+                    this.reloadTable()
+                  } else {
+                    this.$message.error({
+                      duration:1000,
+                      message:response.body.error_msg
+                    });
+                  }
+              },response=>{
+
+              })
+            }
         }
     },
     components: {}

@@ -2,7 +2,7 @@
  * 创建基本数据
  */
 const co = require('co')
-const uuid = require('node-uuid')
+const uuid = require('uuid')
 const crypto = require('crypto')
 const yaml = require('js-yaml')
 const fs = require('fs')
@@ -44,7 +44,7 @@ module.exports = function(connection) {
             reject(err)
         })
     })
-    
+
 }
 
 /**
@@ -99,21 +99,25 @@ var insertUserRoleSQL = `
                         `
 /**
  * 4.初始化menu
- * 
+ *
  * [ [ 1, 4, 6, 7, 8, 9 ], [ 2, 3 ] ] 这个执行出来的数组怎么是这个样子
  */
 function* initMenu(connection) {
     let basic_menu = initObj.basic_menu
     let temp_arr=[]
+    let menu_ids=[]
     for(let temp_menu of basic_menu) {
         // co(generateMenu(connection,0,temp_menu))
-        temp_arr.push(generateMenu(connection,0,temp_menu))
+        temp_arr.push(generateMenu(connection,0,temp_menu,menu_ids))
     }
     let result = yield temp_arr
     // logger.info('menu result')
     // logger.info(result)
-    result = convertArr(result)
-    return Promise.resolve(result)
+    //
+    // 这个有个bug,总是少两条,还不清楚原因
+    // result = convertArr(result)
+    // logger.info(menu_ids)
+    return Promise.resolve(menu_ids)
 
 }
 
@@ -136,22 +140,24 @@ function convertArr(arr) {
 }
 
 
-function* generateMenu(connection,pid,menuObj) {
+function* generateMenu(connection,pid,menuObj,menu_ids) {
     let return_result = []
     let result = yield connection.execute(insertMenuSQL,[pid,menuObj.name,menuObj.uri,menuObj.menu_icon,menuObj.level])
     return_result=return_result.concat(result.insertId)
+    menu_ids.push(result.insertId)
     if(undefined !== menuObj.sub) {
         for(let temp_menu of menuObj.sub) {
             // 这个地方 yield  yield* 还没有看出来区别
-            let sub_result = yield* generateMenu(connection,result.insertId,temp_menu)
-            
+            let sub_result = yield* generateMenu(connection,result.insertId,temp_menu,menu_ids)
+
             sub_result.then(val=>{
                 return_result=return_result.concat(val)
+                // logger.info(val)
             })
-            
+
         }
     }
-   
+
     // logger.info(return_result)
     return Promise.resolve(return_result)
 }
@@ -180,4 +186,3 @@ let insertRoleMenuSQL = `
                                                 )
                         values(?,?,now(),0)
                         `
-

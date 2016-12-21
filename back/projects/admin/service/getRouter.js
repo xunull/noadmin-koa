@@ -1,5 +1,5 @@
-var RoleMenu = require('../dao').RoleMenu
-var logger = global.dawan.logger
+// var RoleMenu = require('../dao').RoleMenu
+// var logger = global.dawan.logger
 
 module.exports=function * (roleName) {
   let userMenu = yield RoleMenu.getRoleMenuForFront(roleName)
