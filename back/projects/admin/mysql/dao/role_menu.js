@@ -10,6 +10,16 @@ function RoleMenu(connection) {
     this.MenuDao = new Menu(connection)
 }
 
+/**
+ * 获取某个角色的所有菜单
+ * @return {Promise} [description]
+ */
+RoleMenu.prototype.getRoleMenus = async function(role_id) {
+    let roleMenuResult = await this.connection.execute(mapper.getRoleMenuByRoleId,[role_id])
+    return roleMenuResult
+}
+
+
 RoleMenu.prototype.getRoleMenuForFront =async function(role_id) {
     let roleMenuResult = await this.connection.execute(mapper.getRoleMenuByRoleId,[role_id])
     let db_menus = []

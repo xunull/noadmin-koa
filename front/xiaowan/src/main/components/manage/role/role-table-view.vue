@@ -67,7 +67,7 @@ export default {
     data() {
         var rolesData = [];
 
-        this.$http.get('/api/role/all').then((response) => {
+        this.$http.get('/admin/roles').then((response) => {
             // this.$data.meetings = response.body;
             if (response.body.ok) {
                 console.log(response.body);

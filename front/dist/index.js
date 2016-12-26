@@ -78,15 +78,45 @@
 
 	var _userCreate2 = _interopRequireDefault(_userCreate);
 
-	var _elementUi = __webpack_require__(42);
+	var _roleView = __webpack_require__(42);
+
+	var _roleView2 = _interopRequireDefault(_roleView);
+
+	var _roleTableView = __webpack_require__(47);
+
+	var _roleTableView2 = _interopRequireDefault(_roleTableView);
+
+	var _roleCreateView = __webpack_require__(52);
+
+	var _roleCreateView2 = _interopRequireDefault(_roleCreateView);
+
+	var _menuView = __webpack_require__(57);
+
+	var _menuView2 = _interopRequireDefault(_menuView);
+
+	var _menuCreate = __webpack_require__(62);
+
+	var _menuCreate2 = _interopRequireDefault(_menuCreate);
+
+	var _menuTree = __webpack_require__(139);
+
+	var _menuTree2 = _interopRequireDefault(_menuTree);
+
+	var _elementUi = __webpack_require__(72);
 
 	var _elementUi2 = _interopRequireDefault(_elementUi);
 
-	__webpack_require__(97);
+	__webpack_require__(127);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	// 角色管理
 	_vue2.default.use(_elementUi2.default);
+	// menu 管理
+
+
+	// 用户管理
+
 	_vue2.default.use(_vueRouter2.default);
 	_vue2.default.use(_vueResource2.default);
 
@@ -98,7 +128,9 @@
 	// 写在这里的router 可以作为一个最最基本的
 	// 或者可以说这个router是核心的router,业务的router由后台读取
 	var router = new _vueRouter2.default({
-	    routes: [{
+	    routes: [
+	    // 用户管理
+	    {
 	        path: '/manage/user',
 	        component: _userView2.default,
 	        children: [{
@@ -123,6 +155,60 @@
 	                breadcrumbUrl: ['/', '', '/manage/user', '/manage/user/userCreate']
 	            }
 	        }]
+	    },
+	    // 角色管理
+	    {
+	        path: '/manage/role',
+	        component: _roleView2.default,
+	        children: [{
+	            path: '', // 空路径 是会默认呈现的路径
+	            component: _roleTableView2.default,
+	            meta: {
+	                breadcrumbName: ['主页', '系统管理', '角色管理'],
+	                breadcrumbUrl: ['/', '', '/manage/role']
+	            }
+	        }, {
+	            path: 'roleTable',
+	            component: _roleTableView2.default,
+	            meta: {
+	                breadcrumbName: ['主页', '系统管理', '用户管理'],
+	                breadcrumbUrl: ['/', '', '/manage/role']
+	            }
+	        }, {
+	            path: 'roleCreate',
+	            component: _roleCreateView2.default,
+	            meta: {
+	                breadcrumbName: ['主页', '系统管理', '角色管理', '角色创建'],
+	                breadcrumbUrl: ['/', '', '/manage/role', '/manage/role/roleCreate']
+	            }
+	        }]
+	    },
+	    // 菜单管理
+	    {
+	        path: '/manage/menu',
+	        component: _menuView2.default,
+	        children: [{
+	            path: '', // 空路径 是会默认呈现的路径
+	            component: _menuTree2.default,
+	            meta: {
+	                breadcrumbName: ['主页', '系统管理', '菜单管理'],
+	                breadcrumbUrl: ['/', '', '/manage/menu']
+	            }
+	        }, {
+	            path: 'menuTable',
+	            component: _menuTree2.default,
+	            meta: {
+	                breadcrumbName: ['主页', '系统管理', '菜单管理'],
+	                breadcrumbUrl: ['/', '', '/manage/menu']
+	            }
+	        }, {
+	            path: 'menuCreate',
+	            component: _menuCreate2.default,
+	            meta: {
+	                breadcrumbName: ['主页', '系统管理', '角色管理', '菜单创建'],
+	                breadcrumbUrl: ['/', '', '/manage/menu', '/manage/menu/menuCreate']
+	            }
+	        }]
 	    }]
 	});
 
@@ -145,7 +231,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/*!
-	 * Vue.js v2.1.3
+	 * Vue.js v2.1.7
 	 * (c) 2014-2016 Evan You
 	 * Released under the MIT License.
 	 */
@@ -347,6 +433,11 @@
 	var no = function () { return false; };
 
 	/**
+	 * Return same value
+	 */
+	var identity = function (_) { return _; };
+
+	/**
 	 * Generate a static keys string from compiler modules.
 	 */
 	function genStaticKeys (modules) {
@@ -360,13 +451,15 @@
 	 * if they are plain objects, do they have the same shape?
 	 */
 	function looseEqual (a, b) {
-	  /* eslint-disable eqeqeq */
-	  return a == b || (
-	    isObject(a) && isObject(b)
-	      ? JSON.stringify(a) === JSON.stringify(b)
-	      : false
-	  )
-	  /* eslint-enable eqeqeq */
+	  var isObjectA = isObject(a);
+	  var isObjectB = isObject(b);
+	  if (isObjectA && isObjectB) {
+	    return JSON.stringify(a) === JSON.stringify(b)
+	  } else if (!isObjectA && !isObjectB) {
+	    return String(a) === String(b)
+	  } else {
+	    return false
+	  }
 	}
 
 	function looseIndexOf (arr, val) {
@@ -375,6 +468,98 @@
 	  }
 	  return -1
 	}
+
+	/*  */
+
+	var config = {
+	  /**
+	   * Option merge strategies (used in core/util/options)
+	   */
+	  optionMergeStrategies: Object.create(null),
+
+	  /**
+	   * Whether to suppress warnings.
+	   */
+	  silent: false,
+
+	  /**
+	   * Whether to enable devtools
+	   */
+	  devtools: "development" !== 'production',
+
+	  /**
+	   * Error handler for watcher errors
+	   */
+	  errorHandler: null,
+
+	  /**
+	   * Ignore certain custom elements
+	   */
+	  ignoredElements: [],
+
+	  /**
+	   * Custom user key aliases for v-on
+	   */
+	  keyCodes: Object.create(null),
+
+	  /**
+	   * Check if a tag is reserved so that it cannot be registered as a
+	   * component. This is platform-dependent and may be overwritten.
+	   */
+	  isReservedTag: no,
+
+	  /**
+	   * Check if a tag is an unknown element.
+	   * Platform-dependent.
+	   */
+	  isUnknownElement: no,
+
+	  /**
+	   * Get the namespace of an element
+	   */
+	  getTagNamespace: noop,
+
+	  /**
+	   * Parse the real tag name for the specific platform.
+	   */
+	  parsePlatformTagName: identity,
+
+	  /**
+	   * Check if an attribute must be bound using property, e.g. value
+	   * Platform-dependent.
+	   */
+	  mustUseProp: no,
+
+	  /**
+	   * List of asset types that a component can own.
+	   */
+	  _assetTypes: [
+	    'component',
+	    'directive',
+	    'filter'
+	  ],
+
+	  /**
+	   * List of lifecycle hooks.
+	   */
+	  _lifecycleHooks: [
+	    'beforeCreate',
+	    'created',
+	    'beforeMount',
+	    'mounted',
+	    'beforeUpdate',
+	    'updated',
+	    'beforeDestroy',
+	    'destroyed',
+	    'activated',
+	    'deactivated'
+	  ],
+
+	  /**
+	   * Max circular updates allowed in a scheduler flush cycle.
+	   */
+	  _maxUpdateCount: 100
+	};
 
 	/*  */
 
@@ -424,10 +609,7 @@
 	var hasProto = '__proto__' in {};
 
 	// Browser environment sniffing
-	var inBrowser =
-	  typeof window !== 'undefined' &&
-	  Object.prototype.toString.call(window) !== '[object Object]';
-
+	var inBrowser = typeof window !== 'undefined';
 	var UA = inBrowser && window.navigator.userAgent.toLowerCase();
 	var isIE = UA && /msie|trident/.test(UA);
 	var isIE9 = UA && UA.indexOf('msie 9.0') > 0;
@@ -486,8 +668,9 @@
 	  /* istanbul ignore if */
 	  if (typeof Promise !== 'undefined' && isNative(Promise)) {
 	    var p = Promise.resolve();
+	    var logError = function (err) { console.error(err); };
 	    timerFunc = function () {
-	      p.then(nextTickHandler);
+	      p.then(nextTickHandler).catch(logError);
 	      // in problematic UIWebViews, Promise.then doesn't completely break, but
 	      // it can get stuck in a weird state where callbacks are pushed into the
 	      // microtask queue but the queue isn't being flushed, until the browser
@@ -550,10 +733,10 @@
 	      this.set = Object.create(null);
 	    }
 	    Set.prototype.has = function has (key) {
-	      return this.set[key] !== undefined
+	      return this.set[key] === true
 	    };
 	    Set.prototype.add = function add (key) {
-	      this.set[key] = 1;
+	      this.set[key] = true;
 	    };
 	    Set.prototype.clear = function clear () {
 	      this.set = Object.create(null);
@@ -562,93 +745,6 @@
 	    return Set;
 	  }());
 	}
-
-	/*  */
-
-	var config = {
-	  /**
-	   * Option merge strategies (used in core/util/options)
-	   */
-	  optionMergeStrategies: Object.create(null),
-
-	  /**
-	   * Whether to suppress warnings.
-	   */
-	  silent: false,
-
-	  /**
-	   * Whether to enable devtools
-	   */
-	  devtools: "development" !== 'production',
-
-	  /**
-	   * Error handler for watcher errors
-	   */
-	  errorHandler: null,
-
-	  /**
-	   * Ignore certain custom elements
-	   */
-	  ignoredElements: null,
-
-	  /**
-	   * Custom user key aliases for v-on
-	   */
-	  keyCodes: Object.create(null),
-
-	  /**
-	   * Check if a tag is reserved so that it cannot be registered as a
-	   * component. This is platform-dependent and may be overwritten.
-	   */
-	  isReservedTag: no,
-
-	  /**
-	   * Check if a tag is an unknown element.
-	   * Platform-dependent.
-	   */
-	  isUnknownElement: no,
-
-	  /**
-	   * Get the namespace of an element
-	   */
-	  getTagNamespace: noop,
-
-	  /**
-	   * Check if an attribute must be bound using property, e.g. value
-	   * Platform-dependent.
-	   */
-	  mustUseProp: no,
-
-	  /**
-	   * List of asset types that a component can own.
-	   */
-	  _assetTypes: [
-	    'component',
-	    'directive',
-	    'filter'
-	  ],
-
-	  /**
-	   * List of lifecycle hooks.
-	   */
-	  _lifecycleHooks: [
-	    'beforeCreate',
-	    'created',
-	    'beforeMount',
-	    'mounted',
-	    'beforeUpdate',
-	    'updated',
-	    'beforeDestroy',
-	    'destroyed',
-	    'activated',
-	    'deactivated'
-	  ],
-
-	  /**
-	   * Max circular updates allowed in a scheduler flush cycle.
-	   */
-	  _maxUpdateCount: 100
-	};
 
 	var warn = noop;
 	var formatComponentName;
@@ -858,9 +954,8 @@
 	/**
 	 * Augment an target Object or Array by defining
 	 * hidden properties.
-	 *
-	 * istanbul ignore next
 	 */
+	/* istanbul ignore next */
 	function copyAugment (target, src, keys) {
 	  for (var i = 0, l = keys.length; i < l; i++) {
 	    var key = keys[i];
@@ -873,7 +968,7 @@
 	 * returns the new observer if successfully observed,
 	 * or the existing observer if the value already has one.
 	 */
-	function observe (value) {
+	function observe (value, asRootData) {
 	  if (!isObject(value)) {
 	    return
 	  }
@@ -888,6 +983,9 @@
 	    !value._isVue
 	  ) {
 	    ob = new Observer(value);
+	  }
+	  if (asRootData && ob) {
+	    ob.vmCount++;
 	  }
 	  return ob
 	}
@@ -955,7 +1053,7 @@
 	 * triggers change notification if the property doesn't
 	 * already exist.
 	 */
-	function set (obj, key, val) {
+	function set$1 (obj, key, val) {
 	  if (Array.isArray(obj)) {
 	    obj.length = Math.max(obj.length, key);
 	    obj.splice(key, 1, val);
@@ -1054,7 +1152,7 @@
 	    toVal = to[key];
 	    fromVal = from[key];
 	    if (!hasOwn(to, key)) {
-	      set(to, key, fromVal);
+	      set$1(to, key, fromVal);
 	    } else if (isPlainObject(toVal) && isPlainObject(fromVal)) {
 	      mergeData(toVal, fromVal);
 	    }
@@ -1326,11 +1424,14 @@
 	    return
 	  }
 	  var assets = options[type];
-	  var res = assets[id] ||
-	    // camelCase ID
-	    assets[camelize(id)] ||
-	    // Pascal Case ID
-	    assets[capitalize(camelize(id))];
+	  // check local registration variations first
+	  if (hasOwn(assets, id)) { return assets[id] }
+	  var camelizedId = camelize(id);
+	  if (hasOwn(assets, camelizedId)) { return assets[camelizedId] }
+	  var PascalCaseId = capitalize(camelizedId);
+	  if (hasOwn(assets, PascalCaseId)) { return assets[PascalCaseId] }
+	  // fallback to prototype chain
+	  var res = assets[id] || assets[camelizedId] || assets[PascalCaseId];
 	  if ("development" !== 'production' && warnMissing && !res) {
 	    warn(
 	      'Failed to resolve ' + type.slice(0, -1) + ': ' + id,
@@ -1352,10 +1453,10 @@
 	  var absent = !hasOwn(propsData, key);
 	  var value = propsData[key];
 	  // handle boolean props
-	  if (isBooleanType(prop.type)) {
+	  if (isType(Boolean, prop.type)) {
 	    if (absent && !hasOwn(prop, 'default')) {
 	      value = false;
-	    } else if (value === '' || value === hyphenate(key)) {
+	    } else if (!isType(String, prop.type) && (value === '' || value === hyphenate(key))) {
 	      value = true;
 	    }
 	  }
@@ -1496,12 +1597,12 @@
 	  return match && match[1]
 	}
 
-	function isBooleanType (fn) {
+	function isType (type, fn) {
 	  if (!Array.isArray(fn)) {
-	    return getType(fn) === 'Boolean'
+	    return getType(fn) === getType(type)
 	  }
 	  for (var i = 0, len = fn.length; i < len; i++) {
-	    if (getType(fn[i]) === 'Boolean') {
+	    if (getType(fn[i]) === getType(type)) {
 	      return true
 	    }
 	  }
@@ -1532,6 +1633,7 @@
 		toObject: toObject,
 		noop: noop,
 		no: no,
+		identity: identity,
 		genStaticKeys: genStaticKeys,
 		looseEqual: looseEqual,
 		looseIndexOf: looseIndexOf,
@@ -1581,6 +1683,21 @@
 	  var hasProxy =
 	    typeof Proxy !== 'undefined' &&
 	    Proxy.toString().match(/native code/);
+
+	  if (hasProxy) {
+	    var isBuiltInModifier = makeMap('stop,prevent,self,ctrl,shift,alt,meta');
+	    config.keyCodes = new Proxy(config.keyCodes, {
+	      set: function set (target, key, value) {
+	        if (isBuiltInModifier(key)) {
+	          warn(("Avoid overwriting built-in modifier in config.keyCodes: ." + key));
+	          return false
+	        } else {
+	          target[key] = value;
+	          return true
+	        }
+	      }
+	    });
+	  }
 
 	  var hasHandler = {
 	    has: function has (target, key) {
@@ -1730,16 +1847,17 @@
 	  cb,
 	  options
 	) {
-	  if ( options === void 0 ) options = {};
-
 	  this.vm = vm;
 	  vm._watchers.push(this);
 	  // options
-	  this.deep = !!options.deep;
-	  this.user = !!options.user;
-	  this.lazy = !!options.lazy;
-	  this.sync = !!options.sync;
-	  this.expression = expOrFn.toString();
+	  if (options) {
+	    this.deep = !!options.deep;
+	    this.user = !!options.user;
+	    this.lazy = !!options.lazy;
+	    this.sync = !!options.sync;
+	  } else {
+	    this.deep = this.user = this.lazy = this.sync = false;
+	  }
 	  this.cb = cb;
 	  this.id = ++uid$2; // uid for batching
 	  this.active = true;
@@ -1748,6 +1866,7 @@
 	  this.newDeps = [];
 	  this.depIds = new _Set();
 	  this.newDepIds = new _Set();
+	  this.expression = expOrFn.toString();
 	  // parse expression for getter
 	  if (typeof expOrFn === 'function') {
 	    this.getter = expOrFn;
@@ -1843,8 +1962,8 @@
 	Watcher.prototype.run = function run () {
 	  if (this.active) {
 	    var value = this.get();
-	      if (
-	        value !== this.value ||
+	    if (
+	      value !== this.value ||
 	      // Deep watchers and watchers on Object/Arrays should fire even
 	      // when the value is the same, because the value may
 	      // have mutated.
@@ -1858,14 +1977,14 @@
 	        try {
 	          this.cb.call(this.vm, value, oldValue);
 	        } catch (e) {
-	          "development" !== 'production' && warn(
-	            ("Error in watcher \"" + (this.expression) + "\""),
-	            this.vm
-	          );
 	          /* istanbul ignore else */
 	          if (config.errorHandler) {
 	            config.errorHandler.call(null, e, this.vm);
 	          } else {
+	            "development" !== 'production' && warn(
+	              ("Error in watcher \"" + (this.expression) + "\""),
+	              this.vm
+	            );
 	            throw e
 	          }
 	        }
@@ -1957,50 +2076,52 @@
 
 	function initState (vm) {
 	  vm._watchers = [];
-	  initProps(vm);
-	  initData(vm);
-	  initComputed(vm);
-	  initMethods(vm);
-	  initWatch(vm);
+	  var opts = vm.$options;
+	  if (opts.props) { initProps(vm, opts.props); }
+	  if (opts.methods) { initMethods(vm, opts.methods); }
+	  if (opts.data) {
+	    initData(vm);
+	  } else {
+	    observe(vm._data = {}, true /* asRootData */);
+	  }
+	  if (opts.computed) { initComputed(vm, opts.computed); }
+	  if (opts.watch) { initWatch(vm, opts.watch); }
 	}
 
-	var isReservedProp = makeMap('key,ref,slot');
+	var isReservedProp = { key: 1, ref: 1, slot: 1 };
 
-	function initProps (vm) {
-	  var props = vm.$options.props;
-	  if (props) {
-	    var propsData = vm.$options.propsData || {};
-	    var keys = vm.$options._propKeys = Object.keys(props);
-	    var isRoot = !vm.$parent;
-	    // root instance props should be converted
-	    observerState.shouldConvert = isRoot;
-	    var loop = function ( i ) {
-	      var key = keys[i];
-	      /* istanbul ignore else */
-	      {
-	        if (isReservedProp(key)) {
+	function initProps (vm, props) {
+	  var propsData = vm.$options.propsData || {};
+	  var keys = vm.$options._propKeys = Object.keys(props);
+	  var isRoot = !vm.$parent;
+	  // root instance props should be converted
+	  observerState.shouldConvert = isRoot;
+	  var loop = function ( i ) {
+	    var key = keys[i];
+	    /* istanbul ignore else */
+	    {
+	      if (isReservedProp[key]) {
+	        warn(
+	          ("\"" + key + "\" is a reserved attribute and cannot be used as component prop."),
+	          vm
+	        );
+	      }
+	      defineReactive$$1(vm, key, validateProp(key, props, propsData, vm), function () {
+	        if (vm.$parent && !observerState.isSettingProps) {
 	          warn(
-	            ("\"" + key + "\" is a reserved attribute and cannot be used as component prop."),
+	            "Avoid mutating a prop directly since the value will be " +
+	            "overwritten whenever the parent component re-renders. " +
+	            "Instead, use a data or computed property based on the prop's " +
+	            "value. Prop being mutated: \"" + key + "\"",
 	            vm
 	          );
 	        }
-	        defineReactive$$1(vm, key, validateProp(key, props, propsData, vm), function () {
-	          if (vm.$parent && !observerState.isSettingProps) {
-	            warn(
-	              "Avoid mutating a prop directly since the value will be " +
-	              "overwritten whenever the parent component re-renders. " +
-	              "Instead, use a data or computed property based on the prop's " +
-	              "value. Prop being mutated: \"" + key + "\"",
-	              vm
-	            );
-	          }
-	        });
-	      }
-	    };
+	      });
+	    }
+	  };
 
-	    for (var i = 0; i < keys.length; i++) loop( i );
-	    observerState.shouldConvert = true;
-	  }
+	  for (var i = 0; i < keys.length; i++) loop( i );
+	  observerState.shouldConvert = true;
 	}
 
 	function initData (vm) {
@@ -2011,7 +2132,8 @@
 	  if (!isPlainObject(data)) {
 	    data = {};
 	    "development" !== 'production' && warn(
-	      'data functions should return an object.',
+	      'data functions should return an object:\n' +
+	      'https://vuejs.org/v2/guide/components.html#data-Must-Be-a-Function',
 	      vm
 	    );
 	  }
@@ -2031,8 +2153,7 @@
 	    }
 	  }
 	  // observe data
-	  observe(data);
-	  data.__ob__ && data.__ob__.vmCount++;
+	  observe(data, true /* asRootData */);
 	}
 
 	var computedSharedDefinition = {
@@ -2042,26 +2163,23 @@
 	  set: noop
 	};
 
-	function initComputed (vm) {
-	  var computed = vm.$options.computed;
-	  if (computed) {
-	    for (var key in computed) {
-	      var userDef = computed[key];
-	      if (typeof userDef === 'function') {
-	        computedSharedDefinition.get = makeComputedGetter(userDef, vm);
-	        computedSharedDefinition.set = noop;
-	      } else {
-	        computedSharedDefinition.get = userDef.get
-	          ? userDef.cache !== false
-	            ? makeComputedGetter(userDef.get, vm)
-	            : bind$1(userDef.get, vm)
-	          : noop;
-	        computedSharedDefinition.set = userDef.set
-	          ? bind$1(userDef.set, vm)
-	          : noop;
-	      }
-	      Object.defineProperty(vm, key, computedSharedDefinition);
+	function initComputed (vm, computed) {
+	  for (var key in computed) {
+	    var userDef = computed[key];
+	    if (typeof userDef === 'function') {
+	      computedSharedDefinition.get = makeComputedGetter(userDef, vm);
+	      computedSharedDefinition.set = noop;
+	    } else {
+	      computedSharedDefinition.get = userDef.get
+	        ? userDef.cache !== false
+	          ? makeComputedGetter(userDef.get, vm)
+	          : bind$1(userDef.get, vm)
+	        : noop;
+	      computedSharedDefinition.set = userDef.set
+	        ? bind$1(userDef.set, vm)
+	        : noop;
 	    }
+	    Object.defineProperty(vm, key, computedSharedDefinition);
 	  }
 	}
 
@@ -2080,34 +2198,28 @@
 	  }
 	}
 
-	function initMethods (vm) {
-	  var methods = vm.$options.methods;
-	  if (methods) {
-	    for (var key in methods) {
-	      vm[key] = methods[key] == null ? noop : bind$1(methods[key], vm);
-	      if ("development" !== 'production' && methods[key] == null) {
-	        warn(
-	          "method \"" + key + "\" has an undefined value in the component definition. " +
-	          "Did you reference the function correctly?",
-	          vm
-	        );
-	      }
+	function initMethods (vm, methods) {
+	  for (var key in methods) {
+	    vm[key] = methods[key] == null ? noop : bind$1(methods[key], vm);
+	    if ("development" !== 'production' && methods[key] == null) {
+	      warn(
+	        "method \"" + key + "\" has an undefined value in the component definition. " +
+	        "Did you reference the function correctly?",
+	        vm
+	      );
 	    }
 	  }
 	}
 
-	function initWatch (vm) {
-	  var watch = vm.$options.watch;
-	  if (watch) {
-	    for (var key in watch) {
-	      var handler = watch[key];
-	      if (Array.isArray(handler)) {
-	        for (var i = 0; i < handler.length; i++) {
-	          createWatcher(vm, key, handler[i]);
-	        }
-	      } else {
-	        createWatcher(vm, key, handler);
+	function initWatch (vm, watch) {
+	  for (var key in watch) {
+	    var handler = watch[key];
+	    if (Array.isArray(handler)) {
+	      for (var i = 0; i < handler.length; i++) {
+	        createWatcher(vm, key, handler[i]);
 	      }
+	    } else {
+	      createWatcher(vm, key, handler);
 	    }
 	  }
 	}
@@ -2143,7 +2255,7 @@
 	  }
 	  Object.defineProperty(Vue.prototype, '$data', dataDef);
 
-	  Vue.prototype.$set = set;
+	  Vue.prototype.$set = set$1;
 	  Vue.prototype.$delete = del;
 
 	  Vue.prototype.$watch = function (
@@ -2187,7 +2299,6 @@
 	  children,
 	  text,
 	  elm,
-	  ns,
 	  context,
 	  componentOptions
 	) {
@@ -2196,7 +2307,7 @@
 	  this.children = children;
 	  this.text = text;
 	  this.elm = elm;
-	  this.ns = ns;
+	  this.ns = undefined;
 	  this.context = context;
 	  this.functionalContext = undefined;
 	  this.key = data && data.key;
@@ -2211,12 +2322,16 @@
 	  this.isOnce = false;
 	};
 
-	var emptyVNode = function () {
+	var createEmptyVNode = function () {
 	  var node = new VNode();
 	  node.text = '';
 	  node.isComment = true;
 	  return node
 	};
+
+	function createTextVNode (val) {
+	  return new VNode(undefined, undefined, undefined, String(val))
+	}
 
 	// optimized shallow clone
 	// used for static nodes and slot nodes because they may be reused across
@@ -2229,10 +2344,10 @@
 	    vnode.children,
 	    vnode.text,
 	    vnode.elm,
-	    vnode.ns,
 	    vnode.context,
 	    vnode.componentOptions
 	  );
+	  cloned.ns = vnode.ns;
 	  cloned.isStatic = vnode.isStatic;
 	  cloned.key = vnode.key;
 	  cloned.isCloned = true;
@@ -2275,7 +2390,7 @@
 	  remove$$1,
 	  vm
 	) {
-	  var name, cur, old, fn, event, capture;
+	  var name, cur, old, fn, event, capture, once;
 	  for (name in on) {
 	    cur = on[name];
 	    old = oldOn[name];
@@ -2285,10 +2400,12 @@
 	        vm
 	      );
 	    } else if (!old) {
-	      capture = name.charAt(0) === '!';
-	      event = capture ? name.slice(1) : name;
+	      once = name.charAt(0) === '~'; // Prefixed last, checked first
+	      event = once ? name.slice(1) : name;
+	      capture = event.charAt(0) === '!';
+	      event = capture ? event.slice(1) : event;
 	      if (Array.isArray(cur)) {
-	        add(event, (cur.invoker = arrInvoker(cur)), capture);
+	        add(event, (cur.invoker = arrInvoker(cur)), once, capture);
 	      } else {
 	        if (!cur.invoker) {
 	          fn = cur;
@@ -2296,7 +2413,7 @@
 	          cur.fn = fn;
 	          cur.invoker = fnInvoker(cur);
 	        }
-	        add(event, cur.invoker, capture);
+	        add(event, cur.invoker, once, capture);
 	      }
 	    } else if (cur !== old) {
 	      if (Array.isArray(old)) {
@@ -2311,8 +2428,11 @@
 	  }
 	  for (name in oldOn) {
 	    if (!on[name]) {
-	      event = name.charAt(0) === '!' ? name.slice(1) : name;
-	      remove$$1(event, oldOn[name].invoker);
+	      once = name.charAt(0) === '~'; // Prefixed last, checked first
+	      event = once ? name.slice(1) : name;
+	      capture = event.charAt(0) === '!';
+	      event = capture ? event.slice(1) : event;
+	      remove$$1(event, oldOn[name].invoker, capture);
 	    }
 	  }
 	}
@@ -2337,70 +2457,176 @@
 
 	/*  */
 
-	function normalizeChildren (
-	  children,
-	  ns,
-	  nestedIndex
-	) {
-	  if (isPrimitive(children)) {
-	    return [createTextVNode(children)]
-	  }
-	  if (Array.isArray(children)) {
-	    var res = [];
-	    for (var i = 0, l = children.length; i < l; i++) {
-	      var c = children[i];
-	      var last = res[res.length - 1];
-	      //  nested
-	      if (Array.isArray(c)) {
-	        res.push.apply(res, normalizeChildren(c, ns, ((nestedIndex || '') + "_" + i)));
-	      } else if (isPrimitive(c)) {
-	        if (last && last.text) {
-	          last.text += String(c);
-	        } else if (c !== '') {
-	          // convert primitive to vnode
-	          res.push(createTextVNode(c));
-	        }
-	      } else if (c instanceof VNode) {
-	        if (c.text && last && last.text) {
-	          if (!last.isCloned) {
-	            last.text += c.text;
-	          }
-	        } else {
-	          // inherit parent namespace
-	          if (ns) {
-	            applyNS(c, ns);
-	          }
-	          // default key for nested array children (likely generated by v-for)
-	          if (c.tag && c.key == null && nestedIndex != null) {
-	            c.key = "__vlist" + nestedIndex + "_" + i + "__";
-	          }
-	          res.push(c);
-	        }
-	      }
-	    }
-	    return res
-	  }
-	}
+	// The template compiler attempts to minimize the need for normalization by
+	// statically analyzing the template at compile time.
+	//
+	// For plain HTML markup, normalization can be completely skipped because the
+	// generated render function is guaranteed to return Array<VNode>. There are
+	// two cases where extra normalization is needed:
 
-	function createTextVNode (val) {
-	  return new VNode(undefined, undefined, undefined, String(val))
-	}
-
-	function applyNS (vnode, ns) {
-	  if (vnode.tag && !vnode.ns) {
-	    vnode.ns = ns;
-	    if (vnode.children) {
-	      for (var i = 0, l = vnode.children.length; i < l; i++) {
-	        applyNS(vnode.children[i], ns);
-	      }
+	// 1. When the children contains components - because a functional component
+	// may return an Array instead of a single root. In this case, just a simple
+	// nomralization is needed - if any child is an Array, we flatten the whole
+	// thing with Array.prototype.concat. It is guaranteed to be only 1-level deep
+	// because functional components already normalize their own children.
+	function simpleNormalizeChildren (children) {
+	  for (var i = 0; i < children.length; i++) {
+	    if (Array.isArray(children[i])) {
+	      return Array.prototype.concat.apply([], children)
 	    }
 	  }
+	  return children
+	}
+
+	// 2. When the children contains constrcuts that always generated nested Arrays,
+	// e.g. <template>, <slot>, v-for, or when the children is provided by user
+	// with hand-written render functions / JSX. In such cases a full normalization
+	// is needed to cater to all possible types of children values.
+	function normalizeChildren (children) {
+	  return isPrimitive(children)
+	    ? [createTextVNode(children)]
+	    : Array.isArray(children)
+	      ? normalizeArrayChildren(children)
+	      : undefined
+	}
+
+	function normalizeArrayChildren (children, nestedIndex) {
+	  var res = [];
+	  var i, c, last;
+	  for (i = 0; i < children.length; i++) {
+	    c = children[i];
+	    if (c == null || typeof c === 'boolean') { continue }
+	    last = res[res.length - 1];
+	    //  nested
+	    if (Array.isArray(c)) {
+	      res.push.apply(res, normalizeArrayChildren(c, ((nestedIndex || '') + "_" + i)));
+	    } else if (isPrimitive(c)) {
+	      if (last && last.text) {
+	        last.text += String(c);
+	      } else if (c !== '') {
+	        // convert primitive to vnode
+	        res.push(createTextVNode(c));
+	      }
+	    } else {
+	      if (c.text && last && last.text) {
+	        res[res.length - 1] = createTextVNode(last.text + c.text);
+	      } else {
+	        // default key for nested array children (likely generated by v-for)
+	        if (c.tag && c.key == null && nestedIndex != null) {
+	          c.key = "__vlist" + nestedIndex + "_" + i + "__";
+	        }
+	        res.push(c);
+	      }
+	    }
+	  }
+	  return res
 	}
 
 	/*  */
 
 	function getFirstComponentChild (children) {
 	  return children && children.filter(function (c) { return c && c.componentOptions; })[0]
+	}
+
+	/*  */
+
+	function initEvents (vm) {
+	  vm._events = Object.create(null);
+	  vm._hasHookEvent = false;
+	  // init parent attached events
+	  var listeners = vm.$options._parentListeners;
+	  if (listeners) {
+	    updateComponentListeners(vm, listeners);
+	  }
+	}
+
+	var target;
+
+	function add$1 (event, fn, once) {
+	  if (once) {
+	    target.$once(event, fn);
+	  } else {
+	    target.$on(event, fn);
+	  }
+	}
+
+	function remove$2 (event, fn) {
+	  target.$off(event, fn);
+	}
+
+	function updateComponentListeners (
+	  vm,
+	  listeners,
+	  oldListeners
+	) {
+	  target = vm;
+	  updateListeners(listeners, oldListeners || {}, add$1, remove$2, vm);
+	}
+
+	function eventsMixin (Vue) {
+	  var hookRE = /^hook:/;
+	  Vue.prototype.$on = function (event, fn) {
+	    var vm = this;(vm._events[event] || (vm._events[event] = [])).push(fn);
+	    // optimize hook:event cost by using a boolean flag marked at registration
+	    // instead of a hash lookup
+	    if (hookRE.test(event)) {
+	      vm._hasHookEvent = true;
+	    }
+	    return vm
+	  };
+
+	  Vue.prototype.$once = function (event, fn) {
+	    var vm = this;
+	    function on () {
+	      vm.$off(event, on);
+	      fn.apply(vm, arguments);
+	    }
+	    on.fn = fn;
+	    vm.$on(event, on);
+	    return vm
+	  };
+
+	  Vue.prototype.$off = function (event, fn) {
+	    var vm = this;
+	    // all
+	    if (!arguments.length) {
+	      vm._events = Object.create(null);
+	      return vm
+	    }
+	    // specific event
+	    var cbs = vm._events[event];
+	    if (!cbs) {
+	      return vm
+	    }
+	    if (arguments.length === 1) {
+	      vm._events[event] = null;
+	      return vm
+	    }
+	    // specific handler
+	    var cb;
+	    var i = cbs.length;
+	    while (i--) {
+	      cb = cbs[i];
+	      if (cb === fn || cb.fn === fn) {
+	        cbs.splice(i, 1);
+	        break
+	      }
+	    }
+	    return vm
+	  };
+
+	  Vue.prototype.$emit = function (event) {
+	    var vm = this;
+	    var cbs = vm._events[event];
+	    if (cbs) {
+	      cbs = cbs.length > 1 ? toArray(cbs) : cbs;
+	      var args = toArray(arguments, 1);
+	      for (var i = 0, l = cbs.length; i < l; i++) {
+	        cbs[i].apply(vm, args);
+	      }
+	    }
+	    return vm
+	  };
 	}
 
 	/*  */
@@ -2440,7 +2666,7 @@
 	    var vm = this;
 	    vm.$el = el;
 	    if (!vm.$options.render) {
-	      vm.$options.render = emptyVNode;
+	      vm.$options.render = createEmptyVNode;
 	      {
 	        /* istanbul ignore if */
 	        if (vm.$options.template && vm.$options.template.charAt(0) !== '#') {
@@ -2478,15 +2704,21 @@
 	      callHook(vm, 'beforeUpdate');
 	    }
 	    var prevEl = vm.$el;
+	    var prevVnode = vm._vnode;
 	    var prevActiveInstance = activeInstance;
 	    activeInstance = vm;
-	    var prevVnode = vm._vnode;
 	    vm._vnode = vnode;
+	    // Vue.prototype.__patch__ is injected in entry points
+	    // based on the rendering backend used.
 	    if (!prevVnode) {
-	      // Vue.prototype.__patch__ is injected in entry points
-	      // based on the rendering backend used.
-	      vm.$el = vm.__patch__(vm.$el, vnode, hydrating);
+	      // initial render
+	      vm.$el = vm.__patch__(
+	        vm.$el, vnode, hydrating, false /* removeOnly */,
+	        vm.$options._parentElm,
+	        vm.$options._refElm
+	      );
 	    } else {
+	      // updates
 	      vm.$el = vm.__patch__(prevVnode, vnode);
 	    }
 	    activeInstance = prevActiveInstance;
@@ -2541,11 +2773,11 @@
 	    if (listeners) {
 	      var oldListeners = vm.$options._parentListeners;
 	      vm.$options._parentListeners = listeners;
-	      vm._updateListeners(listeners, oldListeners);
+	      updateComponentListeners(vm, listeners, oldListeners);
 	    }
 	    // resolve slots + force update if has children
 	    if (hasChildren) {
-	      vm.$slots = resolveSlots(renderChildren, vm._renderContext);
+	      vm.$slots = resolveSlots(renderChildren, parentVnode.context);
 	      vm.$forceUpdate();
 	    }
 	  };
@@ -2603,7 +2835,9 @@
 	      handlers[i].call(vm);
 	    }
 	  }
-	  vm.$emit('hook:' + hook);
+	  if (vm._hasHookEvent) {
+	    vm.$emit('hook:' + hook);
+	  }
 	}
 
 	/*  */
@@ -2685,7 +2919,7 @@
 	  var name = Ctor.options.name || tag;
 	  var vnode = new VNode(
 	    ("vue-component-" + (Ctor.cid) + (name ? ("-" + name) : '')),
-	    data, undefined, undefined, undefined, undefined, context,
+	    data, undefined, undefined, undefined, context,
 	    { Ctor: Ctor, propsData: propsData, listeners: listeners, tag: tag, children: children }
 	  );
 	  return vnode
@@ -2705,19 +2939,17 @@
 	      props[key] = validateProp(key, propOptions, propsData);
 	    }
 	  }
-	  var vnode = Ctor.options.render.call(
-	    null,
-	    // ensure the createElement function in functional components
-	    // gets a unique context - this is necessary for correct named slot check
-	    bind$1(createElement, { _self: Object.create(context) }),
-	    {
-	      props: props,
-	      data: data,
-	      parent: context,
-	      children: normalizeChildren(children),
-	      slots: function () { return resolveSlots(children, context); }
-	    }
-	  );
+	  // ensure the createElement function in functional components
+	  // gets a unique context - this is necessary for correct named slot check
+	  var _context = Object.create(context);
+	  var h = function (a, b, c, d) { return createElement(_context, a, b, c, d, true); };
+	  var vnode = Ctor.options.render.call(null, h, {
+	    props: props,
+	    data: data,
+	    parent: context,
+	    children: children,
+	    slots: function () { return resolveSlots(children, context); }
+	  });
 	  if (vnode instanceof VNode) {
 	    vnode.functionalContext = context;
 	    if (data.slot) {
@@ -2729,7 +2961,9 @@
 
 	function createComponentInstanceForVnode (
 	  vnode, // we know it's MountedComponentVNode but flow doesn't
-	  parent // activeInstance in lifecycle state
+	  parent, // activeInstance in lifecycle state
+	  parentElm,
+	  refElm
 	) {
 	  var vnodeComponentOptions = vnode.componentOptions;
 	  var options = {
@@ -2739,7 +2973,9 @@
 	    _componentTag: vnodeComponentOptions.tag,
 	    _parentVnode: vnode,
 	    _parentListeners: vnodeComponentOptions.listeners,
-	    _renderChildren: vnodeComponentOptions.children
+	    _renderChildren: vnodeComponentOptions.children,
+	    _parentElm: parentElm || null,
+	    _refElm: refElm || null
 	  };
 	  // check inline-template render functions
 	  var inlineTemplate = vnode.data.inlineTemplate;
@@ -2750,9 +2986,19 @@
 	  return new vnodeComponentOptions.Ctor(options)
 	}
 
-	function init (vnode, hydrating) {
+	function init (
+	  vnode,
+	  hydrating,
+	  parentElm,
+	  refElm
+	) {
 	  if (!vnode.child || vnode.child._isDestroyed) {
-	    var child = vnode.child = createComponentInstanceForVnode(vnode, activeInstance);
+	    var child = vnode.child = createComponentInstanceForVnode(
+	      vnode,
+	      activeInstance,
+	      parentElm,
+	      refElm
+	    );
 	    child.$mount(hydrating ? vnode.elm : undefined, hydrating);
 	  } else if (vnode.data.keepAlive) {
 	    // kept-alive components, treat as a patch
@@ -2905,37 +3151,43 @@
 	  }
 	}
 
-	function mergeHook$1 (a, b) {
-	  // since all hooks have at most two args, use fixed args
-	  // to avoid having to use fn.apply().
-	  return function (_, __) {
-	    a(_, __);
-	    b(_, __);
+	function mergeHook$1 (one, two) {
+	  return function (a, b, c, d) {
+	    one(a, b, c, d);
+	    two(a, b, c, d);
 	  }
 	}
 
 	/*  */
 
+	var SIMPLE_NORMALIZE = 1;
+	var ALWAYS_NORMALIZE = 2;
+
 	// wrapper function for providing a more flexible interface
 	// without getting yelled at by flow
 	function createElement (
+	  context,
 	  tag,
 	  data,
-	  children
+	  children,
+	  normalizationType,
+	  alwaysNormalize
 	) {
-	  if (data && (Array.isArray(data) || typeof data !== 'object')) {
+	  if (Array.isArray(data) || isPrimitive(data)) {
+	    normalizationType = children;
 	    children = data;
 	    data = undefined;
 	  }
-	  // make sure to use real instance instead of proxy as context
-	  return _createElement(this._self, tag, data, children)
+	  if (alwaysNormalize) { normalizationType = ALWAYS_NORMALIZE; }
+	  return _createElement(context, tag, data, children, normalizationType)
 	}
 
 	function _createElement (
 	  context,
 	  tag,
 	  data,
-	  children
+	  children,
+	  normalizationType
 	) {
 	  if (data && data.__ob__) {
 	    "development" !== 'production' && warn(
@@ -2943,11 +3195,11 @@
 	      'Always create fresh vnode data objects in each render!',
 	      context
 	    );
-	    return
+	    return createEmptyVNode()
 	  }
 	  if (!tag) {
 	    // in case of component :is set to falsy value
-	    return emptyVNode()
+	    return createEmptyVNode()
 	  }
 	  // support single function children as default scoped slot
 	  if (Array.isArray(children) &&
@@ -2956,31 +3208,58 @@
 	    data.scopedSlots = { default: children[0] };
 	    children.length = 0;
 	  }
+	  if (normalizationType === ALWAYS_NORMALIZE) {
+	    children = normalizeChildren(children);
+	  } else if (normalizationType === SIMPLE_NORMALIZE) {
+	    children = simpleNormalizeChildren(children);
+	  }
+	  var vnode, ns;
 	  if (typeof tag === 'string') {
 	    var Ctor;
-	    var ns = config.getTagNamespace(tag);
+	    ns = config.getTagNamespace(tag);
 	    if (config.isReservedTag(tag)) {
 	      // platform built-in elements
-	      return new VNode(
-	        tag, data, normalizeChildren(children, ns),
-	        undefined, undefined, ns, context
-	      )
+	      vnode = new VNode(
+	        config.parsePlatformTagName(tag), data, children,
+	        undefined, undefined, context
+	      );
 	    } else if ((Ctor = resolveAsset(context.$options, 'components', tag))) {
 	      // component
-	      return createComponent(Ctor, data, context, children, tag)
+	      vnode = createComponent(Ctor, data, context, children, tag);
 	    } else {
 	      // unknown or unlisted namespaced elements
 	      // check at runtime because it may get assigned a namespace when its
 	      // parent normalizes children
-	      var childNs = tag === 'foreignObject' ? 'xhtml' : ns;
-	      return new VNode(
-	        tag, data, normalizeChildren(children, childNs),
-	        undefined, undefined, ns, context
-	      )
+	      vnode = new VNode(
+	        tag, data, children,
+	        undefined, undefined, context
+	      );
 	    }
 	  } else {
 	    // direct component options / constructor
-	    return createComponent(tag, data, context, children)
+	    vnode = createComponent(tag, data, context, children);
+	  }
+	  if (vnode) {
+	    if (ns) { applyNS(vnode, ns); }
+	    return vnode
+	  } else {
+	    return createEmptyVNode()
+	  }
+	}
+
+	function applyNS (vnode, ns) {
+	  vnode.ns = ns;
+	  if (vnode.tag === 'foreignObject') {
+	    // use default namespace inside foreignObject
+	    return
+	  }
+	  if (vnode.children) {
+	    for (var i = 0, l = vnode.children.length; i < l; i++) {
+	      var child = vnode.children[i];
+	      if (child.tag && !child.ns) {
+	        applyNS(child, ns);
+	      }
+	    }
 	  }
 	}
 
@@ -2990,12 +3269,18 @@
 	  vm.$vnode = null; // the placeholder node in parent tree
 	  vm._vnode = null; // the root of the child tree
 	  vm._staticTrees = null;
-	  vm._renderContext = vm.$options._parentVnode && vm.$options._parentVnode.context;
-	  vm.$slots = resolveSlots(vm.$options._renderChildren, vm._renderContext);
+	  var parentVnode = vm.$options._parentVnode;
+	  var renderContext = parentVnode && parentVnode.context;
+	  vm.$slots = resolveSlots(vm.$options._renderChildren, renderContext);
 	  vm.$scopedSlots = {};
-	  // bind the public createElement fn to this instance
+	  // bind the createElement fn to this instance
 	  // so that we get proper render context inside it.
-	  vm.$createElement = bind$1(createElement, vm);
+	  // args order: tag, data, children, normalizationType, alwaysNormalize
+	  // internal version is used by render functions compiled from templates
+	  vm._c = function (a, b, c, d) { return createElement(vm, a, b, c, d, false); };
+	  // normalization is always applied for the public version, used in
+	  // user-written render functions.
+	  vm.$createElement = function (a, b, c, d) { return createElement(vm, a, b, c, d, true); };
 	  if (vm.$options.el) {
 	    vm.$mount(vm.$options.el);
 	  }
@@ -3035,18 +3320,14 @@
 	    try {
 	      vnode = render.call(vm._renderProxy, vm.$createElement);
 	    } catch (e) {
-	      {
-	        warn(("Error when rendering " + (formatComponentName(vm)) + ":"));
-	      }
 	      /* istanbul ignore else */
 	      if (config.errorHandler) {
 	        config.errorHandler.call(null, e, vm);
 	      } else {
-	        if (isServerRendering()) {
-	          throw e
-	        } else {
-	          console.error(e);
+	        {
+	          warn(("Error when rendering " + (formatComponentName(vm)) + ":"));
 	        }
+	        throw e
 	      }
 	      // return previous vnode to prevent render error causing blank component
 	      vnode = vm._vnode;
@@ -3060,21 +3341,21 @@
 	          vm
 	        );
 	      }
-	      vnode = emptyVNode();
+	      vnode = createEmptyVNode();
 	    }
 	    // set parent
 	    vnode.parent = _parentVnode;
 	    return vnode
 	  };
 
-	  // shorthands used in render functions
-	  Vue.prototype._h = createElement;
 	  // toString for mustaches
 	  Vue.prototype._s = _toString;
+	  // convert text to vnode
+	  Vue.prototype._v = createTextVNode;
 	  // number conversion
 	  Vue.prototype._n = toNumber;
 	  // empty vnode
-	  Vue.prototype._e = emptyVNode;
+	  Vue.prototype._e = createEmptyVNode;
 	  // loose equal
 	  Vue.prototype._q = looseEqual;
 	  // loose indexOf
@@ -3128,7 +3409,6 @@
 	  }
 
 	  // filter resolution helper
-	  var identity = function (_) { return _; };
 	  Vue.prototype._f = function resolveFilter (id) {
 	    return resolveAsset(this.$options, 'filters', id, true) || identity
 	  };
@@ -3139,7 +3419,7 @@
 	    render
 	  ) {
 	    var ret, i, l, keys, key;
-	    if (Array.isArray(val)) {
+	    if (Array.isArray(val) || typeof val === 'string') {
 	      ret = new Array(val.length);
 	      for (i = 0, l = val.length; i < l; i++) {
 	        ret[i] = render(val[i], i);
@@ -3164,11 +3444,16 @@
 	  Vue.prototype._t = function (
 	    name,
 	    fallback,
-	    props
+	    props,
+	    bindObject
 	  ) {
 	    var scopedSlotFn = this.$scopedSlots[name];
 	    if (scopedSlotFn) { // scoped slot
-	      return scopedSlotFn(props || {}) || fallback
+	      props = props || {};
+	      if (bindObject) {
+	        extend(props, bindObject);
+	      }
+	      return scopedSlotFn(props) || fallback
 	    } else {
 	      var slotNodes = this.$slots[name];
 	      // warn duplicate slot usage
@@ -3216,21 +3501,29 @@
 	    return data
 	  };
 
-	  // expose v-on keyCodes
-	  Vue.prototype._k = function getKeyCodes (key) {
-	    return config.keyCodes[key]
+	  // check v-on keyCodes
+	  Vue.prototype._k = function checkKeyCodes (
+	    eventKeyCode,
+	    key,
+	    builtInAlias
+	  ) {
+	    var keyCodes = config.keyCodes[key] || builtInAlias;
+	    if (Array.isArray(keyCodes)) {
+	      return keyCodes.indexOf(eventKeyCode) === -1
+	    } else {
+	      return keyCodes !== eventKeyCode
+	    }
 	  };
 	}
 
 	function resolveSlots (
-	  renderChildren,
+	  children,
 	  context
 	) {
 	  var slots = {};
-	  if (!renderChildren) {
+	  if (!children) {
 	    return slots
 	  }
-	  var children = normalizeChildren(renderChildren) || [];
 	  var defaultSlot = [];
 	  var name, child;
 	  for (var i = 0, l = children.length; i < l; i++) {
@@ -3257,82 +3550,6 @@
 	    slots.default = defaultSlot;
 	  }
 	  return slots
-	}
-
-	/*  */
-
-	function initEvents (vm) {
-	  vm._events = Object.create(null);
-	  // init parent attached events
-	  var listeners = vm.$options._parentListeners;
-	  var on = bind$1(vm.$on, vm);
-	  var off = bind$1(vm.$off, vm);
-	  vm._updateListeners = function (listeners, oldListeners) {
-	    updateListeners(listeners, oldListeners || {}, on, off, vm);
-	  };
-	  if (listeners) {
-	    vm._updateListeners(listeners);
-	  }
-	}
-
-	function eventsMixin (Vue) {
-	  Vue.prototype.$on = function (event, fn) {
-	    var vm = this;(vm._events[event] || (vm._events[event] = [])).push(fn);
-	    return vm
-	  };
-
-	  Vue.prototype.$once = function (event, fn) {
-	    var vm = this;
-	    function on () {
-	      vm.$off(event, on);
-	      fn.apply(vm, arguments);
-	    }
-	    on.fn = fn;
-	    vm.$on(event, on);
-	    return vm
-	  };
-
-	  Vue.prototype.$off = function (event, fn) {
-	    var vm = this;
-	    // all
-	    if (!arguments.length) {
-	      vm._events = Object.create(null);
-	      return vm
-	    }
-	    // specific event
-	    var cbs = vm._events[event];
-	    if (!cbs) {
-	      return vm
-	    }
-	    if (arguments.length === 1) {
-	      vm._events[event] = null;
-	      return vm
-	    }
-	    // specific handler
-	    var cb;
-	    var i = cbs.length;
-	    while (i--) {
-	      cb = cbs[i];
-	      if (cb === fn || cb.fn === fn) {
-	        cbs.splice(i, 1);
-	        break
-	      }
-	    }
-	    return vm
-	  };
-
-	  Vue.prototype.$emit = function (event) {
-	    var vm = this;
-	    var cbs = vm._events[event];
-	    if (cbs) {
-	      cbs = cbs.length > 1 ? toArray(cbs) : cbs;
-	      var args = toArray(arguments, 1);
-	      for (var i = 0, l = cbs.length; i < l; i++) {
-	        cbs[i].apply(vm, args);
-	      }
-	    }
-	    return vm
-	  };
 	}
 
 	/*  */
@@ -3383,6 +3600,8 @@
 	  opts._parentListeners = options._parentListeners;
 	  opts._renderChildren = options._renderChildren;
 	  opts._componentTag = options._componentTag;
+	  opts._parentElm = options._parentElm;
+	  opts._refElm = options._refElm;
 	  if (options.render) {
 	    opts.render = options.render;
 	    opts.staticRenderFns = options.staticRenderFns;
@@ -3480,7 +3699,8 @@
 	      if (!/^[a-zA-Z][\w-]*$/.test(name)) {
 	        warn(
 	          'Invalid component name: "' + name + '". Component names ' +
-	          'can only contain alphanumeric characaters and the hyphen.'
+	          'can only contain alphanumeric characters and the hyphen, ' +
+	          'and must start with a letter.'
 	        );
 	      }
 	    }
@@ -3634,7 +3854,7 @@
 	  }
 	  Object.defineProperty(Vue, 'config', configDef);
 	  Vue.util = util;
-	  Vue.set = set;
+	  Vue.set = set$1;
 	  Vue.delete = del;
 	  Vue.nextTick = nextTick;
 
@@ -3661,14 +3881,15 @@
 	  get: isServerRendering
 	});
 
-	Vue$3.version = '2.1.3';
+	Vue$3.version = '2.1.7';
 
 	/*  */
 
 	// attributes that should be using props for binding
+	var acceptValue = makeMap('input,textarea,option,select');
 	var mustUseProp = function (tag, attr) {
 	  return (
-	    (attr === 'value' && (tag === 'input' || tag === 'textarea' || tag === 'option')) ||
+	    (attr === 'value' && acceptValue(tag)) ||
 	    (attr === 'selected' && tag === 'option') ||
 	    (attr === 'checked' && tag === 'input') ||
 	    (attr === 'muted' && tag === 'video')
@@ -3685,24 +3906,6 @@
 	  'required,reversed,scoped,seamless,selected,sortable,translate,' +
 	  'truespeed,typemustmatch,visible'
 	);
-
-	var isAttr = makeMap(
-	  'accept,accept-charset,accesskey,action,align,alt,async,autocomplete,' +
-	  'autofocus,autoplay,autosave,bgcolor,border,buffered,challenge,charset,' +
-	  'checked,cite,class,code,codebase,color,cols,colspan,content,http-equiv,' +
-	  'name,contenteditable,contextmenu,controls,coords,data,datetime,default,' +
-	  'defer,dir,dirname,disabled,download,draggable,dropzone,enctype,method,for,' +
-	  'form,formaction,headers,<th>,height,hidden,high,href,hreflang,http-equiv,' +
-	  'icon,id,ismap,itemprop,keytype,kind,label,lang,language,list,loop,low,' +
-	  'manifest,max,maxlength,media,method,GET,POST,min,multiple,email,file,' +
-	  'muted,name,novalidate,open,optimum,pattern,ping,placeholder,poster,' +
-	  'preload,radiogroup,readonly,rel,required,reversed,rows,rowspan,sandbox,' +
-	  'scope,scoped,seamless,selected,shape,size,type,text,password,sizes,span,' +
-	  'spellcheck,src,srcdoc,srclang,srcset,start,step,style,summary,tabindex,' +
-	  'target,title,type,usemap,value,width,wrap'
-	);
-
-
 
 	var xlinkNS = 'http://www.w3.org/1999/xlink';
 
@@ -3794,8 +3997,7 @@
 
 	var namespaceMap = {
 	  svg: 'http://www.w3.org/2000/svg',
-	  math: 'http://www.w3.org/1998/Math/MathML',
-	  xhtml: 'http://www.w3.org/1999/xhtml'
+	  math: 'http://www.w3.org/1998/Math/MathML'
 	};
 
 	var isHTMLTag = makeMap(
@@ -3812,34 +4014,10 @@
 	  'content,element,shadow,template'
 	);
 
-	var isUnaryTag = makeMap(
-	  'area,base,br,col,embed,frame,hr,img,input,isindex,keygen,' +
-	  'link,meta,param,source,track,wbr',
-	  true
-	);
-
-	// Elements that you can, intentionally, leave open
-	// (and which close themselves)
-	var canBeLeftOpenTag = makeMap(
-	  'colgroup,dd,dt,li,options,p,td,tfoot,th,thead,tr,source',
-	  true
-	);
-
-	// HTML5 tags https://html.spec.whatwg.org/multipage/indices.html#elements-3
-	// Phrasing Content https://html.spec.whatwg.org/multipage/dom.html#phrasing-content
-	var isNonPhrasingTag = makeMap(
-	  'address,article,aside,base,blockquote,body,caption,col,colgroup,dd,' +
-	  'details,dialog,div,dl,dt,fieldset,figcaption,figure,footer,form,' +
-	  'h1,h2,h3,h4,h5,h6,head,header,hgroup,hr,html,legend,li,menuitem,meta,' +
-	  'optgroup,option,param,rp,rt,source,style,summary,tbody,td,tfoot,th,thead,' +
-	  'title,tr,track',
-	  true
-	);
-
 	// this map is intentionally selective, only covering SVG elements that may
 	// contain child elements.
 	var isSVG = makeMap(
-	  'svg,animate,circle,clippath,cursor,defs,desc,ellipse,filter,font,' +
+	  'svg,animate,circle,clippath,cursor,defs,desc,ellipse,filter,' +
 	  'font-face,g,glyph,image,line,marker,mask,missing-glyph,path,pattern,' +
 	  'polygon,polyline,rect,switch,symbol,text,textpath,tspan,use,view',
 	  true
@@ -3960,10 +4138,6 @@
 	  node.textContent = text;
 	}
 
-	function childNodes (node) {
-	  return node.childNodes
-	}
-
 	function setAttribute (node, key, val) {
 	  node.setAttribute(key, val);
 	}
@@ -3981,7 +4155,6 @@
 		nextSibling: nextSibling,
 		tagName: tagName,
 		setTextContent: setTextContent,
-		childNodes: childNodes,
 		setAttribute: setAttribute
 	});
 
@@ -4044,7 +4217,7 @@
 
 	var emptyNode = new VNode('', {}, []);
 
-	var hooks$1 = ['create', 'update', 'remove', 'destroy'];
+	var hooks$1 = ['create', 'activate', 'update', 'remove', 'destroy'];
 
 	function isUndef (s) {
 	  return s == null
@@ -4094,43 +4267,40 @@
 	  function createRmCb (childElm, listeners) {
 	    function remove$$1 () {
 	      if (--remove$$1.listeners === 0) {
-	        removeElement(childElm);
+	        removeNode(childElm);
 	      }
 	    }
 	    remove$$1.listeners = listeners;
 	    return remove$$1
 	  }
 
-	  function removeElement (el) {
+	  function removeNode (el) {
 	    var parent = nodeOps.parentNode(el);
-	    // element may have already been removed due to v-html
+	    // element may have already been removed due to v-html / v-text
 	    if (parent) {
 	      nodeOps.removeChild(parent, el);
 	    }
 	  }
 
-	  function createElm (vnode, insertedVnodeQueue, nested) {
-	    var i;
-	    var data = vnode.data;
-	    vnode.isRootInsert = !nested;
-	    if (isDef(data)) {
-	      if (isDef(i = data.hook) && isDef(i = i.init)) { i(vnode); }
-	      // after calling the init hook, if the vnode is a child component
-	      // it should've created a child instance and mounted it. the child
-	      // component also has set the placeholder vnode's elm.
-	      // in that case we can just return the element and be done.
-	      if (isDef(i = vnode.child)) {
-	        initComponent(vnode, insertedVnodeQueue);
-	        return vnode.elm
-	      }
+	  var inPre = 0;
+	  function createElm (vnode, insertedVnodeQueue, parentElm, refElm, nested) {
+	    vnode.isRootInsert = !nested; // for transition enter check
+	    if (createComponent(vnode, insertedVnodeQueue, parentElm, refElm)) {
+	      return
 	    }
+
+	    var data = vnode.data;
 	    var children = vnode.children;
 	    var tag = vnode.tag;
 	    if (isDef(tag)) {
 	      {
+	        if (data && data.pre) {
+	          inPre++;
+	        }
 	        if (
+	          !inPre &&
 	          !vnode.ns &&
-	          !(config.ignoredElements && config.ignoredElements.indexOf(tag) > -1) &&
+	          !(config.ignoredElements.length && config.ignoredElements.indexOf(tag) > -1) &&
 	          config.isUnknownElement(tag)
 	        ) {
 	          warn(
@@ -4145,22 +4315,85 @@
 	        ? nodeOps.createElementNS(vnode.ns, tag)
 	        : nodeOps.createElement(tag, vnode);
 	      setScope(vnode);
-	      createChildren(vnode, children, insertedVnodeQueue);
-	      if (isDef(data)) {
-	        invokeCreateHooks(vnode, insertedVnodeQueue);
+
+	      /* istanbul ignore if */
+	      {
+	        createChildren(vnode, children, insertedVnodeQueue);
+	        if (isDef(data)) {
+	          invokeCreateHooks(vnode, insertedVnodeQueue);
+	        }
+	        insert(parentElm, vnode.elm, refElm);
+	      }
+
+	      if ("development" !== 'production' && data && data.pre) {
+	        inPre--;
 	      }
 	    } else if (vnode.isComment) {
 	      vnode.elm = nodeOps.createComment(vnode.text);
+	      insert(parentElm, vnode.elm, refElm);
 	    } else {
 	      vnode.elm = nodeOps.createTextNode(vnode.text);
+	      insert(parentElm, vnode.elm, refElm);
 	    }
-	    return vnode.elm
+	  }
+
+	  function createComponent (vnode, insertedVnodeQueue, parentElm, refElm) {
+	    var i = vnode.data;
+	    if (isDef(i)) {
+	      var isReactivated = isDef(vnode.child) && i.keepAlive;
+	      if (isDef(i = i.hook) && isDef(i = i.init)) {
+	        i(vnode, false /* hydrating */, parentElm, refElm);
+	      }
+	      // after calling the init hook, if the vnode is a child component
+	      // it should've created a child instance and mounted it. the child
+	      // component also has set the placeholder vnode's elm.
+	      // in that case we can just return the element and be done.
+	      if (isDef(vnode.child)) {
+	        initComponent(vnode, insertedVnodeQueue);
+	        if (isReactivated) {
+	          reactivateComponent(vnode, insertedVnodeQueue, parentElm, refElm);
+	        }
+	        return true
+	      }
+	    }
+	  }
+
+	  function reactivateComponent (vnode, insertedVnodeQueue, parentElm, refElm) {
+	    var i;
+	    // hack for #4339: a reactivated component with inner transition
+	    // does not trigger because the inner node's created hooks are not called
+	    // again. It's not ideal to involve module-specific logic in here but
+	    // there doesn't seem to be a better way to do it.
+	    var innerNode = vnode;
+	    while (innerNode.child) {
+	      innerNode = innerNode.child._vnode;
+	      if (isDef(i = innerNode.data) && isDef(i = i.transition)) {
+	        for (i = 0; i < cbs.activate.length; ++i) {
+	          cbs.activate[i](emptyNode, innerNode);
+	        }
+	        insertedVnodeQueue.push(innerNode);
+	        break
+	      }
+	    }
+	    // unlike a newly created component,
+	    // a reactivated keep-alive component doesn't insert itself
+	    insert(parentElm, vnode.elm, refElm);
+	  }
+
+	  function insert (parent, elm, ref) {
+	    if (parent) {
+	      if (ref) {
+	        nodeOps.insertBefore(parent, elm, ref);
+	      } else {
+	        nodeOps.appendChild(parent, elm);
+	      }
+	    }
 	  }
 
 	  function createChildren (vnode, children, insertedVnodeQueue) {
 	    if (Array.isArray(children)) {
 	      for (var i = 0; i < children.length; ++i) {
-	        nodeOps.appendChild(vnode.elm, createElm(children[i], insertedVnodeQueue, true));
+	        createElm(children[i], insertedVnodeQueue, vnode.elm, null, true);
 	      }
 	    } else if (isPrimitive(vnode.text)) {
 	      nodeOps.appendChild(vnode.elm, nodeOps.createTextNode(vnode.text));
@@ -4217,9 +4450,9 @@
 	    }
 	  }
 
-	  function addVnodes (parentElm, before, vnodes, startIdx, endIdx, insertedVnodeQueue) {
+	  function addVnodes (parentElm, refElm, vnodes, startIdx, endIdx, insertedVnodeQueue) {
 	    for (; startIdx <= endIdx; ++startIdx) {
-	      nodeOps.insertBefore(parentElm, createElm(vnodes[startIdx], insertedVnodeQueue), before);
+	      createElm(vnodes[startIdx], insertedVnodeQueue, parentElm, refElm);
 	    }
 	  }
 
@@ -4245,7 +4478,7 @@
 	          removeAndInvokeRemoveHook(ch);
 	          invokeDestroyHook(ch);
 	        } else { // Text node
-	          nodeOps.removeChild(parentElm, ch.elm);
+	          removeNode(ch.elm);
 	        }
 	      }
 	    }
@@ -4275,7 +4508,7 @@
 	        rm();
 	      }
 	    } else {
-	      removeElement(vnode.elm);
+	      removeNode(vnode.elm);
 	    }
 	  }
 
@@ -4288,7 +4521,7 @@
 	    var newEndIdx = newCh.length - 1;
 	    var newStartVnode = newCh[0];
 	    var newEndVnode = newCh[newEndIdx];
-	    var oldKeyToIdx, idxInOld, elmToMove, before;
+	    var oldKeyToIdx, idxInOld, elmToMove, refElm;
 
 	    // removeOnly is a special flag used only by <transition-group>
 	    // to ensure removed elements stay in correct relative positions
@@ -4322,7 +4555,7 @@
 	        if (isUndef(oldKeyToIdx)) { oldKeyToIdx = createKeyToOldIdx(oldCh, oldStartIdx, oldEndIdx); }
 	        idxInOld = isDef(newStartVnode.key) ? oldKeyToIdx[newStartVnode.key] : null;
 	        if (isUndef(idxInOld)) { // New element
-	          nodeOps.insertBefore(parentElm, createElm(newStartVnode, insertedVnodeQueue), oldStartVnode.elm);
+	          createElm(newStartVnode, insertedVnodeQueue, parentElm, oldStartVnode.elm);
 	          newStartVnode = newCh[++newStartIdx];
 	        } else {
 	          elmToMove = oldCh[idxInOld];
@@ -4333,22 +4566,22 @@
 	              'Make sure each v-for item has a unique key.'
 	            );
 	          }
-	          if (elmToMove.tag !== newStartVnode.tag) {
-	            // same key but different element. treat as new element
-	            nodeOps.insertBefore(parentElm, createElm(newStartVnode, insertedVnodeQueue), oldStartVnode.elm);
-	            newStartVnode = newCh[++newStartIdx];
-	          } else {
+	          if (sameVnode(elmToMove, newStartVnode)) {
 	            patchVnode(elmToMove, newStartVnode, insertedVnodeQueue);
 	            oldCh[idxInOld] = undefined;
 	            canMove && nodeOps.insertBefore(parentElm, newStartVnode.elm, oldStartVnode.elm);
+	            newStartVnode = newCh[++newStartIdx];
+	          } else {
+	            // same key but different element. treat as new element
+	            createElm(newStartVnode, insertedVnodeQueue, parentElm, oldStartVnode.elm);
 	            newStartVnode = newCh[++newStartIdx];
 	          }
 	        }
 	      }
 	    }
 	    if (oldStartIdx > oldEndIdx) {
-	      before = isUndef(newCh[newEndIdx + 1]) ? null : newCh[newEndIdx + 1].elm;
-	      addVnodes(parentElm, before, newCh, newStartIdx, newEndIdx, insertedVnodeQueue);
+	      refElm = isUndef(newCh[newEndIdx + 1]) ? null : newCh[newEndIdx + 1].elm;
+	      addVnodes(parentElm, refElm, newCh, newStartIdx, newEndIdx, insertedVnodeQueue);
 	    } else if (newStartIdx > newEndIdx) {
 	      removeVnodes(parentElm, oldCh, oldStartIdx, oldEndIdx);
 	    }
@@ -4415,6 +4648,11 @@
 	  }
 
 	  var bailed = false;
+	  // list of modules that can skip create hook during hydration because they
+	  // are already rendered on the client or has no need for initialization
+	  var isRenderedModule = makeMap('attrs,style,class,staticClass,staticStyle,key');
+
+	  // Note: this is a browser-only function so we can assume elms are DOM nodes.
 	  function hydrate (elm, vnode, insertedVnodeQueue) {
 	    {
 	      if (!assertNodeMatch(elm, vnode)) {
@@ -4435,36 +4673,40 @@
 	    }
 	    if (isDef(tag)) {
 	      if (isDef(children)) {
-	        var childNodes = nodeOps.childNodes(elm);
 	        // empty element, allow client to pick up and populate children
-	        if (!childNodes.length) {
+	        if (!elm.hasChildNodes()) {
 	          createChildren(vnode, children, insertedVnodeQueue);
 	        } else {
 	          var childrenMatch = true;
-	          if (childNodes.length !== children.length) {
-	            childrenMatch = false;
-	          } else {
-	            for (var i$1 = 0; i$1 < children.length; i$1++) {
-	              if (!hydrate(childNodes[i$1], children[i$1], insertedVnodeQueue)) {
-	                childrenMatch = false;
-	                break
-	              }
+	          var childNode = elm.firstChild;
+	          for (var i$1 = 0; i$1 < children.length; i$1++) {
+	            if (!childNode || !hydrate(childNode, children[i$1], insertedVnodeQueue)) {
+	              childrenMatch = false;
+	              break
 	            }
+	            childNode = childNode.nextSibling;
 	          }
-	          if (!childrenMatch) {
+	          // if childNode is not null, it means the actual childNodes list is
+	          // longer than the virtual children list.
+	          if (!childrenMatch || childNode) {
 	            if ("development" !== 'production' &&
 	                typeof console !== 'undefined' &&
 	                !bailed) {
 	              bailed = true;
 	              console.warn('Parent: ', elm);
-	              console.warn('Mismatching childNodes vs. VNodes: ', childNodes, children);
+	              console.warn('Mismatching childNodes vs. VNodes: ', elm.childNodes, children);
 	            }
 	            return false
 	          }
 	        }
 	      }
 	      if (isDef(data)) {
-	        invokeCreateHooks(vnode, insertedVnodeQueue);
+	        for (var key in data) {
+	          if (!isRenderedModule(key)) {
+	            invokeCreateHooks(vnode, insertedVnodeQueue);
+	            break
+	          }
+	        }
 	      }
 	    }
 	    return true
@@ -4474,14 +4716,14 @@
 	    if (vnode.tag) {
 	      return (
 	        vnode.tag.indexOf('vue-component') === 0 ||
-	        vnode.tag.toLowerCase() === nodeOps.tagName(node).toLowerCase()
+	        vnode.tag.toLowerCase() === (node.tagName && node.tagName.toLowerCase())
 	      )
 	    } else {
 	      return _toString(vnode.text) === node.data
 	    }
 	  }
 
-	  return function patch (oldVnode, vnode, hydrating, removeOnly) {
+	  return function patch (oldVnode, vnode, hydrating, removeOnly, parentElm, refElm) {
 	    if (!vnode) {
 	      if (oldVnode) { invokeDestroyHook(oldVnode); }
 	      return
@@ -4492,12 +4734,13 @@
 	    var insertedVnodeQueue = [];
 
 	    if (!oldVnode) {
-	      // empty mount, create new root element
+	      // empty mount (likely as component), create new root element
 	      isInitialPatch = true;
-	      createElm(vnode, insertedVnodeQueue);
+	      createElm(vnode, insertedVnodeQueue, parentElm, refElm);
 	    } else {
 	      var isRealElement = isDef(oldVnode.nodeType);
 	      if (!isRealElement && sameVnode(oldVnode, vnode)) {
+	        // patch existing root node
 	        patchVnode(oldVnode, vnode, insertedVnodeQueue, removeOnly);
 	      } else {
 	        if (isRealElement) {
@@ -4526,14 +4769,14 @@
 	          // create an empty node and replace it
 	          oldVnode = emptyNodeAt(oldVnode);
 	        }
+	        // replacing existing element
 	        elm = oldVnode.elm;
 	        parent = nodeOps.parentNode(elm);
+	        createElm(vnode, insertedVnodeQueue, parent, nodeOps.nextSibling(elm));
 
-	        createElm(vnode, insertedVnodeQueue);
-
-	        // component root element replaced.
-	        // update parent placeholder node element, recursively
 	        if (vnode.parent) {
+	          // component root element replaced.
+	          // update parent placeholder node element, recursively
 	          var ancestor = vnode.parent;
 	          while (ancestor) {
 	            ancestor.elm = vnode.elm;
@@ -4547,7 +4790,6 @@
 	        }
 
 	        if (parent !== null) {
-	          nodeOps.insertBefore(parent, vnode.elm, nodeOps.nextSibling(elm));
 	          removeVnodes(parent, [oldVnode], 0, 0);
 	        } else if (isDef(oldVnode.tag)) {
 	          invokeDestroyHook(oldVnode);
@@ -4570,14 +4812,15 @@
 	  }
 	};
 
-	function updateDirectives (
-	  oldVnode,
-	  vnode
-	) {
-	  if (!oldVnode.data.directives && !vnode.data.directives) {
-	    return
+	function updateDirectives (oldVnode, vnode) {
+	  if (oldVnode.data.directives || vnode.data.directives) {
+	    _update(oldVnode, vnode);
 	  }
+	}
+
+	function _update (oldVnode, vnode) {
 	  var isCreate = oldVnode === emptyNode;
+	  var isDestroy = vnode === emptyNode;
 	  var oldDirs = normalizeDirectives$1(oldVnode.data.directives, oldVnode.context);
 	  var newDirs = normalizeDirectives$1(vnode.data.directives, vnode.context);
 
@@ -4606,9 +4849,9 @@
 
 	  if (dirsWithInsert.length) {
 	    var callInsert = function () {
-	      dirsWithInsert.forEach(function (dir) {
-	        callHook$1(dir, 'inserted', vnode, oldVnode);
-	      });
+	      for (var i = 0; i < dirsWithInsert.length; i++) {
+	        callHook$1(dirsWithInsert[i], 'inserted', vnode, oldVnode);
+	      }
 	    };
 	    if (isCreate) {
 	      mergeVNodeHook(vnode.data.hook || (vnode.data.hook = {}), 'insert', callInsert, 'dir-insert');
@@ -4619,9 +4862,9 @@
 
 	  if (dirsWithPostpatch.length) {
 	    mergeVNodeHook(vnode.data.hook || (vnode.data.hook = {}), 'postpatch', function () {
-	      dirsWithPostpatch.forEach(function (dir) {
-	        callHook$1(dir, 'componentUpdated', vnode, oldVnode);
-	      });
+	      for (var i = 0; i < dirsWithPostpatch.length; i++) {
+	        callHook$1(dirsWithPostpatch[i], 'componentUpdated', vnode, oldVnode);
+	      }
 	    }, 'dir-postpatch');
 	  }
 
@@ -4629,7 +4872,7 @@
 	    for (key in oldDirs) {
 	      if (!newDirs[key]) {
 	        // no longer present, unbind
-	        callHook$1(oldDirs[key], 'unbind', oldVnode);
+	        callHook$1(oldDirs[key], 'unbind', oldVnode, oldVnode, isDestroy);
 	      }
 	    }
 	  }
@@ -4661,10 +4904,10 @@
 	  return dir.rawName || ((dir.name) + "." + (Object.keys(dir.modifiers || {}).join('.')))
 	}
 
-	function callHook$1 (dir, hook, vnode, oldVnode) {
+	function callHook$1 (dir, hook, vnode, oldVnode, isDestroy) {
 	  var fn = dir.def && dir.def[hook];
 	  if (fn) {
-	    fn(vnode.elm, dir, vnode, oldVnode);
+	    fn(vnode.elm, dir, vnode, oldVnode, isDestroy);
 	  }
 	}
 
@@ -4694,6 +4937,11 @@
 	    if (old !== cur) {
 	      setAttr(elm, key, cur);
 	    }
+	  }
+	  // #4391: in IE9, setting type can reset value for input[type=radio]
+	  /* istanbul ignore if */
+	  if (isIE9 && attrs.value !== oldAttrs.value) {
+	    setAttr(elm, 'value', attrs.value);
 	  }
 	  for (key in oldAttrs) {
 	    if (attrs[key] == null) {
@@ -4768,8 +5016,26 @@
 	  update: updateClass
 	};
 
-	// skip type checking this file because we need to attach private properties
-	// to elements
+	/*  */
+
+	var target$1;
+
+	function add$2 (event, handler, once, capture) {
+	  if (once) {
+	    var oldHandler = handler;
+	    handler = function (ev) {
+	      remove$3(event, handler, capture);
+	      arguments.length === 1
+	        ? oldHandler(ev)
+	        : oldHandler.apply(null, arguments);
+	    };
+	  }
+	  target$1.addEventListener(event, handler, capture);
+	}
+
+	function remove$3 (event, handler, capture) {
+	  target$1.removeEventListener(event, handler, capture);
+	}
 
 	function updateDOMListeners (oldVnode, vnode) {
 	  if (!oldVnode.data.on && !vnode.data.on) {
@@ -4777,13 +5043,8 @@
 	  }
 	  var on = vnode.data.on || {};
 	  var oldOn = oldVnode.data.on || {};
-	  var add = vnode.elm._v_add || (vnode.elm._v_add = function (event, handler, capture) {
-	    vnode.elm.addEventListener(event, handler, capture);
-	  });
-	  var remove = vnode.elm._v_remove || (vnode.elm._v_remove = function (event, handler) {
-	    vnode.elm.removeEventListener(event, handler);
-	  });
-	  updateListeners(on, oldOn, add, remove, vnode.context);
+	  target$1 = vnode.elm;
+	  updateListeners(on, oldOn, add$2, remove$3, vnode.context);
 	}
 
 	var events = {
@@ -4820,19 +5081,60 @@
 	      if (vnode.children) { vnode.children.length = 0; }
 	      if (cur === oldProps[key]) { continue }
 	    }
+	    // #4521: if a click event triggers update before the change event is
+	    // dispatched on a checkbox/radio input, the input's checked state will
+	    // be reset and fail to trigger another update.
+	    /* istanbul ignore next */
+	    if (key === 'checked' && !isDirty(elm, cur)) {
+	      continue
+	    }
 	    if (key === 'value') {
 	      // store value as _value as well since
 	      // non-string values will be stringified
 	      elm._value = cur;
 	      // avoid resetting cursor position when value is the same
 	      var strCur = cur == null ? '' : String(cur);
-	      if (elm.value !== strCur && !elm.composing) {
+	      if (shouldUpdateValue(elm, vnode, strCur)) {
 	        elm.value = strCur;
 	      }
 	    } else {
 	      elm[key] = cur;
 	    }
 	  }
+	}
+
+	// check platforms/web/util/attrs.js acceptValue
+
+
+	function shouldUpdateValue (
+	  elm,
+	  vnode,
+	  checkVal
+	) {
+	  if (!elm.composing && (
+	    vnode.tag === 'option' ||
+	    isDirty(elm, checkVal) ||
+	    isInputChanged(vnode, checkVal)
+	  )) {
+	    return true
+	  }
+	  return false
+	}
+
+	function isDirty (elm, checkVal) {
+	  return document.activeElement !== elm && elm.value !== checkVal
+	}
+
+	function isInputChanged (vnode, newVal) {
+	  var value = vnode.elm.value;
+	  var modifiers = vnode.elm._vModifiers; // injected by v-model runtime
+	  if ((modifiers && modifiers.number) || vnode.elm.type === 'number') {
+	    return toNumber(value) !== toNumber(newVal)
+	  }
+	  if (modifiers && modifiers.trim) {
+	    return value.trim() !== newVal.trim()
+	  }
+	  return value !== newVal
 	}
 
 	var domProps = {
@@ -4844,10 +5146,8 @@
 
 	var parseStyleText = cached(function (cssText) {
 	  var res = {};
-	  var hasBackground = cssText.indexOf('background') >= 0;
-	  // maybe with background-image: url(http://xxx) or base64 img
-	  var listDelimiter = hasBackground ? /;(?![^(]*\))/g : ';';
-	  var propertyDelimiter = hasBackground ? /:(.+)/ : ':';
+	  var listDelimiter = /;(?![^(]*\))/g;
+	  var propertyDelimiter = /:(.+)/;
 	  cssText.split(listDelimiter).forEach(function (item) {
 	    if (item) {
 	      var tmp = item.split(propertyDelimiter);
@@ -4912,10 +5212,13 @@
 	/*  */
 
 	var cssVarRE = /^--/;
+	var importantRE = /\s*!important$/;
 	var setProp = function (el, name, val) {
 	  /* istanbul ignore if */
 	  if (cssVarRE.test(name)) {
 	    el.style.setProperty(name, val);
+	  } else if (importantRE.test(val)) {
+	    el.style.setProperty(name, val.replace(importantRE, ''), 'important');
 	  } else {
 	    el.style[normalize(name)] = val;
 	  }
@@ -5178,7 +5481,7 @@
 
 	/*  */
 
-	function enter (vnode) {
+	function enter (vnode, toggleDisplay) {
 	  var el = vnode.elm;
 
 	  // call leave callback now
@@ -5216,10 +5519,12 @@
 	  // transition. One edge case to check is when the <transition> is placed
 	  // as the root node of a child component. In that case we need to check
 	  // <transition>'s parent for appear check.
+	  var context = activeInstance;
 	  var transitionNode = activeInstance.$vnode;
-	  var context = transitionNode && transitionNode.parent
-	    ? transitionNode.parent.context
-	    : activeInstance;
+	  while (transitionNode && transitionNode.parent) {
+	    transitionNode = transitionNode.parent;
+	    context = transitionNode.context;
+	  }
 
 	  var isAppear = !context._isMounted || !vnode.isRootInsert;
 
@@ -5261,7 +5566,10 @@
 	    mergeVNodeHook(vnode.data.hook || (vnode.data.hook = {}), 'insert', function () {
 	      var parent = el.parentNode;
 	      var pendingNode = parent && parent._pending && parent._pending[vnode.key];
-	      if (pendingNode && pendingNode.tag === vnode.tag && pendingNode.elm._leaveCb) {
+	      if (pendingNode &&
+	          pendingNode.context === vnode.context &&
+	          pendingNode.tag === vnode.tag &&
+	          pendingNode.elm._leaveCb) {
 	        pendingNode.elm._leaveCb();
 	      }
 	      enterHook && enterHook(el, cb);
@@ -5272,9 +5580,9 @@
 	  beforeEnterHook && beforeEnterHook(el);
 	  if (expectsCSS) {
 	    addTransitionClass(el, startClass);
-	    addTransitionClass(el, activeClass);
 	    nextFrame(function () {
 	      removeTransitionClass(el, startClass);
+	      addTransitionClass(el, activeClass);
 	      if (!cb.cancelled && !userWantsControl) {
 	        whenTransitionEnds(el, type, cb);
 	      }
@@ -5282,6 +5590,7 @@
 	  }
 
 	  if (vnode.data.show) {
+	    toggleDisplay && toggleDisplay();
 	    enterHook && enterHook(el, cb);
 	  }
 
@@ -5363,9 +5672,9 @@
 	    beforeLeave && beforeLeave(el);
 	    if (expectsCSS) {
 	      addTransitionClass(el, leaveClass);
-	      addTransitionClass(el, leaveActiveClass);
 	      nextFrame(function () {
 	        removeTransitionClass(el, leaveClass);
+	        addTransitionClass(el, leaveActiveClass);
 	        if (!cb.cancelled && !userWantsControl) {
 	          whenTransitionEnds(el, type, cb);
 	        }
@@ -5416,12 +5725,15 @@
 	  }
 	}
 
+	function _enter (_, vnode) {
+	  if (!vnode.data.show) {
+	    enter(vnode);
+	  }
+	}
+
 	var transition = inBrowser ? {
-	  create: function create (_, vnode) {
-	    if (!vnode.data.show) {
-	      enter(vnode);
-	    }
-	  },
+	  create: _enter,
+	  activate: _enter,
 	  remove: function remove (vnode, rm) {
 	    /* istanbul ignore else */
 	    if (!vnode.data.show) {
@@ -5488,17 +5800,17 @@
 	      if (isIE || isEdge) {
 	        setTimeout(cb, 0);
 	      }
-	    } else if (
-	      (vnode.tag === 'textarea' || el.type === 'text') &&
-	      !binding.modifiers.lazy
-	    ) {
-	      if (!isAndroid) {
-	        el.addEventListener('compositionstart', onCompositionStart);
-	        el.addEventListener('compositionend', onCompositionEnd);
-	      }
-	      /* istanbul ignore if */
-	      if (isIE9) {
-	        el.vmodel = true;
+	    } else if (vnode.tag === 'textarea' || el.type === 'text') {
+	      el._vModifiers = binding.modifiers;
+	      if (!binding.modifiers.lazy) {
+	        if (!isAndroid) {
+	          el.addEventListener('compositionstart', onCompositionStart);
+	          el.addEventListener('compositionend', onCompositionEnd);
+	        }
+	        /* istanbul ignore if */
+	        if (isIE9) {
+	          el.vmodel = true;
+	        }
 	      }
 	    }
 	  },
@@ -5597,13 +5909,18 @@
 
 	    vnode = locateNode(vnode);
 	    var transition = vnode.data && vnode.data.transition;
+	    var originalDisplay = el.__vOriginalDisplay =
+	      el.style.display === 'none' ? '' : el.style.display;
 	    if (value && transition && !isIE9) {
-	      enter(vnode);
+	      vnode.data.show = true;
+	      enter(vnode, function () {
+	        el.style.display = originalDisplay;
+	      });
+	    } else {
+	      el.style.display = value ? originalDisplay : 'none';
 	    }
-	    var originalDisplay = el.style.display === 'none' ? '' : el.style.display;
-	    el.style.display = value ? originalDisplay : 'none';
-	    el.__vOriginalDisplay = originalDisplay;
 	  },
+
 	  update: function update (el, ref, vnode) {
 	    var value = ref.value;
 	    var oldValue = ref.oldValue;
@@ -5613,9 +5930,11 @@
 	    vnode = locateNode(vnode);
 	    var transition = vnode.data && vnode.data.transition;
 	    if (transition && !isIE9) {
+	      vnode.data.show = true;
 	      if (value) {
-	        enter(vnode);
-	        el.style.display = el.__vOriginalDisplay;
+	        enter(vnode, function () {
+	          el.style.display = el.__vOriginalDisplay;
+	        });
 	      } else {
 	        leave(vnode, function () {
 	          el.style.display = 'none';
@@ -5623,6 +5942,18 @@
 	      }
 	    } else {
 	      el.style.display = value ? el.__vOriginalDisplay : 'none';
+	    }
+	  },
+
+	  unbind: function unbind (
+	    el,
+	    binding,
+	    vnode,
+	    oldVnode,
+	    isDestroy
+	  ) {
+	    if (!isDestroy) {
+	      el.style.display = el.__vOriginalDisplay;
 	    }
 	  }
 	};
@@ -5987,7 +6318,7 @@
 	      devtools.emit('init', Vue$3);
 	    } else if (
 	      "development" !== 'production' &&
-	      inBrowser && /Chrome\/\d+/.test(window.navigator.userAgent)
+	      inBrowser && !isEdge && /Chrome\/\d+/.test(window.navigator.userAgent)
 	    ) {
 	      console.log(
 	        'Download the Vue Devtools for a better development experience:\n' +
@@ -6019,6 +6350,32 @@
 	  decoder.innerHTML = html;
 	  return decoder.textContent
 	}
+
+	/*  */
+
+	var isUnaryTag = makeMap(
+	  'area,base,br,col,embed,frame,hr,img,input,isindex,keygen,' +
+	  'link,meta,param,source,track,wbr',
+	  true
+	);
+
+	// Elements that you can, intentionally, leave open
+	// (and which close themselves)
+	var canBeLeftOpenTag = makeMap(
+	  'colgroup,dd,dt,li,options,p,td,tfoot,th,thead,tr,source',
+	  true
+	);
+
+	// HTML5 tags https://html.spec.whatwg.org/multipage/indices.html#elements-3
+	// Phrasing Content https://html.spec.whatwg.org/multipage/dom.html#phrasing-content
+	var isNonPhrasingTag = makeMap(
+	  'address,article,aside,base,blockquote,body,caption,col,colgroup,dd,' +
+	  'details,dialog,div,dl,dt,fieldset,figcaption,figure,footer,form,' +
+	  'h1,h2,h3,h4,h5,h6,head,header,hgroup,hr,html,legend,li,menuitem,meta,' +
+	  'optgroup,option,param,rp,rt,source,style,summary,tbody,td,tfoot,th,thead,' +
+	  'title,tr,track',
+	  true
+	);
 
 	/**
 	 * Not type-checking this file because it's mostly vendor code.
@@ -6374,13 +6731,24 @@
 	        case 0x22: inDouble = true; break         // "
 	        case 0x27: inSingle = true; break         // '
 	        case 0x60: inTemplateString = true; break // `
-	        case 0x2f: inRegex = true; break          // /
 	        case 0x28: paren++; break                 // (
 	        case 0x29: paren--; break                 // )
 	        case 0x5B: square++; break                // [
 	        case 0x5D: square--; break                // ]
 	        case 0x7B: curly++; break                 // {
 	        case 0x7D: curly--; break                 // }
+	      }
+	      if (c === 0x2f) { // /
+	        var j = i - 1;
+	        var p = (void 0);
+	        // find first non-whitespace prev char
+	        for (; j >= 0; j--) {
+	          p = exp.charAt(j);
+	          if (p !== ' ') { break }
+	        }
+	        if (!p || !/[\w$]/.test(p)) {
+	          inRegex = true;
+	        }
 	      }
 	    }
 	  }
@@ -6501,6 +6869,10 @@
 	  if (modifiers && modifiers.capture) {
 	    delete modifiers.capture;
 	    name = '!' + name; // mark the event as captured
+	  }
+	  if (modifiers && modifiers.once) {
+	    delete modifiers.once;
+	    name = '~' + name; // mark the event as once
 	  }
 	  var events;
 	  if (modifiers && modifiers.native) {
@@ -6718,7 +7090,7 @@
 	        "development" !== 'production' && warn$1(
 	          'Templates should only be responsible for mapping the state to the ' +
 	          'UI. Avoid placing tags with side-effects in your templates, such as ' +
-	          "<" + tag + ">."
+	          "<" + tag + ">" + ', as they will not be parsed.'
 	        );
 	      }
 
@@ -6855,19 +7227,20 @@
 	          currentParent.attrsMap.placeholder === text) {
 	        return
 	      }
+	      var children = currentParent.children;
 	      text = inPre || text.trim()
 	        ? decodeHTMLCached(text)
 	        // only preserve whitespace if its not right after a starting tag
-	        : preserveWhitespace && currentParent.children.length ? ' ' : '';
+	        : preserveWhitespace && children.length ? ' ' : '';
 	      if (text) {
 	        var expression;
 	        if (!inVPre && text !== ' ' && (expression = parseText(text, delimiters))) {
-	          currentParent.children.push({
+	          children.push({
 	            type: 2,
 	            expression: expression,
 	            text: text
 	          });
-	        } else {
+	        } else if (text !== ' ' || children[children.length - 1].text !== ' ') {
 	          currentParent.children.push({
 	            type: 3,
 	            text: text
@@ -6978,11 +7351,28 @@
 	  }
 	}
 
-	function addIfCondition (el, condition) {
-	  if (!el.conditions) {
-	    el.conditions = [];
+	function findPrevElement (children) {
+	  var i = children.length;
+	  while (i--) {
+	    if (children[i].type === 1) {
+	      return children[i]
+	    } else {
+	      if ("development" !== 'production' && children[i].text !== ' ') {
+	        warn$1(
+	          "text \"" + (children[i].text.trim()) + "\" between v-if and v-else(-if) " +
+	          "will be ignored."
+	        );
+	      }
+	      children.pop();
+	    }
 	  }
-	  el.conditions.push(condition);
+	}
+
+	function addIfCondition (el, condition) {
+	  if (!el.ifConditions) {
+	    el.ifConditions = [];
+	  }
+	  el.ifConditions.push(condition);
 	}
 
 	function processOnce (el) {
@@ -7040,6 +7430,7 @@
 	      if (bindRE.test(name)) { // v-bind
 	        name = name.replace(bindRE, '');
 	        value = parseFilters(value);
+	        isProp = false;
 	        if (modifiers) {
 	          if (modifiers.prop) {
 	            isProp = true;
@@ -7084,6 +7475,15 @@
 	        }
 	      }
 	      addAttr(el, name, JSON.stringify(value));
+	      // #4530 also bind special attributes as props even if they are static
+	      // so that patches between dynamic/static are consistent
+	      if (platformMustUseProp(el.tag, name)) {
+	        if (name === 'value') {
+	          addProp(el, name, JSON.stringify(value));
+	        } else {
+	          addProp(el, name, 'true');
+	        }
+	      }
 	    }
 	  }
 	}
@@ -7117,13 +7517,6 @@
 	    map[attrs[i].name] = attrs[i].value;
 	  }
 	  return map
-	}
-
-	function findPrevElement (children) {
-	  var i = children.length;
-	  while (i--) {
-	    if (children[i].tag) { return children[i] }
-	  }
 	}
 
 	function isForbiddenTag (el) {
@@ -7189,7 +7582,7 @@
 	function optimize (root, options) {
 	  if (!root) { return }
 	  isStaticKey = genStaticKeysCached(options.staticKeys || '');
-	  isPlatformReservedTag = options.isReservedTag || (function () { return false; });
+	  isPlatformReservedTag = options.isReservedTag || no;
 	  // first pass: mark all non-static nodes.
 	  markStatic(root);
 	  // second pass: mark static roots.
@@ -7248,8 +7641,8 @@
 	        markStaticRoots(node.children[i], isInFor || !!node.for);
 	      }
 	    }
-	    if (node.conditions) {
-	      walkThroughConditionsBlocks(node.conditions, isInFor);
+	    if (node.ifConditions) {
+	      walkThroughConditionsBlocks(node.ifConditions, isInFor);
 	    }
 	  }
 	}
@@ -7311,11 +7704,7 @@
 	var modifierCode = {
 	  stop: '$event.stopPropagation();',
 	  prevent: '$event.preventDefault();',
-	  self: 'if($event.target !== $event.currentTarget)return;'
-	};
-
-	var isMouseEventRE = /^mouse|^pointer|^(click|dblclick|contextmenu|wheel)$/;
-	var mouseEventModifierCode = {
+	  self: 'if($event.target !== $event.currentTarget)return;',
 	  ctrl: 'if(!$event.ctrlKey)return;',
 	  shift: 'if(!$event.shiftKey)return;',
 	  alt: 'if(!$event.altKey)return;',
@@ -7345,12 +7734,9 @@
 	  } else {
 	    var code = '';
 	    var keys = [];
-	    var isMouseEvnet = isMouseEventRE.test(name);
 	    for (var key in handler.modifiers) {
 	      if (modifierCode[key]) {
 	        code += modifierCode[key];
-	      } else if (isMouseEvnet && mouseEventModifierCode[key]) {
-	        code += mouseEventModifierCode[key];
 	      } else {
 	        keys.push(key);
 	      }
@@ -7366,22 +7752,16 @@
 	}
 
 	function genKeyFilter (keys) {
-	  var code = keys.length === 1
-	    ? normalizeKeyCode(keys[0])
-	    : Array.prototype.concat.apply([], keys.map(normalizeKeyCode));
-	  if (Array.isArray(code)) {
-	    return ("if(" + (code.map(function (c) { return ("$event.keyCode!==" + c); }).join('&&')) + ")return;")
-	  } else {
-	    return ("if($event.keyCode!==" + code + ")return;")
-	  }
+	  return ("if(" + (keys.map(genFilterCode).join('&&')) + ")return;")
 	}
 
-	function normalizeKeyCode (key) {
-	  return (
-	    parseInt(key, 10) || // number keyCode
-	    keyCodes[key] || // built-in alias
-	    ("_k(" + (JSON.stringify(key)) + ")") // custom alias
-	  )
+	function genFilterCode (key) {
+	  var keyVal = parseInt(key, 10);
+	  if (keyVal) {
+	    return ("$event.keyCode!==" + keyVal)
+	  }
+	  var alias = keyCodes[key];
+	  return ("_k($event.keyCode," + (JSON.stringify(key)) + (alias ? ',' + JSON.stringify(alias) : '') + ")")
 	}
 
 	/*  */
@@ -7404,6 +7784,7 @@
 	var transforms$1;
 	var dataGenFns;
 	var platformDirectives$1;
+	var isPlatformReservedTag$1;
 	var staticRenderFns;
 	var onceCount;
 	var currentOptions;
@@ -7422,7 +7803,8 @@
 	  transforms$1 = pluckModuleFunction(options.modules, 'transformCode');
 	  dataGenFns = pluckModuleFunction(options.modules, 'genData');
 	  platformDirectives$1 = options.directives || {};
-	  var code = ast ? genElement(ast) : '_h("div")';
+	  isPlatformReservedTag$1 = options.isReservedTag || no;
+	  var code = ast ? genElement(ast) : '_c("div")';
 	  staticRenderFns = prevStaticRenderFns;
 	  onceCount = prevOnceCount;
 	  return {
@@ -7452,8 +7834,8 @@
 	    } else {
 	      var data = el.plain ? undefined : genData(el);
 
-	      var children = el.inlineTemplate ? null : genChildren(el);
-	      code = "_h('" + (el.tag) + "'" + (data ? ("," + data) : '') + (children ? ("," + children) : '') + ")";
+	      var children = el.inlineTemplate ? null : genChildren(el, true);
+	      code = "_c('" + (el.tag) + "'" + (data ? ("," + data) : '') + (children ? ("," + children) : '') + ")";
 	    }
 	    // module transforms
 	    for (var i = 0; i < transforms$1.length; i++) {
@@ -7499,7 +7881,7 @@
 
 	function genIf (el) {
 	  el.ifProcessed = true; // avoid recursion
-	  return genIfConditions(el.conditions)
+	  return genIfConditions(el.ifConditions.slice())
 	}
 
 	function genIfConditions (conditions) {
@@ -7514,7 +7896,7 @@
 	    return ("" + (genTernaryExp(condition.block)))
 	  }
 
-	  // v-if with v-once shuold generate code like (a)?_m(0):_m(1)
+	  // v-if with v-once should generate code like (a)?_m(0):_m(1)
 	  function genTernaryExp (el) {
 	    return el.once ? genOnce(el) : genElement(el)
 	  }
@@ -7550,6 +7932,10 @@
 	  }
 	  if (el.refInFor) {
 	    data += "refInFor:true,";
+	  }
+	  // pre
+	  if (el.pre) {
+	    data += "pre:true,";
 	  }
 	  // record original tag name for components using "is" attribute
 	  if (el.component) {
@@ -7646,10 +8032,49 @@
 	      : genElement(el)) + "}"
 	}
 
-	function genChildren (el) {
-	  if (el.children.length) {
-	    return '[' + el.children.map(genNode).join(',') + ']'
+	function genChildren (el, checkSkip) {
+	  var children = el.children;
+	  if (children.length) {
+	    var el$1 = children[0];
+	    // optimize single v-for
+	    if (children.length === 1 &&
+	        el$1.for &&
+	        el$1.tag !== 'template' &&
+	        el$1.tag !== 'slot') {
+	      return genElement(el$1)
+	    }
+	    var normalizationType = getNormalizationType(children);
+	    return ("[" + (children.map(genNode).join(',')) + "]" + (checkSkip
+	        ? normalizationType ? ("," + normalizationType) : ''
+	        : ''))
 	  }
+	}
+
+	// determine the normalzation needed for the children array.
+	// 0: no normalization needed
+	// 1: simple normalization needed (possible 1-level deep nested array)
+	// 2: full nomralization needed
+	function getNormalizationType (children) {
+	  for (var i = 0; i < children.length; i++) {
+	    var el = children[i];
+	    if (needsNormalization(el) ||
+	        (el.if && el.ifConditions.some(function (c) { return needsNormalization(c.block); }))) {
+	      return 2
+	    }
+	    if (maybeComponent(el) ||
+	        (el.if && el.ifConditions.some(function (c) { return maybeComponent(c.block); }))) {
+	      return 1
+	    }
+	  }
+	  return 0
+	}
+
+	function needsNormalization (el) {
+	  return el.for || el.tag === 'template' || el.tag === 'slot'
+	}
+
+	function maybeComponent (el) {
+	  return el.type === 1 && !isPlatformReservedTag$1(el.tag)
 	}
 
 	function genNode (node) {
@@ -7661,21 +8086,33 @@
 	}
 
 	function genText (text) {
-	  return text.type === 2
+	  return ("_v(" + (text.type === 2
 	    ? text.expression // no need for () because already wrapped in _s()
-	    : transformSpecialNewlines(JSON.stringify(text.text))
+	    : transformSpecialNewlines(JSON.stringify(text.text))) + ")")
 	}
 
 	function genSlot (el) {
 	  var slotName = el.slotName || '"default"';
 	  var children = genChildren(el);
-	  return ("_t(" + slotName + (children ? ("," + children) : '') + (el.attrs ? ((children ? '' : ',null') + ",{" + (el.attrs.map(function (a) { return ((camelize(a.name)) + ":" + (a.value)); }).join(',')) + "}") : '') + ")")
+	  var res = "_t(" + slotName + (children ? ("," + children) : '');
+	  var attrs = el.attrs && ("{" + (el.attrs.map(function (a) { return ((camelize(a.name)) + ":" + (a.value)); }).join(',')) + "}");
+	  var bind$$1 = el.attrsMap['v-bind'];
+	  if ((attrs || bind$$1) && !children) {
+	    res += ",null";
+	  }
+	  if (attrs) {
+	    res += "," + attrs;
+	  }
+	  if (bind$$1) {
+	    res += (attrs ? '' : ',null') + "," + bind$$1;
+	  }
+	  return res + ')'
 	}
 
 	// componentName is el.component, take it as argument to shun flow's pessimistic refinement
 	function genComponent (componentName, el) {
-	  var children = el.inlineTemplate ? null : genChildren(el);
-	  return ("_h(" + componentName + "," + (genData(el)) + (children ? ("," + children) : '') + ")")
+	  var children = el.inlineTemplate ? null : genChildren(el, true);
+	  return ("_c(" + componentName + "," + (genData(el)) + (children ? ("," + children) : '') + ")")
 	}
 
 	function genProps (props) {
@@ -8008,10 +8445,12 @@
 	  valueExpression = number || type === 'number'
 	    ? ("_n(" + valueExpression + ")")
 	    : valueExpression;
+
 	  var code = genAssignmentCode(value, valueExpression);
 	  if (isNative && needCompositionGuard) {
 	    code = "if($event.target.composing)return;" + code;
 	  }
+
 	  // inputs with type="file" are read only and setting the input's
 	  // value will throw an error.
 	  if ("development" !== 'production' &&
@@ -8021,8 +8460,12 @@
 	      "File inputs are read only. Use a v-on:change listener instead."
 	    );
 	  }
+
 	  addProp(el, 'value', isNative ? ("_s(" + value + ")") : ("(" + value + ")"));
 	  addHandler(el, event, code, null, true);
+	  if (trim || number || type === 'number') {
+	    addHandler(el, 'blur', '$forceUpdate()');
+	  }
 	}
 
 	function genSelect (
@@ -8268,7 +8711,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
-	  * vue-router v2.1.0
+	  * vue-router v2.1.1
 	  * (c) 2016 Evan You
 	  * @license MIT
 	  */
@@ -9612,24 +10055,25 @@
 	  this.cb = cb
 	};
 
-	History.prototype.transitionTo = function transitionTo (location, cb) {
+	History.prototype.transitionTo = function transitionTo (location, onComplete, onAbort) {
 	    var this$1 = this;
 
 	  var route = this.router.match(location, this.current)
 	  this.confirmTransition(route, function () {
 	    this$1.updateRoute(route)
-	    cb && cb(route)
+	    onComplete && onComplete(route)
 	    this$1.ensureURL()
-	  })
+	  }, onAbort)
 	};
 
-	History.prototype.confirmTransition = function confirmTransition (route, cb) {
+	History.prototype.confirmTransition = function confirmTransition (route, onComplete, onAbort) {
 	    var this$1 = this;
 
 	  var current = this.current
+	  var abort = function () { onAbort && onAbort() }
 	  if (isSameRoute(route, current)) {
 	    this.ensureURL()
-	    return
+	    return abort()
 	  }
 
 	  var ref = resolveQueue(this.current.matched, route.matched);
@@ -9649,14 +10093,18 @@
 
 	  this.pending = route
 	  var iterator = function (hook, next) {
-	    if (this$1.pending !== route) { return }
+	    if (this$1.pending !== route) {
+	      return abort()
+	    }
 	    hook(route, current, function (to) {
 	      if (to === false) {
 	        // next(false) -> abort navigation, ensure current URL
 	        this$1.ensureURL(true)
+	        abort()
 	      } else if (typeof to === 'string' || typeof to === 'object') {
 	        // next('/') or next({ path: '/' }) -> redirect
 	        (typeof to === 'object' && to.replace) ? this$1.replace(to) : this$1.push(to)
+	        abort()
 	      } else {
 	        // confirm transition and pass on the value
 	        next(to)
@@ -9672,14 +10120,15 @@
 	    // wait until async components are resolved before
 	    // extracting in-component enter guards
 	    runQueue(enterGuards, iterator, function () {
-	      if (this$1.pending === route) {
-	        this$1.pending = null
-	        cb(route)
-	        if (this$1.router.app) {
-	          this$1.router.app.$nextTick(function () {
-	            postEnterCbs.forEach(function (cb) { return cb(); })
-	          })
-	        }
+	      if (this$1.pending !== route) {
+	        return abort()
+	      }
+	      this$1.pending = null
+	      onComplete(route)
+	      if (this$1.router.app) {
+	        this$1.router.app.$nextTick(function () {
+	          postEnterCbs.forEach(function (cb) { return cb(); })
+	        })
 	      }
 	    })
 	  })
@@ -10041,18 +10490,11 @@
 
 	var HashHistory = (function (History) {
 	  function HashHistory (router, base, fallback) {
-	    var this$1 = this;
-
 	    History.call(this, router, base)
-	    window.addEventListener('hashchange', function () {
-	      this$1.onHashChange()
-	    })
-
 	    // check history fallback deeplinking
 	    if (fallback && this.checkFallback()) {
 	      return
 	    }
-
 	    ensureSlash()
 	  }
 
@@ -10243,7 +10685,12 @@
 	  if (history instanceof HTML5History) {
 	    history.transitionTo(getLocation(history.base))
 	  } else if (history instanceof HashHistory) {
-	    history.transitionTo(getHash())
+	    var setupHashListener = function () {
+	      window.addEventListener('hashchange', function () {
+	        history.onHashChange()
+	      })
+	    }
+	    history.transitionTo(getHash(), setupHashListener, setupHashListener)
 	  }
 
 	  history.listen(function (route) {
@@ -10313,8 +10760,8 @@
 	Object.defineProperties( VueRouter.prototype, prototypeAccessors );
 
 	function createHref (base, fullPath, mode) {
-	  var path = mode === 'hash' ? '/#' + fullPath : fullPath
-	  return base ? cleanPath(base + path) : path
+	  var path = mode === 'hash' ? '#' + fullPath : fullPath
+	  return base ? cleanPath(base + '/' + path) : path
 	}
 
 	VueRouter.install = install
@@ -12064,7 +12511,7 @@
 
 	/* hot reload */
 	if (false) {(function () {
-	  var hotAPI = require("vue-loader/node_modules/vue-hot-reload-api")
+	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
 	  module.hot.accept()
@@ -12147,7 +12594,7 @@
 
 	/* hot reload */
 	if (false) {(function () {
-	  var hotAPI = require("vue-loader/node_modules/vue-hot-reload-api")
+	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
 	  module.hot.accept()
@@ -12441,210 +12888,210 @@
 /* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;
+	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
 	  return _vm._m(0)
-	},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;
-	  return _h('header', {
+	},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+	  return _c('header', {
 	    staticClass: "main-header"
-	  }, [_h('a', {
+	  }, [_c('a', {
 	    staticClass: "logo",
 	    attrs: {
 	      "href": "index2.html"
 	    }
-	  }, [_h('span', {
+	  }, [_c('span', {
 	    staticClass: "logo-mini"
-	  }, [_h('b', ["N"]), "o"]), " ", " ", _h('span', {
+	  }, [_c('b', [_vm._v("N")]), _vm._v("o")]), _vm._v(" "), _c('span', {
 	    staticClass: "logo-lg"
-	  }, [_h('b', ["No"]), "Admin"])]), " ", " ", _h('nav', {
+	  }, [_c('b', [_vm._v("No")]), _vm._v("Admin")])]), _vm._v(" "), _c('nav', {
 	    staticClass: "navbar navbar-static-top"
-	  }, [_h('a', {
+	  }, [_c('a', {
 	    staticClass: "sidebar-toggle",
 	    attrs: {
 	      "href": "#",
 	      "data-toggle": "offcanvas",
 	      "role": "button"
 	    }
-	  }, [_h('span', {
+	  }, [_c('span', {
 	    staticClass: "sr-only"
-	  }, ["Toggle navigation"])]), " ", _h('div', {
+	  }, [_vm._v("Toggle navigation")])]), _vm._v(" "), _c('div', {
 	    staticClass: "navbar-custom-menu"
-	  }, [_h('ul', {
+	  }, [_c('ul', {
 	    staticClass: "nav navbar-nav"
-	  }, [_h('li', {
+	  }, [_c('li', {
 	    staticClass: "dropdown messages-menu"
-	  }, [_h('a', {
+	  }, [_c('a', {
 	    staticClass: "dropdown-toggle",
 	    attrs: {
 	      "href": "#",
 	      "data-toggle": "dropdown"
 	    }
-	  }, [_h('i', {
+	  }, [_c('i', {
 	    staticClass: "fa fa-envelope-o"
-	  }), " ", _h('span', {
+	  }), _vm._v(" "), _c('span', {
 	    staticClass: "label label-success"
-	  }, ["4"])]), " ", _h('ul', {
+	  }, [_vm._v("4")])]), _vm._v(" "), _c('ul', {
 	    staticClass: "dropdown-menu"
-	  }, [_h('li', {
+	  }, [_c('li', {
 	    staticClass: "header"
-	  }, ["You have 4 messages"]), " ", _h('li', [_h('ul', {
+	  }, [_vm._v("You have 4 messages")]), _vm._v(" "), _c('li', [_c('ul', {
 	    staticClass: "menu"
-	  }, [_h('li', [_h('a', {
+	  }, [_c('li', [_c('a', {
 	    attrs: {
 	      "href": "#"
 	    }
-	  }, [_h('div', {
+	  }, [_c('div', {
 	    staticClass: "pull-left"
-	  }, [_h('img', {
+	  }, [_c('img', {
 	    staticClass: "img-circle",
 	    attrs: {
 	      "src": "/public/adminLTE/dist/img/user2-160x160.jpg",
 	      "alt": "User Image"
 	    }
-	  })]), " ", _h('h4', ["\n                      Support Team\n                      ", _h('small', [_h('i', {
+	  })]), _vm._v(" "), _c('h4', [_vm._v("\n                      Support Team\n                      "), _c('small', [_c('i', {
 	    staticClass: "fa fa-clock-o"
-	  }), " 5 mins"])]), " ", _h('p', ["Why not buy a new awesome theme?"])])]), " ", " ", _h('li', [_h('a', {
+	  }), _vm._v(" 5 mins")])]), _vm._v(" "), _c('p', [_vm._v("Why not buy a new awesome theme?")])])]), _vm._v(" "), _c('li', [_c('a', {
 	    attrs: {
 	      "href": "#"
 	    }
-	  }, [_h('div', {
+	  }, [_c('div', {
 	    staticClass: "pull-left"
-	  }, [_h('img', {
+	  }, [_c('img', {
 	    staticClass: "img-circle",
 	    attrs: {
 	      "src": "/public/adminLTE/dist/img/user3-128x128.jpg",
 	      "alt": "User Image"
 	    }
-	  })]), " ", _h('h4', ["\n                      AdminLTE Design Team\n                      ", _h('small', [_h('i', {
+	  })]), _vm._v(" "), _c('h4', [_vm._v("\n                      AdminLTE Design Team\n                      "), _c('small', [_c('i', {
 	    staticClass: "fa fa-clock-o"
-	  }), " 2 hours"])]), " ", _h('p', ["Why not buy a new awesome theme?"])])]), " ", _h('li', [_h('a', {
+	  }), _vm._v(" 2 hours")])]), _vm._v(" "), _c('p', [_vm._v("Why not buy a new awesome theme?")])])]), _vm._v(" "), _c('li', [_c('a', {
 	    attrs: {
 	      "href": "#"
 	    }
-	  }, [_h('div', {
+	  }, [_c('div', {
 	    staticClass: "pull-left"
-	  }, [_h('img', {
+	  }, [_c('img', {
 	    staticClass: "img-circle",
 	    attrs: {
 	      "src": "/public/adminLTE/dist/img/user4-128x128.jpg",
 	      "alt": "User Image"
 	    }
-	  })]), " ", _h('h4', ["\n                      Developers\n                      ", _h('small', [_h('i', {
+	  })]), _vm._v(" "), _c('h4', [_vm._v("\n                      Developers\n                      "), _c('small', [_c('i', {
 	    staticClass: "fa fa-clock-o"
-	  }), " Today"])]), " ", _h('p', ["Why not buy a new awesome theme?"])])]), " ", _h('li', [_h('a', {
+	  }), _vm._v(" Today")])]), _vm._v(" "), _c('p', [_vm._v("Why not buy a new awesome theme?")])])]), _vm._v(" "), _c('li', [_c('a', {
 	    attrs: {
 	      "href": "#"
 	    }
-	  }, [_h('div', {
+	  }, [_c('div', {
 	    staticClass: "pull-left"
-	  }, [_h('img', {
+	  }, [_c('img', {
 	    staticClass: "img-circle",
 	    attrs: {
 	      "src": "/public/adminLTE/dist/img/user3-128x128.jpg",
 	      "alt": "User Image"
 	    }
-	  })]), " ", _h('h4', ["\n                      Sales Department\n                      ", _h('small', [_h('i', {
+	  })]), _vm._v(" "), _c('h4', [_vm._v("\n                      Sales Department\n                      "), _c('small', [_c('i', {
 	    staticClass: "fa fa-clock-o"
-	  }), " Yesterday"])]), " ", _h('p', ["Why not buy a new awesome theme?"])])]), " ", _h('li', [_h('a', {
+	  }), _vm._v(" Yesterday")])]), _vm._v(" "), _c('p', [_vm._v("Why not buy a new awesome theme?")])])]), _vm._v(" "), _c('li', [_c('a', {
 	    attrs: {
 	      "href": "#"
 	    }
-	  }, [_h('div', {
+	  }, [_c('div', {
 	    staticClass: "pull-left"
-	  }, [_h('img', {
+	  }, [_c('img', {
 	    staticClass: "img-circle",
 	    attrs: {
 	      "src": "/public/adminLTE/dist/img/user4-128x128.jpg",
 	      "alt": "User Image"
 	    }
-	  })]), " ", _h('h4', ["\n                      Reviewers\n                      ", _h('small', [_h('i', {
+	  })]), _vm._v(" "), _c('h4', [_vm._v("\n                      Reviewers\n                      "), _c('small', [_c('i', {
 	    staticClass: "fa fa-clock-o"
-	  }), " 2 days"])]), " ", _h('p', ["Why not buy a new awesome theme?"])])])])]), " ", _h('li', {
+	  }), _vm._v(" 2 days")])]), _vm._v(" "), _c('p', [_vm._v("Why not buy a new awesome theme?")])])])])]), _vm._v(" "), _c('li', {
 	    staticClass: "footer"
-	  }, [_h('a', {
+	  }, [_c('a', {
 	    attrs: {
 	      "href": "#"
 	    }
-	  }, ["See All Messages"])])])]), " ", " ", _h('li', {
+	  }, [_vm._v("See All Messages")])])])]), _vm._v(" "), _c('li', {
 	    staticClass: "dropdown notifications-menu"
-	  }, [_h('a', {
+	  }, [_c('a', {
 	    staticClass: "dropdown-toggle",
 	    attrs: {
 	      "href": "#",
 	      "data-toggle": "dropdown"
 	    }
-	  }, [_h('i', {
+	  }, [_c('i', {
 	    staticClass: "fa fa-bell-o"
-	  }), " ", _h('span', {
+	  }), _vm._v(" "), _c('span', {
 	    staticClass: "label label-warning"
-	  }, ["10"])]), " ", _h('ul', {
+	  }, [_vm._v("10")])]), _vm._v(" "), _c('ul', {
 	    staticClass: "dropdown-menu"
-	  }, [_h('li', {
+	  }, [_c('li', {
 	    staticClass: "header"
-	  }, ["You have 10 notifications"]), " ", _h('li', [_h('ul', {
+	  }, [_vm._v("You have 10 notifications")]), _vm._v(" "), _c('li', [_c('ul', {
 	    staticClass: "menu"
-	  }, [_h('li', [_h('a', {
+	  }, [_c('li', [_c('a', {
 	    attrs: {
 	      "href": "#"
 	    }
-	  }, [_h('i', {
+	  }, [_c('i', {
 	    staticClass: "fa fa-users text-aqua"
-	  }), " 5 new members joined today\n                  "])]), " ", _h('li', [_h('a', {
+	  }), _vm._v(" 5 new members joined today\n                  ")])]), _vm._v(" "), _c('li', [_c('a', {
 	    attrs: {
 	      "href": "#"
 	    }
-	  }, [_h('i', {
+	  }, [_c('i', {
 	    staticClass: "fa fa-warning text-yellow"
-	  }), " Very long description here that may not fit into the\n                    page and may cause design problems\n                  "])]), " ", _h('li', [_h('a', {
+	  }), _vm._v(" Very long description here that may not fit into the\n                    page and may cause design problems\n                  ")])]), _vm._v(" "), _c('li', [_c('a', {
 	    attrs: {
 	      "href": "#"
 	    }
-	  }, [_h('i', {
+	  }, [_c('i', {
 	    staticClass: "fa fa-users text-red"
-	  }), " 5 new members joined\n                  "])]), " ", _h('li', [_h('a', {
+	  }), _vm._v(" 5 new members joined\n                  ")])]), _vm._v(" "), _c('li', [_c('a', {
 	    attrs: {
 	      "href": "#"
 	    }
-	  }, [_h('i', {
+	  }, [_c('i', {
 	    staticClass: "fa fa-shopping-cart text-green"
-	  }), " 25 sales made\n                  "])]), " ", _h('li', [_h('a', {
+	  }), _vm._v(" 25 sales made\n                  ")])]), _vm._v(" "), _c('li', [_c('a', {
 	    attrs: {
 	      "href": "#"
 	    }
-	  }, [_h('i', {
+	  }, [_c('i', {
 	    staticClass: "fa fa-user text-red"
-	  }), " You changed your username\n                  "])])])]), " ", _h('li', {
+	  }), _vm._v(" You changed your username\n                  ")])])])]), _vm._v(" "), _c('li', {
 	    staticClass: "footer"
-	  }, [_h('a', {
+	  }, [_c('a', {
 	    attrs: {
 	      "href": "#"
 	    }
-	  }, ["View all"])])])]), " ", " ", _h('li', {
+	  }, [_vm._v("View all")])])])]), _vm._v(" "), _c('li', {
 	    staticClass: "dropdown tasks-menu"
-	  }, [_h('a', {
+	  }, [_c('a', {
 	    staticClass: "dropdown-toggle",
 	    attrs: {
 	      "href": "#",
 	      "data-toggle": "dropdown"
 	    }
-	  }, [_h('i', {
+	  }, [_c('i', {
 	    staticClass: "fa fa-flag-o"
-	  }), " ", _h('span', {
+	  }), _vm._v(" "), _c('span', {
 	    staticClass: "label label-danger"
-	  }, ["9"])]), " ", _h('ul', {
+	  }, [_vm._v("9")])]), _vm._v(" "), _c('ul', {
 	    staticClass: "dropdown-menu"
-	  }, [_h('li', {
+	  }, [_c('li', {
 	    staticClass: "header"
-	  }, ["You have 9 tasks"]), " ", _h('li', [_h('ul', {
+	  }, [_vm._v("You have 9 tasks")]), _vm._v(" "), _c('li', [_c('ul', {
 	    staticClass: "menu"
-	  }, [_h('li', [_h('a', {
+	  }, [_c('li', [_c('a', {
 	    attrs: {
 	      "href": "#"
 	    }
-	  }, [_h('h3', ["\n                      Design some buttons\n                      ", _h('small', {
+	  }, [_c('h3', [_vm._v("\n                      Design some buttons\n                      "), _c('small', {
 	    staticClass: "pull-right"
-	  }, ["20%"])]), " ", _h('div', {
+	  }, [_vm._v("20%")])]), _vm._v(" "), _c('div', {
 	    staticClass: "progress xs"
-	  }, [_h('div', {
+	  }, [_c('div', {
 	    staticClass: "progress-bar progress-bar-aqua",
 	    staticStyle: {
 	      "width": "20%"
@@ -12655,17 +13102,17 @@
 	      "aria-valuemin": "0",
 	      "aria-valuemax": "100"
 	    }
-	  }, [_h('span', {
+	  }, [_c('span', {
 	    staticClass: "sr-only"
-	  }, ["20% Complete"])])])])]), " ", " ", _h('li', [_h('a', {
+	  }, [_vm._v("20% Complete")])])])])]), _vm._v(" "), _c('li', [_c('a', {
 	    attrs: {
 	      "href": "#"
 	    }
-	  }, [_h('h3', ["\n                      Create a nice theme\n                      ", _h('small', {
+	  }, [_c('h3', [_vm._v("\n                      Create a nice theme\n                      "), _c('small', {
 	    staticClass: "pull-right"
-	  }, ["40%"])]), " ", _h('div', {
+	  }, [_vm._v("40%")])]), _vm._v(" "), _c('div', {
 	    staticClass: "progress xs"
-	  }, [_h('div', {
+	  }, [_c('div', {
 	    staticClass: "progress-bar progress-bar-green",
 	    staticStyle: {
 	      "width": "40%"
@@ -12676,17 +13123,17 @@
 	      "aria-valuemin": "0",
 	      "aria-valuemax": "100"
 	    }
-	  }, [_h('span', {
+	  }, [_c('span', {
 	    staticClass: "sr-only"
-	  }, ["40% Complete"])])])])]), " ", " ", _h('li', [_h('a', {
+	  }, [_vm._v("40% Complete")])])])])]), _vm._v(" "), _c('li', [_c('a', {
 	    attrs: {
 	      "href": "#"
 	    }
-	  }, [_h('h3', ["\n                      Some task I need to do\n                      ", _h('small', {
+	  }, [_c('h3', [_vm._v("\n                      Some task I need to do\n                      "), _c('small', {
 	    staticClass: "pull-right"
-	  }, ["60%"])]), " ", _h('div', {
+	  }, [_vm._v("60%")])]), _vm._v(" "), _c('div', {
 	    staticClass: "progress xs"
-	  }, [_h('div', {
+	  }, [_c('div', {
 	    staticClass: "progress-bar progress-bar-red",
 	    staticStyle: {
 	      "width": "60%"
@@ -12697,17 +13144,17 @@
 	      "aria-valuemin": "0",
 	      "aria-valuemax": "100"
 	    }
-	  }, [_h('span', {
+	  }, [_c('span', {
 	    staticClass: "sr-only"
-	  }, ["60% Complete"])])])])]), " ", " ", _h('li', [_h('a', {
+	  }, [_vm._v("60% Complete")])])])])]), _vm._v(" "), _c('li', [_c('a', {
 	    attrs: {
 	      "href": "#"
 	    }
-	  }, [_h('h3', ["\n                      Make beautiful transitions\n                      ", _h('small', {
+	  }, [_c('h3', [_vm._v("\n                      Make beautiful transitions\n                      "), _c('small', {
 	    staticClass: "pull-right"
-	  }, ["80%"])]), " ", _h('div', {
+	  }, [_vm._v("80%")])]), _vm._v(" "), _c('div', {
 	    staticClass: "progress xs"
-	  }, [_h('div', {
+	  }, [_c('div', {
 	    staticClass: "progress-bar progress-bar-yellow",
 	    staticStyle: {
 	      "width": "80%"
@@ -12718,91 +13165,91 @@
 	      "aria-valuemin": "0",
 	      "aria-valuemax": "100"
 	    }
-	  }, [_h('span', {
+	  }, [_c('span', {
 	    staticClass: "sr-only"
-	  }, ["80% Complete"])])])])]), " "])]), " ", _h('li', {
+	  }, [_vm._v("80% Complete")])])])])])])]), _vm._v(" "), _c('li', {
 	    staticClass: "footer"
-	  }, [_h('a', {
+	  }, [_c('a', {
 	    attrs: {
 	      "href": "#"
 	    }
-	  }, ["View all tasks"])])])]), " ", " ", _h('li', {
+	  }, [_vm._v("View all tasks")])])])]), _vm._v(" "), _c('li', {
 	    staticClass: "dropdown user user-menu"
-	  }, [_h('a', {
+	  }, [_c('a', {
 	    staticClass: "dropdown-toggle",
 	    attrs: {
 	      "href": "#",
 	      "data-toggle": "dropdown"
 	    }
-	  }, [_h('img', {
+	  }, [_c('img', {
 	    staticClass: "user-image",
 	    attrs: {
 	      "src": "/public/adminLTE/dist/img/user2-160x160.jpg",
 	      "alt": "User Image"
 	    }
-	  }), " ", _h('span', {
+	  }), _vm._v(" "), _c('span', {
 	    staticClass: "hidden-xs"
-	  }, ["Alexander Pierce"])]), " ", _h('ul', {
+	  }, [_vm._v("Alexander Pierce")])]), _vm._v(" "), _c('ul', {
 	    staticClass: "dropdown-menu"
-	  }, [_h('li', {
+	  }, [_c('li', {
 	    staticClass: "user-header"
-	  }, [_h('img', {
+	  }, [_c('img', {
 	    staticClass: "img-circle",
 	    attrs: {
 	      "src": "/public/adminLTE/dist/img/user2-160x160.jpg",
 	      "alt": "User Image"
 	    }
-	  }), " ", _h('p', ["\n                Alexander Pierce - Web Developer\n                ", _h('small', ["Member since Nov. 2012"])])]), " ", " ", _h('li', {
+	  }), _vm._v(" "), _c('p', [_vm._v("\n                Alexander Pierce - Web Developer\n                "), _c('small', [_vm._v("Member since Nov. 2012")])])]), _vm._v(" "), _c('li', {
 	    staticClass: "user-body"
-	  }, [_h('div', {
+	  }, [_c('div', {
 	    staticClass: "row"
-	  }, [_h('div', {
+	  }, [_c('div', {
 	    staticClass: "col-xs-4 text-center"
-	  }, [_h('a', {
+	  }, [_c('a', {
 	    attrs: {
 	      "href": "#"
 	    }
-	  }, ["Followers"])]), " ", _h('div', {
+	  }, [_vm._v("Followers")])]), _vm._v(" "), _c('div', {
 	    staticClass: "col-xs-4 text-center"
-	  }, [_h('a', {
+	  }, [_c('a', {
 	    attrs: {
 	      "href": "#"
 	    }
-	  }, ["Sales"])]), " ", _h('div', {
+	  }, [_vm._v("Sales")])]), _vm._v(" "), _c('div', {
 	    staticClass: "col-xs-4 text-center"
-	  }, [_h('a', {
+	  }, [_c('a', {
 	    attrs: {
 	      "href": "#"
 	    }
-	  }, ["Friends"])])]), " "]), " ", " ", _h('li', {
+	  }, [_vm._v("Friends")])])])]), _vm._v(" "), _c('li', {
 	    staticClass: "user-footer"
-	  }, [_h('div', {
+	  }, [_c('div', {
 	    staticClass: "pull-left"
-	  }, [_h('a', {
+	  }, [_c('a', {
 	    staticClass: "btn btn-default btn-flat",
 	    attrs: {
 	      "href": "#"
 	    }
-	  }, ["Profile"])]), " ", _h('div', {
+	  }, [_vm._v("Profile")])]), _vm._v(" "), _c('div', {
 	    staticClass: "pull-right"
-	  }, [_h('a', {
+	  }, [_c('a', {
 	    staticClass: "btn btn-default btn-flat",
 	    attrs: {
 	      "href": "#"
 	    }
-	  }, ["Sign out"])])])])]), " ", " ", _h('li', [_h('a', {
+	  }, [_vm._v("Sign out")])])])])]), _vm._v(" "), _c('li', [_c('a', {
 	    attrs: {
 	      "href": "#",
 	      "data-toggle": "control-sidebar"
 	    }
-	  }, [_h('i', {
+	  }, [_c('i', {
 	    staticClass: "fa fa-gears"
 	  })])])])])])])
 	}]}
 	if (false) {
 	  module.hot.accept()
 	  if (module.hot.data) {
-	     require("vue-loader/node_modules/vue-hot-reload-api").rerender("data-v-2bc7080f", module.exports)
+	     require("vue-hot-reload-api").rerender("data-v-2bc7080f", module.exports)
 	  }
 	}
 
@@ -12835,7 +13282,7 @@
 
 	/* hot reload */
 	if (false) {(function () {
-	  var hotAPI = require("vue-loader/node_modules/vue-hot-reload-api")
+	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
 	  module.hot.accept()
@@ -12938,7 +13385,7 @@
 
 	/* hot reload */
 	if (false) {(function () {
-	  var hotAPI = require("vue-loader/node_modules/vue-hot-reload-api")
+	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
 	  module.hot.accept()
@@ -13019,22 +13466,22 @@
 /* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;
-	  return _h('ul', {
+	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+	  return _c('ul', {
 	    staticClass: "sidebar-menu"
-	  }, [_vm._l((_vm.menus), function(menu, index) {
-	    return _h('siderbar-menu', {
+	  }, _vm._l((_vm.menus), function(menu, index) {
+	    return _c('siderbar-menu', {
 	      attrs: {
 	        "track-by": "index",
 	        "menu": menu
 	      }
 	    })
-	  })])
+	  }))
 	},staticRenderFns: []}
 	if (false) {
 	  module.hot.accept()
 	  if (module.hot.data) {
-	     require("vue-loader/node_modules/vue-hot-reload-api").rerender("data-v-1799c9b2", module.exports)
+	     require("vue-hot-reload-api").rerender("data-v-1799c9b2", module.exports)
 	  }
 	}
 
@@ -13042,69 +13489,69 @@
 /* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;
-	  return _h('aside', {
+	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+	  return _c('aside', {
 	    staticClass: "main-sidebar"
-	  }, [_h('section', {
+	  }, [_c('section', {
 	    staticClass: "sidebar"
-	  }, [_vm._m(0), " ", " ", _vm._m(1), " ", " ", " ", _h('div', {
+	  }, [_vm._m(0), _vm._v(" "), _vm._m(1), _vm._v(" "), _c('div', {
 	    attrs: {
 	      "id": "sidebarMenu"
 	    }
-	  }, [_h('sidebar-menus')])]), " "])
-	},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;
-	  return _h('div', {
+	  }, [_c('sidebar-menus')], 1)])])
+	},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+	  return _c('div', {
 	    staticClass: "user-panel"
-	  }, [_h('div', {
+	  }, [_c('div', {
 	    staticClass: "pull-left image"
-	  }, [_h('img', {
+	  }, [_c('img', {
 	    staticClass: "img-circle",
 	    attrs: {
 	      "src": "/public/adminLTE/dist/img/user2-160x160.jpg",
 	      "alt": "User Image"
 	    }
-	  })]), " ", _h('div', {
+	  })]), _vm._v(" "), _c('div', {
 	    staticClass: "pull-left info"
-	  }, [_h('p', ["Alexander Pierce"]), " ", _h('a', {
+	  }, [_c('p', [_vm._v("Alexander Pierce")]), _vm._v(" "), _c('a', {
 	    attrs: {
 	      "href": "#"
 	    }
-	  }, [_h('i', {
+	  }, [_c('i', {
 	    staticClass: "fa fa-circle text-success"
-	  }), " Online"])])])
-	},function (){var _vm=this;var _h=_vm.$createElement;
-	  return _h('form', {
+	  }), _vm._v(" Online")])])])
+	},function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+	  return _c('form', {
 	    staticClass: "sidebar-form",
 	    attrs: {
 	      "action": "#",
 	      "method": "get"
 	    }
-	  }, [_h('div', {
+	  }, [_c('div', {
 	    staticClass: "input-group"
-	  }, [_h('input', {
+	  }, [_c('input', {
 	    staticClass: "form-control",
 	    attrs: {
 	      "type": "text",
 	      "name": "q",
 	      "placeholder": "Search..."
 	    }
-	  }), " ", _h('span', {
+	  }), _vm._v(" "), _c('span', {
 	    staticClass: "input-group-btn"
-	  }, [_h('button', {
+	  }, [_c('button', {
 	    staticClass: "btn btn-flat",
 	    attrs: {
 	      "type": "submit",
 	      "name": "search",
 	      "id": "search-btn"
 	    }
-	  }, [_h('i', {
+	  }, [_c('i', {
 	    staticClass: "fa fa-search"
 	  })])])])])
 	}]}
 	if (false) {
 	  module.hot.accept()
 	  if (module.hot.data) {
-	     require("vue-loader/node_modules/vue-hot-reload-api").rerender("data-v-1eab486c", module.exports)
+	     require("vue-hot-reload-api").rerender("data-v-1eab486c", module.exports)
 	  }
 	}
 
@@ -13140,7 +13587,7 @@
 
 	/* hot reload */
 	if (false) {(function () {
-	  var hotAPI = require("vue-loader/node_modules/vue-hot-reload-api")
+	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
 	  module.hot.accept()
@@ -13171,8 +13618,8 @@
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../../node_modules/.0.26.0@css-loader/index.js!./../../../../node_modules/.9.9.5@vue-loader/lib/style-rewriter.js?id=data-v-1c18a332!./../../../../node_modules/.9.9.5@vue-loader/lib/selector.js?type=styles&index=0!./content.vue", function() {
-				var newContent = require("!!./../../../../node_modules/.0.26.0@css-loader/index.js!./../../../../node_modules/.9.9.5@vue-loader/lib/style-rewriter.js?id=data-v-1c18a332!./../../../../node_modules/.9.9.5@vue-loader/lib/selector.js?type=styles&index=0!./content.vue");
+			module.hot.accept("!!./../../../../node_modules/css-loader/index.js!./../../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-1c18a332!./../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./content.vue", function() {
+				var newContent = require("!!./../../../../node_modules/css-loader/index.js!./../../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-1c18a332!./../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./content.vue");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -13556,35 +14003,35 @@
 /* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;
-	  return _h('div', {
+	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+	  return _c('div', {
 	    staticClass: "content-wrapper"
-	  }, [_h('el-breadcrumb', {
+	  }, [_c('el-breadcrumb', {
 	    staticClass: "my-breadcrumb",
 	    attrs: {
 	      "separator": "/"
 	    }
-	  }, [_h('i', {
+	  }, [_c('i', {
 	    staticClass: "dashboard-icon fa fa-dashboard"
-	  }), " ", _vm._l((_vm.breadcrumbPath), function(path, index) {
-	    return _h('el-breadcrumb-item', {
+	  }), _vm._v(" "), _vm._l((_vm.breadcrumbPath), function(path, index) {
+	    return _c('el-breadcrumb-item', {
 	      attrs: {
 	        "to": path.url,
 	        "track-by": "index",
 	        "breadcrumbPath": _vm.breadcrumbPath
 	      }
-	    }, [_vm._s(path.name)])
-	  })]), " ", " ", _h('section', {
+	    }, [_vm._v(_vm._s(path.name))])
+	  })], 2), _vm._v(" "), _c('section', {
 	    staticClass: "content",
 	    attrs: {
 	      "id": "router-view"
 	    }
-	  }, [_h('router-view')]), " "])
+	  }, [_c('router-view')], 1)], 1)
 	},staticRenderFns: []}
 	if (false) {
 	  module.hot.accept()
 	  if (module.hot.data) {
-	     require("vue-loader/node_modules/vue-hot-reload-api").rerender("data-v-1c18a332", module.exports)
+	     require("vue-hot-reload-api").rerender("data-v-1c18a332", module.exports)
 	  }
 	}
 
@@ -13592,13 +14039,13 @@
 /* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;
-	  return _h('div', [_h('my-header'), " ", _h('my-sidebar'), " ", _h('my-content')])
+	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+	  return _c('div', [_c('my-header'), _vm._v(" "), _c('my-sidebar'), _vm._v(" "), _c('my-content')], 1)
 	},staticRenderFns: []}
 	if (false) {
 	  module.hot.accept()
 	  if (module.hot.data) {
-	     require("vue-loader/node_modules/vue-hot-reload-api").rerender("data-v-0d54be2a", module.exports)
+	     require("vue-hot-reload-api").rerender("data-v-0d54be2a", module.exports)
 	  }
 	}
 
@@ -13639,7 +14086,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
-	 * vuex v2.0.0
+	 * vuex v2.1.1
 	 * (c) 2016 Evan You
 	 * @license MIT
 	 */
@@ -13704,27 +14151,39 @@
 	  }
 	}
 
-	function mapState (states) {
+	var mapState = normalizeNamespace(function (namespace, states) {
 	  var res = {}
 	  normalizeMap(states).forEach(function (ref) {
 	    var key = ref.key;
 	    var val = ref.val;
 
 	    res[key] = function mappedState () {
+	      var state = this.$store.state
+	      var getters = this.$store.getters
+	      if (namespace) {
+	        var module = this.$store._modulesNamespaceMap[namespace]
+	        if (!module) {
+	          warnNamespace('mapState', namespace)
+	          return
+	        }
+	        state = module.state
+	        getters = module.context.getters
+	      }
 	      return typeof val === 'function'
-	        ? val.call(this, this.$store.state, this.$store.getters)
-	        : this.$store.state[val]
+	        ? val.call(this, state, getters)
+	        : state[val]
 	    }
 	  })
 	  return res
-	}
+	})
 
-	function mapMutations (mutations) {
+	var mapMutations = normalizeNamespace(function (namespace, mutations) {
 	  var res = {}
 	  normalizeMap(mutations).forEach(function (ref) {
 	    var key = ref.key;
 	    var val = ref.val;
 
+	    val = namespace + val
 	    res[key] = function mappedMutation () {
 	      var args = [], len = arguments.length;
 	      while ( len-- ) args[ len ] = arguments[ len ];
@@ -13733,14 +14192,15 @@
 	    }
 	  })
 	  return res
-	}
+	})
 
-	function mapGetters (getters) {
+	var mapGetters = normalizeNamespace(function (namespace, getters) {
 	  var res = {}
 	  normalizeMap(getters).forEach(function (ref) {
 	    var key = ref.key;
 	    var val = ref.val;
 
+	    val = namespace + val
 	    res[key] = function mappedGetter () {
 	      if (!(val in this.$store.getters)) {
 	        console.error(("[vuex] unknown getter: " + val))
@@ -13749,14 +14209,15 @@
 	    }
 	  })
 	  return res
-	}
+	})
 
-	function mapActions (actions) {
+	var mapActions = normalizeNamespace(function (namespace, actions) {
 	  var res = {}
 	  normalizeMap(actions).forEach(function (ref) {
 	    var key = ref.key;
 	    var val = ref.val;
 
+	    val = namespace + val
 	    res[key] = function mappedAction () {
 	      var args = [], len = arguments.length;
 	      while ( len-- ) args[ len ] = arguments[ len ];
@@ -13765,12 +14226,35 @@
 	    }
 	  })
 	  return res
-	}
+	})
 
 	function normalizeMap (map) {
 	  return Array.isArray(map)
 	    ? map.map(function (key) { return ({ key: key, val: key }); })
 	    : Object.keys(map).map(function (key) { return ({ key: key, val: map[key] }); })
+	}
+
+	function normalizeNamespace (fn) {
+	  return function (namespace, map) {
+	    if (typeof namespace !== 'string') {
+	      map = namespace
+	      namespace = ''
+	    } else if (namespace.charAt(namespace.length - 1) !== '/') {
+	      namespace += '/'
+	    }
+	    return fn(namespace, map)
+	  }
+	}
+
+	function warnNamespace (helper, namespace) {
+	  console.error(("[vuex] module namespace not found in " + helper + "(): " + namespace))
+	}
+
+	/**
+	 * forEach for object
+	 */
+	function forEachValue (obj, fn) {
+	  Object.keys(obj).forEach(function (key) { return fn(obj[key], key); })
 	}
 
 	function isObject (obj) {
@@ -13783,6 +14267,146 @@
 
 	function assert (condition, msg) {
 	  if (!condition) { throw new Error(("[vuex] " + msg)) }
+	}
+
+	var Module = function Module (rawModule, runtime) {
+	  this.runtime = runtime
+	  this._children = Object.create(null)
+	  this._rawModule = rawModule
+	};
+
+	var prototypeAccessors$1 = { state: {},namespaced: {} };
+
+	prototypeAccessors$1.state.get = function () {
+	  return this._rawModule.state || {}
+	};
+
+	prototypeAccessors$1.namespaced.get = function () {
+	  return !!this._rawModule.namespaced
+	};
+
+	Module.prototype.addChild = function addChild (key, module) {
+	  this._children[key] = module
+	};
+
+	Module.prototype.removeChild = function removeChild (key) {
+	  delete this._children[key]
+	};
+
+	Module.prototype.getChild = function getChild (key) {
+	  return this._children[key]
+	};
+
+	Module.prototype.update = function update (rawModule) {
+	  this._rawModule.namespaced = rawModule.namespaced
+	  if (rawModule.actions) {
+	    this._rawModule.actions = rawModule.actions
+	  }
+	  if (rawModule.mutations) {
+	    this._rawModule.mutations = rawModule.mutations
+	  }
+	  if (rawModule.getters) {
+	    this._rawModule.getters = rawModule.getters
+	  }
+	};
+
+	Module.prototype.forEachChild = function forEachChild (fn) {
+	  forEachValue(this._children, fn)
+	};
+
+	Module.prototype.forEachGetter = function forEachGetter (fn) {
+	  if (this._rawModule.getters) {
+	    forEachValue(this._rawModule.getters, fn)
+	  }
+	};
+
+	Module.prototype.forEachAction = function forEachAction (fn) {
+	  if (this._rawModule.actions) {
+	    forEachValue(this._rawModule.actions, fn)
+	  }
+	};
+
+	Module.prototype.forEachMutation = function forEachMutation (fn) {
+	  if (this._rawModule.mutations) {
+	    forEachValue(this._rawModule.mutations, fn)
+	  }
+	};
+
+	Object.defineProperties( Module.prototype, prototypeAccessors$1 );
+
+	var ModuleCollection = function ModuleCollection (rawRootModule) {
+	  var this$1 = this;
+
+	  // register root module (Vuex.Store options)
+	  this.root = new Module(rawRootModule, false)
+
+	  // register all nested modules
+	  if (rawRootModule.modules) {
+	    forEachValue(rawRootModule.modules, function (rawModule, key) {
+	      this$1.register([key], rawModule, false)
+	    })
+	  }
+	};
+
+	ModuleCollection.prototype.get = function get (path) {
+	  return path.reduce(function (module, key) {
+	    return module.getChild(key)
+	  }, this.root)
+	};
+
+	ModuleCollection.prototype.getNamespace = function getNamespace (path) {
+	  var module = this.root
+	  return path.reduce(function (namespace, key) {
+	    module = module.getChild(key)
+	    return namespace + (module.namespaced ? key + '/' : '')
+	  }, '')
+	};
+
+	ModuleCollection.prototype.update = function update$1 (rawRootModule) {
+	  update(this.root, rawRootModule)
+	};
+
+	ModuleCollection.prototype.register = function register (path, rawModule, runtime) {
+	    var this$1 = this;
+	    if ( runtime === void 0 ) runtime = true;
+
+	  var parent = this.get(path.slice(0, -1))
+	  var newModule = new Module(rawModule, runtime)
+	  parent.addChild(path[path.length - 1], newModule)
+
+	  // register nested modules
+	  if (rawModule.modules) {
+	    forEachValue(rawModule.modules, function (rawChildModule, key) {
+	      this$1.register(path.concat(key), rawChildModule, runtime)
+	    })
+	  }
+	};
+
+	ModuleCollection.prototype.unregister = function unregister (path) {
+	  var parent = this.get(path.slice(0, -1))
+	  var key = path[path.length - 1]
+	  if (!parent.getChild(key).runtime) { return }
+
+	  parent.removeChild(key)
+	};
+
+	function update (targetModule, newModule) {
+	  // update target module
+	  targetModule.update(newModule)
+
+	  // update nested modules
+	  if (newModule.modules) {
+	    for (var key in newModule.modules) {
+	      if (!targetModule.getChild(key)) {
+	        console.warn(
+	          "[vuex] trying to add a new module '" + key + "' on hot reloading, " +
+	          'manual reload is needed'
+	        )
+	        return
+	      }
+	      update(targetModule.getChild(key), newModule.modules[key])
+	    }
+	  }
 	}
 
 	var Vue // bind on install
@@ -13799,34 +14423,34 @@
 	  var strict = options.strict; if ( strict === void 0 ) strict = false;
 
 	  // store internal state
-	  this._options = options
 	  this._committing = false
 	  this._actions = Object.create(null)
 	  this._mutations = Object.create(null)
 	  this._wrappedGetters = Object.create(null)
-	  this._runtimeModules = Object.create(null)
+	  this._modules = new ModuleCollection(options)
+	  this._modulesNamespaceMap = Object.create(null)
 	  this._subscribers = []
 	  this._watcherVM = new Vue()
 
-	    // bind commit and dispatch to self
+	  // bind commit and dispatch to self
 	  var store = this
 	  var ref = this;
 	  var dispatch = ref.dispatch;
 	  var commit = ref.commit;
-	  this.dispatch = function boundDispatch (type, payload) {
+	    this.dispatch = function boundDispatch (type, payload) {
 	    return dispatch.call(store, type, payload)
-	    }
-	    this.commit = function boundCommit (type, payload, options) {
-	    return commit.call(store, type, payload, options)
 	  }
+	  this.commit = function boundCommit (type, payload, options) {
+	    return commit.call(store, type, payload, options)
+	    }
 
-	  // strict mode
+	    // strict mode
 	  this.strict = strict
 
 	  // init root module.
 	  // this also recursively registers all sub-modules
 	  // and collects all module getters inside this._wrappedGetters
-	  installModule(this, state, [], options)
+	  installModule(this, state, [], this._modules.root)
 
 	  // initialize the store vm, which is responsible for the reactivity
 	  // (also registers _wrappedGetters as computed properties)
@@ -13839,22 +14463,22 @@
 	var prototypeAccessors = { state: {} };
 
 	prototypeAccessors.state.get = function () {
-	  return this._vm.state
+	  return this._vm.$data.state
 	};
 
 	prototypeAccessors.state.set = function (v) {
 	  assert(false, "Use store.replaceState() to explicit replace store state.")
 	};
 
-	Store.prototype.commit = function commit (type, payload, options) {
+	Store.prototype.commit = function commit (_type, _payload, _options) {
 	    var this$1 = this;
 
 	  // check object-style commit
-	  if (isObject(type) && type.type) {
-	    options = payload
-	    payload = type
-	    type = type.type
-	  }
+	  var ref = unifyObjectStyle(_type, _payload, _options);
+	    var type = ref.type;
+	    var payload = ref.payload;
+	    var options = ref.options;
+
 	  var mutation = { type: type, payload: payload }
 	  var entry = this._mutations[type]
 	  if (!entry) {
@@ -13866,17 +14490,22 @@
 	      handler(payload)
 	    })
 	  })
-	  if (!options || !options.silent) {
-	    this._subscribers.forEach(function (sub) { return sub(mutation, this$1.state); })
+	  this._subscribers.forEach(function (sub) { return sub(mutation, this$1.state); })
+
+	  if (options && options.silent) {
+	    console.warn(
+	      "[vuex] mutation type: " + type + ". Silent option has been removed. " +
+	      'Use the filter functionality in the vue-devtools'
+	    )
 	  }
 	};
 
-	Store.prototype.dispatch = function dispatch (type, payload) {
+	Store.prototype.dispatch = function dispatch (_type, _payload) {
 	  // check object-style dispatch
-	  if (isObject(type) && type.type) {
-	    payload = type
-	    type = type.type
-	  }
+	  var ref = unifyObjectStyle(_type, _payload);
+	    var type = ref.type;
+	    var payload = ref.payload;
+
 	  var entry = this._actions[type]
 	  if (!entry) {
 	    console.error(("[vuex] unknown action type: " + type))
@@ -13904,7 +14533,7 @@
 	    var this$1 = this;
 
 	  assert(typeof getter === 'function', "store.watch only accepts a function.")
-	  return this._watcherVM.$watch(function () { return getter(this$1.state); }, cb, options)
+	  return this._watcherVM.$watch(function () { return getter(this$1.state, this$1.getters); }, cb, options)
 	};
 
 	Store.prototype.replaceState = function replaceState (state) {
@@ -13915,11 +14544,11 @@
 	  })
 	};
 
-	Store.prototype.registerModule = function registerModule (path, module) {
+	Store.prototype.registerModule = function registerModule (path, rawModule) {
 	  if (typeof path === 'string') { path = [path] }
 	  assert(Array.isArray(path), "module path must be a string or an Array.")
-	  this._runtimeModules[path.join('.')] = module
-	  installModule(this, this.state, path, module)
+	  this._modules.register(path, rawModule)
+	  installModule(this, this.state, path, this._modules.get(path))
 	  // reset store to update getters...
 	  resetStoreVM(this, this.state)
 	};
@@ -13929,7 +14558,7 @@
 
 	  if (typeof path === 'string') { path = [path] }
 	  assert(Array.isArray(path), "module path must be a string or an Array.")
-	    delete this._runtimeModules[path.join('.')]
+	    this._modules.unregister(path)
 	  this._withCommit(function () {
 	    var parentState = getNestedState(this$1.state, path.slice(0, -1))
 	    Vue.delete(parentState, path[path.length - 1])
@@ -13938,7 +14567,7 @@
 	};
 
 	Store.prototype.hotUpdate = function hotUpdate (newOptions) {
-	  updateModule(this._options, newOptions)
+	  this._modules.update(newOptions)
 	  resetStore(this)
 	};
 
@@ -13951,41 +14580,14 @@
 
 	Object.defineProperties( Store.prototype, prototypeAccessors );
 
-	function updateModule (targetModule, newModule) {
-	  if (newModule.actions) {
-	    targetModule.actions = newModule.actions
-	  }
-	  if (newModule.mutations) {
-	    targetModule.mutations = newModule.mutations
-	  }
-	  if (newModule.getters) {
-	    targetModule.getters = newModule.getters
-	  }
-	  if (newModule.modules) {
-	    for (var key in newModule.modules) {
-	      if (!(targetModule.modules && targetModule.modules[key])) {
-	        console.warn(
-	          "[vuex] trying to add a new module '" + key + "' on hot reloading, " +
-	          'manual reload is needed'
-	        )
-	        return
-	      }
-	      updateModule(targetModule.modules[key], newModule.modules[key])
-	    }
-	  }
-	}
-
 	function resetStore (store) {
 	  store._actions = Object.create(null)
 	  store._mutations = Object.create(null)
 	  store._wrappedGetters = Object.create(null)
+	  store._modulesNamespaceMap = Object.create(null)
 	  var state = store.state
-	  // init root module
-	  installModule(store, state, [], store._options, true)
-	  // init all runtime modules
-	  Object.keys(store._runtimeModules).forEach(function (key) {
-	    installModule(store, state, key.split('.'), store._runtimeModules[key], true)
-	  })
+	  // init all modules
+	  installModule(store, state, [], store._modules.root, true)
 	  // reset vm
 	  resetStoreVM(store, state)
 	}
@@ -13997,12 +14599,12 @@
 	  store.getters = {}
 	  var wrappedGetters = store._wrappedGetters
 	  var computed = {}
-	  Object.keys(wrappedGetters).forEach(function (key) {
-	    var fn = wrappedGetters[key]
+	  forEachValue(wrappedGetters, function (fn, key) {
 	    // use computed to leverage its lazy-caching mechanism
 	    computed[key] = function () { return fn(store); }
 	    Object.defineProperty(store.getters, key, {
-	      get: function () { return store._vm[key]; }
+	      get: function () { return store._vm[key]; },
+	      enumerable: true // for local getters
 	    })
 	  })
 
@@ -14034,65 +14636,135 @@
 
 	function installModule (store, rootState, path, module, hot) {
 	  var isRoot = !path.length
-	  var state = module.state;
-	  var actions = module.actions;
-	  var mutations = module.mutations;
-	  var getters = module.getters;
-	  var modules = module.modules;
+	  var namespace = store._modules.getNamespace(path)
+
+	  // register in namespace map
+	  if (namespace) {
+	    store._modulesNamespaceMap[namespace] = module
+	  }
 
 	  // set state
 	  if (!isRoot && !hot) {
 	    var parentState = getNestedState(rootState, path.slice(0, -1))
 	    var moduleName = path[path.length - 1]
 	    store._withCommit(function () {
-	      Vue.set(parentState, moduleName, state || {})
+	      Vue.set(parentState, moduleName, module.state)
 	    })
 	  }
 
-	  if (mutations) {
-	    Object.keys(mutations).forEach(function (key) {
-	      registerMutation(store, key, mutations[key], path)
-	    })
+	  var local = module.context = makeLocalContext(store, namespace)
+
+	  module.forEachMutation(function (mutation, key) {
+	    var namespacedType = namespace + key
+	    registerMutation(store, namespacedType, mutation, path)
+	  })
+
+	  module.forEachAction(function (action, key) {
+	    var namespacedType = namespace + key
+	    registerAction(store, namespacedType, action, local, path)
+	  })
+
+	  module.forEachGetter(function (getter, key) {
+	    var namespacedType = namespace + key
+	    registerGetter(store, namespacedType, getter, local, path)
+	  })
+
+	  module.forEachChild(function (child, key) {
+	    installModule(store, rootState, path.concat(key), child, hot)
+	  })
+	}
+
+	/**
+	 * make localized dispatch, commit and getters
+	 * if there is no namespace, just use root ones
+	 */
+	function makeLocalContext (store, namespace) {
+	  var noNamespace = namespace === ''
+
+	  var local = {
+	    dispatch: noNamespace ? store.dispatch : function (_type, _payload, _options) {
+	      var args = unifyObjectStyle(_type, _payload, _options)
+	      var payload = args.payload;
+	      var options = args.options;
+	      var type = args.type;
+
+	      if (!options || !options.root) {
+	        type = namespace + type
+	        if (!store._actions[type]) {
+	          console.error(("[vuex] unknown local action type: " + (args.type) + ", global type: " + type))
+	          return
+	        }
+	      }
+
+	      return store.dispatch(type, payload)
+	    },
+
+	    commit: noNamespace ? store.commit : function (_type, _payload, _options) {
+	      var args = unifyObjectStyle(_type, _payload, _options)
+	      var payload = args.payload;
+	      var options = args.options;
+	      var type = args.type;
+
+	      if (!options || !options.root) {
+	        type = namespace + type
+	        if (!store._mutations[type]) {
+	          console.error(("[vuex] unknown local mutation type: " + (args.type) + ", global type: " + type))
+	          return
+	        }
+	      }
+
+	      store.commit(type, payload, options)
+	    }
 	  }
 
-	  if (actions) {
-	    Object.keys(actions).forEach(function (key) {
-	      registerAction(store, key, actions[key], path)
-	    })
-	  }
+	  // getters object must be gotten lazily
+	  // because store.getters will be changed by vm update
+	  Object.defineProperty(local, 'getters', {
+	    get: noNamespace ? function () { return store.getters; } : function () { return makeLocalGetters(store, namespace); }
+	  })
 
-	  if (getters) {
-	    wrapGetters(store, getters, path)
-	  }
+	  return local
+	}
 
-	  if (modules) {
-	    Object.keys(modules).forEach(function (key) {
-	      installModule(store, rootState, path.concat(key), modules[key], hot)
+	function makeLocalGetters (store, namespace) {
+	  var gettersProxy = {}
+
+	  var splitPos = namespace.length
+	  Object.keys(store.getters).forEach(function (type) {
+	    // skip if the target getter is not match this namespace
+	    if (type.slice(0, splitPos) !== namespace) { return }
+
+	    // extract local getter type
+	    var localType = type.slice(splitPos)
+
+	    // Add a port to the getters proxy.
+	    // Define as getter property because
+	    // we do not want to evaluate the getters in this time.
+	    Object.defineProperty(gettersProxy, localType, {
+	      get: function () { return store.getters[type]; },
+	      enumerable: true
 	    })
-	  }
+	  })
+
+	  return gettersProxy
 	}
 
 	function registerMutation (store, type, handler, path) {
-	  if ( path === void 0 ) path = [];
-
 	  var entry = store._mutations[type] || (store._mutations[type] = [])
 	  entry.push(function wrappedMutationHandler (payload) {
 	    handler(getNestedState(store.state, path), payload)
 	  })
 	}
 
-	function registerAction (store, type, handler, path) {
-	  if ( path === void 0 ) path = [];
-
+	function registerAction (store, type, handler, local, path) {
 	  var entry = store._actions[type] || (store._actions[type] = [])
-	  var dispatch = store.dispatch;
-	  var commit = store.commit;
 	  entry.push(function wrappedActionHandler (payload, cb) {
 	    var res = handler({
-	      dispatch: dispatch,
-	      commit: commit,
-	      getters: store.getters,
+	      dispatch: local.dispatch,
+	      commit: local.commit,
+	      getters: local.getters,
 	      state: getNestedState(store.state, path),
+	      rootGetters: store.getters,
 	      rootState: store.state
 	    }, payload, cb)
 	    if (!isPromise(res)) {
@@ -14109,21 +14781,19 @@
 	  })
 	}
 
-	function wrapGetters (store, moduleGetters, modulePath) {
-	  Object.keys(moduleGetters).forEach(function (getterKey) {
-	    var rawGetter = moduleGetters[getterKey]
-	    if (store._wrappedGetters[getterKey]) {
-	      console.error(("[vuex] duplicate getter key: " + getterKey))
-	      return
-	    }
-	    store._wrappedGetters[getterKey] = function wrappedGetter (store) {
-	      return rawGetter(
-	        getNestedState(store.state, modulePath), // local state
-	        store.getters, // getters
-	        store.state // root state
-	      )
-	    }
-	  })
+	function registerGetter (store, type, rawGetter, local, path) {
+	  if (store._wrappedGetters[type]) {
+	    console.error(("[vuex] duplicate getter key: " + type))
+	    return
+	  }
+	  store._wrappedGetters[type] = function wrappedGetter (store) {
+	    return rawGetter(
+	      getNestedState(store.state, path), // local state
+	      local.getters, // local getters
+	      store.state, // root state
+	      store.getters // root getters
+	    )
+	  }
 	}
 
 	function enableStrictMode (store) {
@@ -14136,6 +14806,15 @@
 	  return path.length
 	    ? path.reduce(function (state, key) { return state[key]; }, state)
 	    : state
+	}
+
+	function unifyObjectStyle (type, payload, options) {
+	  if (isObject(type) && type.type) {
+	    options = payload
+	    payload = type
+	    type = type.type
+	  }
+	  return { type: type, payload: payload, options: options }
 	}
 
 	function install (_Vue) {
@@ -14157,6 +14836,7 @@
 	var index = {
 	  Store: Store,
 	  install: install,
+	  version: '2.1.1',
 	  mapState: mapState,
 	  mapMutations: mapMutations,
 	  mapGetters: mapGetters,
@@ -14243,7 +14923,7 @@
 
 	/* hot reload */
 	if (false) {(function () {
-	  var hotAPI = require("vue-loader/node_modules/vue-hot-reload-api")
+	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
 	  module.hot.accept()
@@ -14274,8 +14954,8 @@
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../../../../node_modules/.0.26.0@css-loader/index.js!./../../../../../../node_modules/.9.9.5@vue-loader/lib/style-rewriter.js?id=data-v-cfe11674!./../../../../../../node_modules/.9.9.5@vue-loader/lib/selector.js?type=styles&index=0!./user-view.vue", function() {
-				var newContent = require("!!./../../../../../../node_modules/.0.26.0@css-loader/index.js!./../../../../../../node_modules/.9.9.5@vue-loader/lib/style-rewriter.js?id=data-v-cfe11674!./../../../../../../node_modules/.9.9.5@vue-loader/lib/selector.js?type=styles&index=0!./user-view.vue");
+			module.hot.accept("!!./../../../../../../node_modules/css-loader/index.js!./../../../../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-cfe11674!./../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./user-view.vue", function() {
+				var newContent = require("!!./../../../../../../node_modules/css-loader/index.js!./../../../../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-cfe11674!./../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./user-view.vue");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -14330,13 +15010,13 @@
 /* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;
-	  return _h('router-view')
+	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+	  return _c('router-view')
 	},staticRenderFns: []}
 	if (false) {
 	  module.hot.accept()
 	  if (module.hot.data) {
-	     require("vue-loader/node_modules/vue-hot-reload-api").rerender("data-v-cfe11674", module.exports)
+	     require("vue-hot-reload-api").rerender("data-v-cfe11674", module.exports)
 	  }
 	}
 
@@ -14372,7 +15052,7 @@
 
 	/* hot reload */
 	if (false) {(function () {
-	  var hotAPI = require("vue-loader/node_modules/vue-hot-reload-api")
+	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
 	  module.hot.accept()
@@ -14403,8 +15083,8 @@
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../../../../node_modules/.0.26.0@css-loader/index.js!./../../../../../../node_modules/.9.9.5@vue-loader/lib/style-rewriter.js?id=data-v-53bb367d!./../../../../../../node_modules/.9.9.5@vue-loader/lib/selector.js?type=styles&index=0!./user-table.vue", function() {
-				var newContent = require("!!./../../../../../../node_modules/.0.26.0@css-loader/index.js!./../../../../../../node_modules/.9.9.5@vue-loader/lib/style-rewriter.js?id=data-v-53bb367d!./../../../../../../node_modules/.9.9.5@vue-loader/lib/selector.js?type=styles&index=0!./user-table.vue");
+			module.hot.accept("!!./../../../../../../node_modules/css-loader/index.js!./../../../../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-53bb367d!./../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./user-table.vue", function() {
+				var newContent = require("!!./../../../../../../node_modules/css-loader/index.js!./../../../../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-53bb367d!./../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./user-table.vue");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -14724,37 +15404,37 @@
 /* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;
-	  return _h('div', [_h('div', {
+	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+	  return _c('div', [_c('div', {
 	    staticClass: "inner-nav"
-	  }, [_h('el-button-group', {
+	  }, [_c('el-button-group', {
 	    staticClass: "start-button-group"
-	  }, [_h('el-button', {
+	  }, [_c('el-button', {
 	    attrs: {
 	      "type": "primary"
 	    }
-	  }, ["修改"]), " ", _h('el-button', {
+	  }, [_vm._v("修改")]), _vm._v(" "), _c('el-button', {
 	    attrs: {
 	      "type": "primary"
 	    },
 	    on: {
 	      "click": _vm.unLockUser
 	    }
-	  }, ["启用"]), " ", _h('el-button', {
+	  }, [_vm._v("启用")]), _vm._v(" "), _c('el-button', {
 	    attrs: {
 	      "type": "danger"
 	    },
 	    on: {
 	      "click": _vm.blockUser
 	    }
-	  }, ["禁用"]), " ", _h('el-button', {
+	  }, [_vm._v("禁用")]), _vm._v(" "), _c('el-button', {
 	    attrs: {
 	      "type": "danger"
 	    },
 	    on: {
 	      "click": _vm.deleteUser
 	    }
-	  }, ["删除"])]), " ", _h('el-button', {
+	  }, [_vm._v("删除")])], 1), _vm._v(" "), _c('el-button', {
 	    staticClass: "end-button-group",
 	    attrs: {
 	      "plain": true,
@@ -14765,13 +15445,13 @@
 	        _vm.toCreateUser($event)
 	      }
 	    }
-	  }, ["创建用户"])]), " ", _h('el-row', [_h('el-col', {
+	  }, [_vm._v("创建用户")])], 1), _vm._v(" "), _c('el-row', [_c('el-col', {
 	    attrs: {
 	      "span": 24
 	    }
-	  }, [_h('div', {
+	  }, [_c('div', {
 	    staticClass: "grid-content bg-purple-light"
-	  }, [_h('el-table', {
+	  }, [_c('el-table', {
 	    staticStyle: {
 	      "width": "100%"
 	    },
@@ -14784,56 +15464,56 @@
 	    on: {
 	      "selection-change": _vm.selectChange
 	    }
-	  }, [_h('el-table-column', {
+	  }, [_c('el-table-column', {
 	    attrs: {
 	      "type": "selection",
 	      "width": "50"
 	    }
-	  }), " ", _h('el-table-column', {
+	  }), _vm._v(" "), _c('el-table-column', {
 	    attrs: {
 	      "type": "index",
 	      "width": "50"
 	    }
-	  }), " ", _h('el-table-column', {
+	  }), _vm._v(" "), _c('el-table-column', {
 	    attrs: {
 	      "property": "login_name",
 	      "label": "登录名",
 	      "width": "180"
 	    }
-	  }), " ", _h('el-table-column', {
+	  }), _vm._v(" "), _c('el-table-column', {
 	    attrs: {
 	      "property": "login_name",
 	      "label": "用户名",
 	      "width": "180"
 	    }
-	  }), " ", _h('el-table-column', {
+	  }), _vm._v(" "), _c('el-table-column', {
 	    attrs: {
 	      "property": "active",
 	      "label": "活跃帐户",
 	      "width": "180"
 	    }
-	  }), " ", _h('el-table-column', {
+	  }), _vm._v(" "), _c('el-table-column', {
 	    attrs: {
 	      "property": "is_block",
 	      "label": "是否禁用",
 	      "width": "180"
 	    }
-	  }), " ", _h('el-table-column', {
+	  }), _vm._v(" "), _c('el-table-column', {
 	    attrs: {
 	      "property": "create_time",
 	      "label": "创建时间"
 	    }
-	  }), " ", _h('el-table-column', {
+	  }), _vm._v(" "), _c('el-table-column', {
 	    attrs: {
 	      "property": "create_user",
 	      "label": "创建者"
 	    }
-	  })])])])])])
+	  })], 1)], 1)])], 1)], 1)
 	},staticRenderFns: []}
 	if (false) {
 	  module.hot.accept()
 	  if (module.hot.data) {
-	     require("vue-loader/node_modules/vue-hot-reload-api").rerender("data-v-53bb367d", module.exports)
+	     require("vue-hot-reload-api").rerender("data-v-53bb367d", module.exports)
 	  }
 	}
 
@@ -14869,7 +15549,7 @@
 
 	/* hot reload */
 	if (false) {(function () {
-	  var hotAPI = require("vue-loader/node_modules/vue-hot-reload-api")
+	  var hotAPI = require("vue-hot-reload-api")
 	  hotAPI.install(require("vue"), false)
 	  if (!hotAPI.compatible) return
 	  module.hot.accept()
@@ -14900,8 +15580,8 @@
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../../../../node_modules/.0.26.0@css-loader/index.js!./../../../../../../node_modules/.9.9.5@vue-loader/lib/style-rewriter.js?id=data-v-5cd70d46!./../../../../../../node_modules/.9.9.5@vue-loader/lib/selector.js?type=styles&index=0!./user-create.vue", function() {
-				var newContent = require("!!./../../../../../../node_modules/.0.26.0@css-loader/index.js!./../../../../../../node_modules/.9.9.5@vue-loader/lib/style-rewriter.js?id=data-v-5cd70d46!./../../../../../../node_modules/.9.9.5@vue-loader/lib/selector.js?type=styles&index=0!./user-create.vue");
+			module.hot.accept("!!./../../../../../../node_modules/css-loader/index.js!./../../../../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-5cd70d46!./../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./user-create.vue", function() {
+				var newContent = require("!!./../../../../../../node_modules/css-loader/index.js!./../../../../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-5cd70d46!./../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./user-create.vue");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -14994,12 +15674,12 @@
 /* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;
-	  return _h('div', {
+	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+	  return _c('div', {
 	    staticClass: "row"
-	  }, [_h('div', {
+	  }, [_c('div', {
 	    staticClass: "col-sm-5 col-sm-offset-2"
-	  }, [_h('el-form', {
+	  }, [_c('el-form', {
 	    ref: "form",
 	    attrs: {
 	      "label-width": "80px"
@@ -15010,11 +15690,11 @@
 	        _vm.onSubmit($event)
 	      }
 	    }
-	  }, [_h('el-form-item', {
+	  }, [_c('el-form-item', {
 	    attrs: {
 	      "label": "用户名"
 	    }
-	  }, [_h('el-input', {
+	  }, [_c('el-input', {
 	    directives: [{
 	      name: "model",
 	      rawName: "v-model",
@@ -15029,11 +15709,11 @@
 	        _vm.name = $event
 	      }
 	    }
-	  })]), " ", _h('el-form-item', {
+	  })], 1), _vm._v(" "), _c('el-form-item', {
 	    attrs: {
 	      "label": "登陆名"
 	    }
-	  }, [_h('el-input', {
+	  }, [_c('el-input', {
 	    directives: [{
 	      name: "model",
 	      rawName: "v-model",
@@ -15048,11 +15728,11 @@
 	        _vm.loginname = $event
 	      }
 	    }
-	  })]), " ", _h('el-form-item', {
+	  })], 1), _vm._v(" "), _c('el-form-item', {
 	    attrs: {
 	      "label": "初始密码"
 	    }
-	  }, [_h('el-input', {
+	  }, [_c('el-input', {
 	    directives: [{
 	      name: "model",
 	      rawName: "v-model",
@@ -15067,7 +15747,7 @@
 	        _vm.password = $event
 	      }
 	    }
-	  })]), " ", _h('el-form-item', [_h('el-button', {
+	  })], 1), _vm._v(" "), _c('el-form-item', [_c('el-button', {
 	    attrs: {
 	      "type": "primary"
 	    },
@@ -15076,24 +15756,1209 @@
 	        _vm.saveUser($event)
 	      }
 	    }
-	  }, ["立即创建"]), " ", _h('el-button', {
+	  }, [_vm._v("立即创建")]), _vm._v(" "), _c('el-button', {
 	    nativeOn: {
 	      "click": function($event) {
-	        if ($event.keyCode !== _vm._k("back")) { return; }
+	        if (_vm._k($event.keyCode, "back")) { return; }
 	        _vm.back($event)
 	      }
 	    }
-	  }, ["取消"])])])])])
+	  }, [_vm._v("取消")])], 1)], 1)], 1)])
 	},staticRenderFns: []}
 	if (false) {
 	  module.hot.accept()
 	  if (module.hot.data) {
-	     require("vue-loader/node_modules/vue-hot-reload-api").rerender("data-v-5cd70d46", module.exports)
+	     require("vue-hot-reload-api").rerender("data-v-5cd70d46", module.exports)
 	  }
 	}
 
 /***/ },
 /* 42 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __vue_exports__, __vue_options__
+	var __vue_styles__ = {}
+
+	/* styles */
+	__webpack_require__(43)
+
+	/* script */
+	__vue_exports__ = __webpack_require__(45)
+
+	/* template */
+	var __vue_template__ = __webpack_require__(46)
+	__vue_options__ = __vue_exports__ = __vue_exports__ || {}
+	if (
+	  typeof __vue_exports__.default === "object" ||
+	  typeof __vue_exports__.default === "function"
+	) {
+	if (Object.keys(__vue_exports__).some(function (key) { return key !== "default" && key !== "__esModule" })) {console.error("named exports are not supported in *.vue files.")}
+	__vue_options__ = __vue_exports__ = __vue_exports__.default
+	}
+	if (typeof __vue_options__ === "function") {
+	  __vue_options__ = __vue_options__.options
+	}
+	__vue_options__.__file = "/Users/cuiqikun/xunull/Github/xunull/noadmin-koa/front/xiaowan/src/main/components/manage/role/role-view.vue"
+	__vue_options__.render = __vue_template__.render
+	__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
+
+	/* hot reload */
+	if (false) {(function () {
+	  var hotAPI = require("vue-hot-reload-api")
+	  hotAPI.install(require("vue"), false)
+	  if (!hotAPI.compatible) return
+	  module.hot.accept()
+	  if (!module.hot.data) {
+	    hotAPI.createRecord("data-v-62c17de6", __vue_options__)
+	  } else {
+	    hotAPI.reload("data-v-62c17de6", __vue_options__)
+	  }
+	})()}
+	if (__vue_options__.functional) {console.error("[vue-loader] role-view.vue: functional components are not supported and should be defined in plain js files using render functions.")}
+
+	module.exports = __vue_exports__
+
+
+/***/ },
+/* 43 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(44);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(20)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../../../../node_modules/css-loader/index.js!./../../../../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-62c17de6!./../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./role-view.vue", function() {
+				var newContent = require("!!./../../../../../../node_modules/css-loader/index.js!./../../../../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-62c17de6!./../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./role-view.vue");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 44 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(19)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+
+	// exports
+
+
+/***/ },
+/* 45 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+
+	exports.default = {
+	    data: function data() {
+	        return {};
+	    },
+
+	    computed: {},
+	    mounted: function mounted() {},
+
+	    methods: {
+	        roleCreate: function roleCreate() {
+	            this.$router.push('/manage/role/roleCreate');
+	        }
+	    },
+	    components: {}
+	};
+
+/***/ },
+/* 46 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+	  return _c('div', [_c('div', {
+	    staticClass: "row"
+	  }, [_c('div', {
+	    staticClass: "col-sm-12"
+	  }, [_c('div', {
+	    staticClass: "pull-right"
+	  }, [_c('el-button', {
+	    attrs: {
+	      "type": "primary"
+	    },
+	    nativeOn: {
+	      "click": function($event) {
+	        _vm.roleCreate($event)
+	      }
+	    }
+	  }, [_vm._v("\n                    创建角色\n                ")])], 1)])]), _vm._v(" "), _c('router-view')], 1)
+	},staticRenderFns: []}
+	if (false) {
+	  module.hot.accept()
+	  if (module.hot.data) {
+	     require("vue-hot-reload-api").rerender("data-v-62c17de6", module.exports)
+	  }
+	}
+
+/***/ },
+/* 47 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __vue_exports__, __vue_options__
+	var __vue_styles__ = {}
+
+	/* styles */
+	__webpack_require__(48)
+
+	/* script */
+	__vue_exports__ = __webpack_require__(50)
+
+	/* template */
+	var __vue_template__ = __webpack_require__(51)
+	__vue_options__ = __vue_exports__ = __vue_exports__ || {}
+	if (
+	  typeof __vue_exports__.default === "object" ||
+	  typeof __vue_exports__.default === "function"
+	) {
+	if (Object.keys(__vue_exports__).some(function (key) { return key !== "default" && key !== "__esModule" })) {console.error("named exports are not supported in *.vue files.")}
+	__vue_options__ = __vue_exports__ = __vue_exports__.default
+	}
+	if (typeof __vue_options__ === "function") {
+	  __vue_options__ = __vue_options__.options
+	}
+	__vue_options__.__file = "/Users/cuiqikun/xunull/Github/xunull/noadmin-koa/front/xiaowan/src/main/components/manage/role/role-table-view.vue"
+	__vue_options__.render = __vue_template__.render
+	__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
+
+	/* hot reload */
+	if (false) {(function () {
+	  var hotAPI = require("vue-hot-reload-api")
+	  hotAPI.install(require("vue"), false)
+	  if (!hotAPI.compatible) return
+	  module.hot.accept()
+	  if (!module.hot.data) {
+	    hotAPI.createRecord("data-v-24712b76", __vue_options__)
+	  } else {
+	    hotAPI.reload("data-v-24712b76", __vue_options__)
+	  }
+	})()}
+	if (__vue_options__.functional) {console.error("[vue-loader] role-table-view.vue: functional components are not supported and should be defined in plain js files using render functions.")}
+
+	module.exports = __vue_exports__
+
+
+/***/ },
+/* 48 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(49);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(20)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../../../../node_modules/css-loader/index.js!./../../../../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-24712b76!./../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./role-table-view.vue", function() {
+				var newContent = require("!!./../../../../../../node_modules/css-loader/index.js!./../../../../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-24712b76!./../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./role-table-view.vue");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 49 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(19)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+
+	// exports
+
+
+/***/ },
+/* 50 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+
+	exports.default = {
+	    data: function data() {
+	        var rolesData = [];
+
+	        this.$http.get('/admin/roles').then(function (response) {
+	            // this.$data.meetings = response.body;
+	            if (response.body.ok) {
+	                console.log(response.body);
+	                // 直接对数组变量赋值，table上不会显示
+	                rolesData.push.apply(rolesData, _toConsumableArray(response.body.data));
+	            } else {
+	                console.log(response.body.msg);
+	            }
+	        }, function (response) {
+	            console.log(response);
+	        });
+
+	        return {
+	            rolesData: rolesData
+	        };
+	    },
+
+	    computed: {},
+	    mounted: function mounted() {},
+
+	    methods: {},
+	    components: {}
+	};
+
+/***/ },
+/* 51 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+	  return _c('div', [_c('el-button-group', [_c('el-button', {
+	    attrs: {
+	      "type": "primary"
+	    }
+	  }, [_vm._v("修改")]), _vm._v(" "), _c('el-button', {
+	    attrs: {
+	      "type": "success"
+	    }
+	  }, [_vm._v("添加子角色")]), _vm._v(" "), _c('el-button', {
+	    attrs: {
+	      "type": "danger"
+	    }
+	  }, [_vm._v("删除")])], 1), _vm._v(" "), _c('el-row', [_c('el-col', {
+	    attrs: {
+	      "span": 24
+	    }
+	  }, [_c('div', {
+	    staticClass: "grid-content bg-purple-light"
+	  }, [_c('el-table', {
+	    staticStyle: {
+	      "width": "100%"
+	    },
+	    attrs: {
+	      "data": _vm.rolesData,
+	      "fixed-column-count": 4,
+	      "border": true,
+	      "stripe": true,
+	      "selection-mode": "multiple"
+	    }
+	  }, [_c('el-table-column', {
+	    attrs: {
+	      "type": "selection",
+	      "width": "50"
+	    }
+	  }), _vm._v(" "), _c('el-table-column', {
+	    attrs: {
+	      "type": "index",
+	      "width": "50"
+	    }
+	  }), _vm._v(" "), _c('el-table-column', {
+	    attrs: {
+	      "property": "name",
+	      "label": "名称",
+	      "width": "180"
+	    }
+	  }), _vm._v(" "), _c('el-table-column', {
+	    attrs: {
+	      "property": "description",
+	      "label": "描述",
+	      "width": "180"
+	    }
+	  }), _vm._v(" "), _c('el-table-column', {
+	    attrs: {
+	      "property": "parent",
+	      "label": "父角色",
+	      "width": "180"
+	    }
+	  }), _vm._v(" "), _c('el-table-column', {
+	    attrs: {
+	      "property": "create_date",
+	      "label": "创建时间"
+	    }
+	  }), _vm._v(" "), _c('el-table-column', {
+	    attrs: {
+	      "property": "create_user",
+	      "label": "创建者"
+	    }
+	  }), _vm._v(" "), _c('el-table-column', {
+	    attrs: {
+	      "property": "update_date",
+	      "label": "修改时间"
+	    }
+	  }), _vm._v(" "), _c('el-table-column', {
+	    attrs: {
+	      "property": "update_time",
+	      "label": "修改者"
+	    }
+	  })], 1)], 1)])], 1)], 1)
+	},staticRenderFns: []}
+	if (false) {
+	  module.hot.accept()
+	  if (module.hot.data) {
+	     require("vue-hot-reload-api").rerender("data-v-24712b76", module.exports)
+	  }
+	}
+
+/***/ },
+/* 52 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __vue_exports__, __vue_options__
+	var __vue_styles__ = {}
+
+	/* styles */
+	__webpack_require__(53)
+
+	/* script */
+	__vue_exports__ = __webpack_require__(55)
+
+	/* template */
+	var __vue_template__ = __webpack_require__(56)
+	__vue_options__ = __vue_exports__ = __vue_exports__ || {}
+	if (
+	  typeof __vue_exports__.default === "object" ||
+	  typeof __vue_exports__.default === "function"
+	) {
+	if (Object.keys(__vue_exports__).some(function (key) { return key !== "default" && key !== "__esModule" })) {console.error("named exports are not supported in *.vue files.")}
+	__vue_options__ = __vue_exports__ = __vue_exports__.default
+	}
+	if (typeof __vue_options__ === "function") {
+	  __vue_options__ = __vue_options__.options
+	}
+	__vue_options__.__file = "/Users/cuiqikun/xunull/Github/xunull/noadmin-koa/front/xiaowan/src/main/components/manage/role/role-create-view.vue"
+	__vue_options__.render = __vue_template__.render
+	__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
+
+	/* hot reload */
+	if (false) {(function () {
+	  var hotAPI = require("vue-hot-reload-api")
+	  hotAPI.install(require("vue"), false)
+	  if (!hotAPI.compatible) return
+	  module.hot.accept()
+	  if (!module.hot.data) {
+	    hotAPI.createRecord("data-v-2b5db525", __vue_options__)
+	  } else {
+	    hotAPI.reload("data-v-2b5db525", __vue_options__)
+	  }
+	})()}
+	if (__vue_options__.functional) {console.error("[vue-loader] role-create-view.vue: functional components are not supported and should be defined in plain js files using render functions.")}
+
+	module.exports = __vue_exports__
+
+
+/***/ },
+/* 53 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(54);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(20)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../../../../node_modules/css-loader/index.js!./../../../../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-2b5db525!./../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./role-create-view.vue", function() {
+				var newContent = require("!!./../../../../../../node_modules/css-loader/index.js!./../../../../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-2b5db525!./../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./role-create-view.vue");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 54 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(19)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+
+	// exports
+
+
+/***/ },
+/* 55 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+
+	exports.default = {
+	    data: function data() {
+
+	        var roleOptions = [];
+
+	        this.$http.get('/api/role/all').then(function (response) {
+	            // this.$data.meetings = response.body;
+	            if (response.body.ok) {
+	                console.log(response.body);
+
+	                var temp = [];
+	                response.body.data.forEach(function (value, index) {
+	                    temp.push({
+	                        value: value._id,
+	                        label: value.name
+	                    });
+	                });
+
+	                roleOptions.push.apply(roleOptions, temp);
+	            } else {
+	                console.log(response.body.msg);
+	            }
+	        }, function (response) {
+	            console.log(response);
+	        });
+
+	        return {
+	            options: roleOptions,
+	            parent: null,
+	            name: null,
+	            description: null
+	        };
+	    },
+
+	    computed: {},
+	    mounted: function mounted() {},
+
+	    methods: {
+	        saveRole: function saveRole() {
+
+	            console.log(this.$data);
+
+	            this.$http.post('/api/role/save', {
+	                name: this.$data.name,
+	                description: this.$data.description,
+	                parent: this.$data.parent
+	            }).then(function (response) {}, function (response) {});
+	        },
+	        back: function back() {
+	            this.$router.push('/manage/role/roleTable');
+	        }
+	    },
+	    components: {}
+	};
+
+/***/ },
+/* 56 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+	  return _c('div', {
+	    staticClass: "row"
+	  }, [_c('div', {
+	    staticClass: "col-sm-6 col-sm-offset-2"
+	  }, [_c('el-form', {
+	    ref: "form",
+	    attrs: {
+	      "label-width": "80px"
+	    },
+	    on: {
+	      "submit": function($event) {
+	        $event.preventDefault();
+	        _vm.onSubmit($event)
+	      }
+	    }
+	  }, [_c('el-form-item', {
+	    attrs: {
+	      "label": "角色名"
+	    }
+	  }, [_c('el-input', {
+	    directives: [{
+	      name: "model",
+	      rawName: "v-model",
+	      value: (_vm.name),
+	      expression: "name"
+	    }],
+	    domProps: {
+	      "value": (_vm.name)
+	    },
+	    on: {
+	      "input": function($event) {
+	        _vm.name = $event
+	      }
+	    }
+	  })], 1), _vm._v(" "), _c('el-form-item', {
+	    attrs: {
+	      "label": "角色描述"
+	    }
+	  }, [_c('el-input', {
+	    directives: [{
+	      name: "model",
+	      rawName: "v-model",
+	      value: (_vm.description),
+	      expression: "description"
+	    }],
+	    domProps: {
+	      "value": (_vm.description)
+	    },
+	    on: {
+	      "input": function($event) {
+	        _vm.description = $event
+	      }
+	    }
+	  })], 1), _vm._v(" "), _c('el-form-item', {
+	    attrs: {
+	      "label": "父角色"
+	    }
+	  }, [_c('el-select', {
+	    directives: [{
+	      name: "model",
+	      rawName: "v-model",
+	      value: (_vm.parent),
+	      expression: "parent"
+	    }],
+	    domProps: {
+	      "value": (_vm.parent)
+	    },
+	    on: {
+	      "input": function($event) {
+	        _vm.parent = $event
+	      }
+	    }
+	  }, _vm._l((_vm.options), function(item) {
+	    return _c('el-option', {
+	      attrs: {
+	        "label": item.label,
+	        "value": item.value
+	      }
+	    })
+	  }))], 1), _vm._v(" "), _c('el-form-item', [_c('el-button', {
+	    attrs: {
+	      "type": "primary"
+	    },
+	    nativeOn: {
+	      "click": function($event) {
+	        _vm.saveRole($event)
+	      }
+	    }
+	  }, [_vm._v("立即创建")]), _vm._v(" "), _c('el-button', {
+	    nativeOn: {
+	      "click": function($event) {
+	        if (_vm._k($event.keyCode, "back")) { return; }
+	        _vm.back($event)
+	      }
+	    }
+	  }, [_vm._v("取消")])], 1)], 1)], 1)])
+	},staticRenderFns: []}
+	if (false) {
+	  module.hot.accept()
+	  if (module.hot.data) {
+	     require("vue-hot-reload-api").rerender("data-v-2b5db525", module.exports)
+	  }
+	}
+
+/***/ },
+/* 57 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __vue_exports__, __vue_options__
+	var __vue_styles__ = {}
+
+	/* styles */
+	__webpack_require__(58)
+
+	/* script */
+	__vue_exports__ = __webpack_require__(60)
+
+	/* template */
+	var __vue_template__ = __webpack_require__(61)
+	__vue_options__ = __vue_exports__ = __vue_exports__ || {}
+	if (
+	  typeof __vue_exports__.default === "object" ||
+	  typeof __vue_exports__.default === "function"
+	) {
+	if (Object.keys(__vue_exports__).some(function (key) { return key !== "default" && key !== "__esModule" })) {console.error("named exports are not supported in *.vue files.")}
+	__vue_options__ = __vue_exports__ = __vue_exports__.default
+	}
+	if (typeof __vue_options__ === "function") {
+	  __vue_options__ = __vue_options__.options
+	}
+	__vue_options__.__file = "/Users/cuiqikun/xunull/Github/xunull/noadmin-koa/front/xiaowan/src/main/components/manage/menu/menu-view.vue"
+	__vue_options__.render = __vue_template__.render
+	__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
+
+	/* hot reload */
+	if (false) {(function () {
+	  var hotAPI = require("vue-hot-reload-api")
+	  hotAPI.install(require("vue"), false)
+	  if (!hotAPI.compatible) return
+	  module.hot.accept()
+	  if (!module.hot.data) {
+	    hotAPI.createRecord("data-v-3f00a846", __vue_options__)
+	  } else {
+	    hotAPI.reload("data-v-3f00a846", __vue_options__)
+	  }
+	})()}
+	if (__vue_options__.functional) {console.error("[vue-loader] menu-view.vue: functional components are not supported and should be defined in plain js files using render functions.")}
+
+	module.exports = __vue_exports__
+
+
+/***/ },
+/* 58 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(59);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(20)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../../../../node_modules/css-loader/index.js!./../../../../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-3f00a846!./../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./menu-view.vue", function() {
+				var newContent = require("!!./../../../../../../node_modules/css-loader/index.js!./../../../../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-3f00a846!./../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./menu-view.vue");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 59 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(19)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+
+	// exports
+
+
+/***/ },
+/* 60 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+
+	exports.default = {
+	    data: function data() {
+	        var roles = [];
+	        this.$http.get('/admin/roles/allroles').then(function (response) {
+	            if (response.body.ok) {
+	                console.log(response.body.data);
+	                roles.push.apply(roles, _toConsumableArray(response.body.data));
+	            }
+	        }, function (response) {});
+	        return {
+	            roles: roles
+	        };
+	    },
+
+	    methods: {
+	        toCreateMenu: function toCreateMenu() {
+	            this.$router.push('/manage/menu/menuCreate');
+	        }
+	    }
+	};
+
+/***/ },
+/* 61 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+	  return _c('div', [_c('div', {
+	    staticClass: "inner-nav"
+	  }, [_c('el-select', {
+	    directives: [{
+	      name: "model",
+	      rawName: "v-model",
+	      value: (_vm.value),
+	      expression: "value"
+	    }],
+	    attrs: {
+	      "filterable": "",
+	      "placeholder": "请选择角色"
+	    },
+	    domProps: {
+	      "value": (_vm.value)
+	    },
+	    on: {
+	      "input": function($event) {
+	        _vm.value = $event
+	      }
+	    }
+	  }, _vm._l((_vm.roles), function(item) {
+	    return _c('el-option', {
+	      attrs: {
+	        "label": item.name,
+	        "value": item.id
+	      }
+	    })
+	  })), _vm._v(" "), _c('el-button', {
+	    staticClass: "end-button-group",
+	    attrs: {
+	      "plain": true,
+	      "type": "primary"
+	    },
+	    nativeOn: {
+	      "click": function($event) {
+	        _vm.toCreateMenu($event)
+	      }
+	    }
+	  }, [_vm._v("创建菜单")])], 1), _vm._v(" "), _c('router-view')], 1)
+	},staticRenderFns: []}
+	if (false) {
+	  module.hot.accept()
+	  if (module.hot.data) {
+	     require("vue-hot-reload-api").rerender("data-v-3f00a846", module.exports)
+	  }
+	}
+
+/***/ },
+/* 62 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __vue_exports__, __vue_options__
+	var __vue_styles__ = {}
+
+	/* styles */
+	__webpack_require__(63)
+
+	/* script */
+	__vue_exports__ = __webpack_require__(65)
+
+	/* template */
+	var __vue_template__ = __webpack_require__(66)
+	__vue_options__ = __vue_exports__ = __vue_exports__ || {}
+	if (
+	  typeof __vue_exports__.default === "object" ||
+	  typeof __vue_exports__.default === "function"
+	) {
+	if (Object.keys(__vue_exports__).some(function (key) { return key !== "default" && key !== "__esModule" })) {console.error("named exports are not supported in *.vue files.")}
+	__vue_options__ = __vue_exports__ = __vue_exports__.default
+	}
+	if (typeof __vue_options__ === "function") {
+	  __vue_options__ = __vue_options__.options
+	}
+	__vue_options__.__file = "/Users/cuiqikun/xunull/Github/xunull/noadmin-koa/front/xiaowan/src/main/components/manage/menu/menu-create.vue"
+	__vue_options__.render = __vue_template__.render
+	__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
+
+	/* hot reload */
+	if (false) {(function () {
+	  var hotAPI = require("vue-hot-reload-api")
+	  hotAPI.install(require("vue"), false)
+	  if (!hotAPI.compatible) return
+	  module.hot.accept()
+	  if (!module.hot.data) {
+	    hotAPI.createRecord("data-v-fdf26646", __vue_options__)
+	  } else {
+	    hotAPI.reload("data-v-fdf26646", __vue_options__)
+	  }
+	})()}
+	if (__vue_options__.functional) {console.error("[vue-loader] menu-create.vue: functional components are not supported and should be defined in plain js files using render functions.")}
+
+	module.exports = __vue_exports__
+
+
+/***/ },
+/* 63 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(64);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(20)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../../../../node_modules/css-loader/index.js!./../../../../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-fdf26646!./../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./menu-create.vue", function() {
+				var newContent = require("!!./../../../../../../node_modules/css-loader/index.js!./../../../../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-fdf26646!./../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./menu-create.vue");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 64 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(19)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+
+	// exports
+
+
+/***/ },
+/* 65 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _menuTree = __webpack_require__(139);
+
+	var _menuTree2 = _interopRequireDefault(_menuTree);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	exports.default = {
+	    data: function data() {
+
+	        return {
+	            name: null,
+	            uri: null
+	        };
+	    },
+
+	    methods: {
+	        saveMenu: function saveMenu() {
+	            this.$http.post('/admin/menus/create', {
+	                name: this.$data.name,
+	                uri: this.$data.uri
+	            }).then(function (response) {
+	                console.log(response.body);
+	            }, function (response) {
+	                console.log(response.body);
+	            });
+
+	            console.log(this.$data);
+	        },
+	        back: function back() {
+	            this.$router.push('/manage/menu/menuTree');
+	        },
+	        nodeClick: function nodeClick(obj) {
+	            console.log(obj);
+	        }
+	    },
+	    components: {
+	        MenuTree: _menuTree2.default
+	    }
+	}; //
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+
+/***/ },
+/* 66 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+	  return _c('div', [_c('el-row', [_c('el-col', {
+	    attrs: {
+	      "span": 12
+	    }
+	  }, [_vm._v("\n                选择父级菜单,选择为空表示一级菜单\n                "), _c('menu-tree', {
+	    on: {
+	      "nodeclick": _vm.nodeClick
+	    }
+	  })], 1), _vm._v(" "), _c('el-col', {
+	    attrs: {
+	      "span": 12
+	    }
+	  }, [_c('el-form', {
+	    ref: "form",
+	    attrs: {
+	      "label-width": "80px"
+	    },
+	    on: {
+	      "submit": function($event) {
+	        $event.preventDefault();
+	        _vm.onSubmit($event)
+	      }
+	    }
+	  }, [_c('el-form-item', {
+	    attrs: {
+	      "label": "菜单名称"
+	    }
+	  }, [_c('el-input', {
+	    directives: [{
+	      name: "model",
+	      rawName: "v-model",
+	      value: (_vm.name),
+	      expression: "name"
+	    }],
+	    domProps: {
+	      "value": (_vm.name)
+	    },
+	    on: {
+	      "input": function($event) {
+	        _vm.name = $event
+	      }
+	    }
+	  })], 1), _vm._v(" "), _c('el-form-item', {
+	    attrs: {
+	      "label": "路径"
+	    }
+	  }, [_c('el-input', {
+	    directives: [{
+	      name: "model",
+	      rawName: "v-model",
+	      value: (_vm.uri),
+	      expression: "uri"
+	    }],
+	    domProps: {
+	      "value": (_vm.uri)
+	    },
+	    on: {
+	      "input": function($event) {
+	        _vm.uri = $event
+	      }
+	    }
+	  })], 1), _vm._v(" "), _c('el-form-item', [_c('el-button', {
+	    attrs: {
+	      "type": "primary"
+	    },
+	    nativeOn: {
+	      "click": function($event) {
+	        _vm.saveMenu($event)
+	      }
+	    }
+	  }, [_vm._v("立即创建")]), _vm._v(" "), _c('el-button', {
+	    nativeOn: {
+	      "click": function($event) {
+	        if (_vm._k($event.keyCode, "back")) { return; }
+	        _vm.back($event)
+	      }
+	    }
+	  }, [_vm._v("取消")])], 1)], 1)], 1)], 1)], 1)
+	},staticRenderFns: []}
+	if (false) {
+	  module.hot.accept()
+	  if (module.hot.data) {
+	     require("vue-hot-reload-api").rerender("data-v-fdf26646", module.exports)
+	  }
+	}
+
+/***/ },
+/* 67 */,
+/* 68 */,
+/* 69 */,
+/* 70 */,
+/* 71 */,
+/* 72 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports =
@@ -15228,7 +17093,7 @@
 
 		var _select2 = _interopRequireDefault(_select);
 
-		var _option = __webpack_require__(98);
+		var _option = __webpack_require__(101);
 
 		var _option2 = _interopRequireDefault(_option);
 
@@ -15372,7 +17237,7 @@
 
 		var _step2 = _interopRequireDefault(_step);
 
-		var _locale = __webpack_require__(96);
+		var _locale = __webpack_require__(99);
 
 		var _locale2 = _interopRequireDefault(_locale);
 
@@ -15456,7 +17321,7 @@
 		};
 
 		module.exports = {
-		  version: '1.0.3',
+		  version: '1.0.8',
 		  locale: _locale2.default.use,
 		  install: install,
 		  Loading: _loading2.default,
@@ -15631,7 +17496,7 @@
 		        {
 		          attrs: { currentPage: this.internalCurrentPage, pageCount: this.internalPageCount },
 		          on: {
-		            change: this.handleCurrentChange
+		            'change': this.handleCurrentChange
 		          }
 		        },
 		        []
@@ -15649,7 +17514,7 @@
 		        []
 		      ),
 		      slot: h(
-		        'slot',
+		        'my-slot',
 		        null,
 		        []
 		      ),
@@ -15695,6 +17560,11 @@
 
 
 		  components: {
+		    MySlot: {
+		      render: function render(h) {
+		        return this.$parent.$slots.default ? this.$parent.$slots.default[0] : '';
+		      }
+		    },
 		    Prev: {
 		      render: function render(h) {
 		        return h(
@@ -15702,7 +17572,7 @@
 		          {
 		            'class': ['btn-prev', { disabled: this.$parent.internalCurrentPage <= 1 }],
 		            on: {
-		              click: this.$parent.prev
+		              'click': this.$parent.prev
 		            }
 		          },
 		          [h(
@@ -15721,7 +17591,7 @@
 		          {
 		            'class': ['btn-next', { disabled: this.$parent.internalCurrentPage === this.$parent.internalPageCount || this.$parent.internalPageCount === 0 }],
 		            on: {
-		              click: this.$parent.next
+		              'click': this.$parent.next
 		            }
 		          },
 		          [h(
@@ -15761,12 +17631,10 @@
 		            'el-select',
 		            {
 		              attrs: {
-		                size: 'small',
-		                value: this.$parent.internalPageSize,
-
-		                width: 110 },
+		                value: this.$parent.internalPageSize
+		              },
 		              on: {
-		                change: this.handleChange
+		                'input': this.handleChange
 		              }
 		            },
 		            [this.pageSizes.map(function (item) {
@@ -15836,11 +17704,11 @@
 
 		                number: true },
 		              domProps: {
-		                value: this.$parent.internalCurrentPage
+		                'value': this.$parent.internalCurrentPage
 		              },
 		              on: {
-		                change: this.handleChange,
-		                focus: this.handleFocus
+		                'change': this.handleChange,
+		                'focus': this.handleFocus
 		              },
 
 		              style: { width: '30px' } },
@@ -16159,18 +18027,18 @@
 	/* 6 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('ul', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('ul', {
 		    staticClass: "el-pager",
 		    on: {
 		      "click": _vm.onPagerClick
 		    }
-		  }, [(_vm.pageCount > 0) ? _vm._h('li', {
+		  }, [(_vm.pageCount > 0) ? _h('li', {
 		    staticClass: "number",
 		    class: {
 		      active: _vm.currentPage === 1
 		    }
-		  }, ["1"]) : _vm._e(), (_vm.showPrevMore) ? _vm._h('li', {
+		  }, ["1"]) : _vm._e(), (_vm.showPrevMore) ? _h('li', {
 		    staticClass: "el-icon more btn-quickprev",
 		    class: [_vm.quickprevIconClass],
 		    on: {
@@ -16182,13 +18050,13 @@
 		      }
 		    }
 		  }) : _vm._e(), _vm._l((_vm.pagers), function(pager) {
-		    return _vm._h('li', {
+		    return _h('li', {
 		      staticClass: "number",
 		      class: {
 		        active: _vm.currentPage === pager
 		      }
 		    }, [_vm._s(pager)])
-		  }), (_vm.showNextMore) ? _vm._h('li', {
+		  }), (_vm.showNextMore) ? _h('li', {
 		    staticClass: "el-icon more btn-quicknext",
 		    class: [_vm.quicknextIconClass],
 		    on: {
@@ -16199,7 +18067,7 @@
 		        _vm.quicknextIconClass = 'el-icon-more'
 		      }
 		    }
-		  }) : _vm._e(), (_vm.pageCount > 1) ? _vm._h('li', {
+		  }) : _vm._e(), (_vm.pageCount > 1) ? _h('li', {
 		    staticClass: "number",
 		    class: {
 		      active: _vm.currentPage === _vm.pageCount
@@ -16211,25 +18079,25 @@
 	/* 7 */
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(43);
+		module.exports = __webpack_require__(73);
 
 	/***/ },
 	/* 8 */
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(61);
+		module.exports = __webpack_require__(91);
 
 	/***/ },
 	/* 9 */
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(62);
+		module.exports = __webpack_require__(92);
 
 	/***/ },
 	/* 10 */
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(51);
+		module.exports = __webpack_require__(81);
 
 	/***/ },
 	/* 11 */
@@ -16423,18 +18291,18 @@
 	/* 14 */
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(50);
+		module.exports = __webpack_require__(80);
 
 	/***/ },
 	/* 15 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('transition', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('transition', {
 		    attrs: {
 		      "name": "dialog-fade"
 		    }
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -16448,27 +18316,27 @@
 		        _vm.handleWrapperClick($event)
 		      }
 		    }
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    ref: "dialog",
 		    staticClass: "el-dialog",
 		    class: [_vm.sizeClass, _vm.customClass],
 		    style: (_vm.style)
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    staticClass: "el-dialog__header"
-		  }, [_vm._h('span', {
+		  }, [_h('span', {
 		    staticClass: "el-dialog__title"
-		  }, [_vm._s(_vm.title)]), _vm._h('div', {
+		  }, [_vm._s(_vm.title)]), _h('div', {
 		    staticClass: "el-dialog__headerbtn"
-		  }, [(_vm.showClose) ? _vm._h('i', {
+		  }, [(_vm.showClose) ? _h('i', {
 		    staticClass: "el-dialog__close el-icon el-icon-close",
 		    on: {
 		      "click": function($event) {
 		        _vm.close()
 		      }
 		    }
-		  }) : _vm._e()])]), (_vm.rendered) ? _vm._h('div', {
+		  }) : _vm._e()])]), (_vm.rendered) ? _h('div', {
 		    staticClass: "el-dialog__body"
-		  }, [_vm._t("default")]) : _vm._e(), (_vm.$slots.footer) ? _vm._h('div', {
+		  }, [_vm._t("default")]) : _vm._e(), (_vm.$slots.footer) ? _h('div', {
 		    staticClass: "el-dialog__footer"
 		  }, [_vm._t("footer")]) : _vm._e()])])])
 		},staticRenderFns: []}
@@ -16698,20 +18566,20 @@
 	/* 19 */
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(44);
+		module.exports = __webpack_require__(74);
 
 	/***/ },
 	/* 20 */
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(46);
+		module.exports = __webpack_require__(76);
 
 	/***/ },
 	/* 21 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    directives: [{
 		      name: "clickoutside",
 		      rawName: "v-clickoutside",
@@ -16719,7 +18587,7 @@
 		      expression: "handleBlur"
 		    }],
 		    staticClass: "el-autocomplete"
-		  }, [_vm._h('el-input', {
+		  }, [_h('el-input', {
 		    attrs: {
 		      "disabled": _vm.disabled,
 		      "placeholder": _vm.placeholder,
@@ -16742,27 +18610,26 @@
 		        _vm.highlight(_vm.highlightedIndex + 1)
 		      }, function($event) {
 		        if ($event.keyCode !== 13) { return; }
+		        $event.stopPropagation();
 		        _vm.select(_vm.highlightedIndex)
 		      }]
 		    }
-		  }, [(_vm.$slots.prepend) ? _vm._h('template', {
+		  }, [(_vm.$slots.prepend) ? _h('template', {
 		    slot: "prepend"
-		  }, [_vm._t("prepend")]) : _vm._e(), (_vm.$slots.append) ? _vm._h('template', {
+		  }, [_vm._t("prepend")]) : _vm._e(), (_vm.$slots.append) ? _h('template', {
 		    slot: "append"
-		  }, [_vm._t("append")]) : _vm._e()]), _vm._h('transition', {
+		  }, [_vm._t("append")]) : _vm._e()]), _h('transition', {
 		    attrs: {
-		      "name": "md-fade-bottom"
+		      "name": "el-zoom-in-top"
 		    }
-		  }, [(_vm.suggestionVisible) ? _vm._h('ul', {
+		  }, [(_vm.suggestionVisible) ? _h('ul', {
 		    ref: "suggestions",
 		    staticClass: "el-autocomplete__suggestions",
 		    class: {
 		      'is-loading': _vm.loading
 		    }
-		  }, [(_vm.loading) ? _vm._h('li', [_vm._h('i', {
-		    staticClass: "el-icon-loading"
-		  })]) : _vm._l((_vm.suggestions), function(item, index) {
-		    return [(!_vm.customItem) ? _vm._h('li', {
+		  }, [(_vm.loading) ? _h('li', [_vm._m(0)]) : _vm._l((_vm.suggestions), function(item, index) {
+		    return [(!_vm.customItem) ? _h('li', {
 		      class: {
 		        'highlighted': _vm.highlightedIndex === index
 		      },
@@ -16771,7 +18638,7 @@
 		          _vm.select(index)
 		        }
 		      }
-		    }, ["\n          " + _vm._s(item.value) + "\n        "]) : _vm._h(_vm.customItem, {
+		    }, ["\n          " + _vm._s(item.value) + "\n        "]) : _h(_vm.customItem, {
 		      tag: "component",
 		      class: {
 		        'highlighted': _vm.highlightedIndex === index
@@ -16787,7 +18654,11 @@
 		      }
 		    })]
 		  })]) : _vm._e()])])
-		},staticRenderFns: []}
+		},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('i', {
+		    staticClass: "el-icon-loading"
+		  })
+		}]}
 
 	/***/ },
 	/* 22 */
@@ -16872,7 +18743,11 @@
 		    },
 		    type: String,
 		    size: String,
-		    splitButton: Boolean
+		    splitButton: Boolean,
+		    hideOnClick: {
+		      type: Boolean,
+		      default: true
+		    }
 		  },
 
 		  data: function data() {
@@ -16914,11 +18789,11 @@
 		      this.visible = !this.visible;
 		    },
 		    initEvent: function initEvent() {
-		      var trigger = this.trigger;
-		      var show = this.show;
-		      var hide = this.hide;
-		      var handleClick = this.handleClick;
-		      var splitButton = this.splitButton;
+		      var trigger = this.trigger,
+		          show = this.show,
+		          hide = this.hide,
+		          handleClick = this.handleClick,
+		          splitButton = this.splitButton;
 
 		      var triggerElm = splitButton ? this.$refs.trigger.$el : this.$slots.default[0].elm;
 
@@ -16935,7 +18810,9 @@
 		      }
 		    },
 		    handleMenuItemClick: function handleMenuItemClick(command, instance) {
-		      this.visible = false;
+		      if (this.hideOnClick) {
+		        this.visible = false;
+		      }
 		      this.$emit('command', command, instance);
 		    }
 		  },
@@ -16943,10 +18820,10 @@
 		  render: function render(h) {
 		    var _this3 = this;
 
-		    var hide = this.hide;
-		    var splitButton = this.splitButton;
-		    var type = this.type;
-		    var size = this.size;
+		    var hide = this.hide,
+		        splitButton = this.splitButton,
+		        type = this.type,
+		        size = this.size;
 
 
 		    var handleClick = function handleClick(_) {
@@ -16961,7 +18838,7 @@
 		        {
 		          attrs: { type: type, size: size },
 		          nativeOn: {
-		            click: handleClick
+		            'click': handleClick
 		          }
 		        },
 		        [this.$slots.default]
@@ -16993,7 +18870,7 @@
 	/* 25 */
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(45);
+		module.exports = __webpack_require__(75);
 
 	/***/ },
 	/* 26 */
@@ -17096,21 +18973,21 @@
 	/* 29 */
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(48);
+		module.exports = __webpack_require__(78);
 
 	/***/ },
 	/* 30 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('transition', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('transition', {
 		    attrs: {
-		      "name": "md-fade-bottom"
+		      "name": "el-zoom-in-top"
 		    },
 		    on: {
 		      "after-leave": _vm.doDestroy
 		    }
-		  }, [_vm._h('ul', {
+		  }, [_h('ul', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -17218,8 +19095,8 @@
 	/* 34 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('li', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('li', {
 		    staticClass: "el-dropdown-menu__item",
 		    class: {
 		      'is-disabled': _vm.disabled,
@@ -17424,8 +19301,8 @@
 	/* 38 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('ul', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('ul', {
 		    staticClass: "el-menu",
 		    class: {
 		      'el-menu--horizontal': _vm.mode === 'horizontal',
@@ -17542,10 +19419,10 @@
 		      }, 300);
 		    },
 		    initEvents: function initEvents() {
-		      var rootMenu = this.rootMenu;
-		      var handleMouseenter = this.handleMouseenter;
-		      var handleMouseleave = this.handleMouseleave;
-		      var handleClick = this.handleClick;
+		      var rootMenu = this.rootMenu,
+		          handleMouseenter = this.handleMouseenter,
+		          handleMouseleave = this.handleMouseleave,
+		          handleClick = this.handleClick;
 
 		      var triggerElm = void 0;
 
@@ -17571,7 +19448,6 @@
 		    this.initEvents();
 		  }
 		}; //
-		//
 		//
 		//
 		//
@@ -17619,6 +19495,19 @@
 		        parent = parent.$parent;
 		      }
 		      return parent;
+		    },
+		    paddingStyle: function paddingStyle() {
+		      if (this.rootMenu.mode !== 'vertical') return {};
+
+		      var padding = 20;
+		      var parent = this.$parent;
+		      while (parent && parent.$options.componentName !== 'ElMenu') {
+		        if (parent.$options.componentName === 'ElSubmenu') {
+		          padding += 20;
+		        }
+		        parent = parent.$parent;
+		      }
+		      return { paddingLeft: padding + 'px' };
 		    }
 		  }
 		};
@@ -17627,27 +19516,28 @@
 	/* 43 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('li', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('li', {
 		    class: {
 		      'el-submenu': true,
 		      'is-active': _vm.active,
 		      'is-opened': _vm.opened
 		    }
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    ref: "submenu-title",
-		    staticClass: "el-submenu__title"
-		  }, [_vm._t("title"), _vm._h('i', {
+		    staticClass: "el-submenu__title",
+		    style: (_vm.paddingStyle)
+		  }, [_vm._t("title"), _h('i', {
 		    class: {
 		      'el-submenu__icon-arrow': true,
 		      'el-icon-arrow-down': _vm.rootMenu.mode === 'vertical',
 		        'el-icon-caret-bottom': _vm.rootMenu.mode === 'horizontal'
 		    }
-		  })]), _vm._h('transition', {
+		  })]), _h('transition', {
 		    attrs: {
-		      "name": _vm.rootMenu.mode === 'horizontal' ? 'md-fade-bottom' : ''
+		      "name": _vm.rootMenu.mode === 'horizontal' ? 'el-zoom-in-top' : ''
 		    }
-		  }, [_vm._h('ul', {
+		  }, [_h('ul', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -17754,19 +19644,30 @@
 		  created: function created() {
 		    this.rootMenu.menuItems[this.index] = this;
 		  }
-		};
+		}; //
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
 
 	/***/ },
 	/* 47 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('li', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('li', {
 		    staticClass: "el-menu-item",
 		    class: {
 		      'is-active': _vm.active,
 		      'is-disabled': _vm.disabled
 		    },
+		    style: (_vm.paddingStyle),
 		    on: {
 		      "click": _vm.handleClick
 		    }
@@ -17845,24 +19746,19 @@
 		    };
 		  },
 
-		  methods: {
-		    initPadding: function initPadding() {
+		  computed: {
+		    levelPadding: function levelPadding() {
+		      var padding = 10;
 		      var parent = this.$parent;
-		      var level = 0;
-		      var component = parent.$options.componentName;
-
-		      while (component !== 'ElMenu') {
-		        if (component === 'ElSubmenu') {
-		          level++;
+		      while (parent && parent.$options.componentName !== 'ElMenu') {
+		        if (parent.$options.componentName === 'ElSubmenu') {
+		          padding += 20;
 		        }
 		        parent = parent.$parent;
-		        component = parent.$options.componentName;
 		      }
-		      this.paddingLeft += level * 10;
+		      padding === 10 && (padding = 20);
+		      return padding;
 		    }
-		  },
-		  mounted: function mounted() {
-		    this.initPadding();
 		  }
 		};
 
@@ -17870,15 +19766,15 @@
 	/* 51 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('li', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('li', {
 		    staticClass: "el-menu-item-group"
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    staticClass: "el-menu-item-group__title",
 		    style: ({
-		      'padding-left': _vm.paddingLeft + 'px'
+		      paddingLeft: _vm.levelPadding + 'px'
 		    })
-		  }, [(!_vm.$slots.title) ? [_vm._s(_vm.title)] : _vm._t("title")]), _vm._h('ul', [_vm._t("default")])])
+		  }, [(!_vm.$slots.title) ? [_vm._s(_vm.title)] : _vm._t("title")]), _h('ul', [_vm._t("default")])])
 		},staticRenderFns: []}
 
 	/***/ },
@@ -18012,6 +19908,10 @@
 		//
 		//
 		//
+		//
+		//
+		//
+		//
 
 		exports.default = {
 		  name: 'ElInput',
@@ -18061,8 +19961,8 @@
 		      this.$refs.input.select();
 		    },
 		    resizeTextarea: function resizeTextarea() {
-		      var autosize = this.autosize;
-		      var type = this.type;
+		      var autosize = this.autosize,
+		          type = this.type;
 
 		      if (!autosize || type !== 'textarea') {
 		        return;
@@ -18159,13 +20059,11 @@
 		    document.body.appendChild(hiddenTextarea);
 		  }
 
-		  var _calculateNodeStyling = calculateNodeStyling(targetNode);
-
-		  var paddingSize = _calculateNodeStyling.paddingSize;
-		  var borderSize = _calculateNodeStyling.borderSize;
-		  var boxSizing = _calculateNodeStyling.boxSizing;
-		  var contextStyle = _calculateNodeStyling.contextStyle;
-
+		  var _calculateNodeStyling = calculateNodeStyling(targetNode),
+		      paddingSize = _calculateNodeStyling.paddingSize,
+		      borderSize = _calculateNodeStyling.borderSize,
+		      boxSizing = _calculateNodeStyling.boxSizing,
+		      contextStyle = _calculateNodeStyling.contextStyle;
 
 		  hiddenTextarea.setAttribute('style', contextStyle + ';' + HIDDEN_STYLE);
 		  hiddenTextarea.value = targetNode.value || targetNode.placeholder || '';
@@ -18203,24 +20101,26 @@
 	/* 56 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    class: [
 		      _vm.type === 'textarea' ? 'el-textarea' : 'el-input',
 		      _vm.size ? 'el-input--' + _vm.size : '', {
 		        'is-disabled': _vm.disabled,
-		        'el-input-group': _vm.$slots.prepend || _vm.$slots.append
+		        'el-input-group': _vm.$slots.prepend || _vm.$slots.append,
+		        'el-input-group--append': _vm.$slots.append,
+		        'el-input-group--prepend': _vm.$slots.prepend
 		      }
 		    ]
-		  }, [(_vm.type !== 'textarea') ? [(_vm.$slots.prepend) ? _vm._h('div', {
+		  }, [(_vm.type !== 'textarea') ? [(_vm.$slots.prepend) ? _h('div', {
 		    staticClass: "el-input-group__prepend"
-		  }, [_vm._t("prepend")]) : _vm._e(), (_vm.icon) ? _vm._h('i', {
+		  }, [_vm._t("prepend")]) : _vm._e(), _vm._t("icon", [(_vm.icon) ? _h('i', {
 		    staticClass: "el-input__icon",
-		    class: [_vm.icon ? 'el-icon-' + _vm.icon : ''],
+		    class: 'el-icon-' + _vm.icon,
 		    on: {
 		      "click": _vm.handleIconClick
 		    }
-		  }) : _vm._e(), (_vm.type !== 'textarea') ? _vm._h('input', {
+		  }) : _vm._e()]), (_vm.type !== 'textarea') ? _h('input', {
 		    ref: "input",
 		    staticClass: "el-input__inner",
 		    attrs: {
@@ -18245,11 +20145,11 @@
 		      "focus": _vm.handleFocus,
 		      "blur": _vm.handleBlur
 		    }
-		  }) : _vm._e(), (_vm.validating) ? _vm._h('i', {
+		  }) : _vm._e(), (_vm.validating) ? _h('i', {
 		    staticClass: "el-input__icon el-icon-loading"
-		  }) : _vm._e(), (_vm.$slots.append) ? _vm._h('div', {
+		  }) : _vm._e(), (_vm.$slots.append) ? _h('div', {
 		    staticClass: "el-input-group__append"
-		  }, [_vm._t("append")]) : _vm._e()] : _vm._h('textarea', {
+		  }, [_vm._t("append")]) : _vm._e()] : _h('textarea', {
 		    directives: [{
 		      name: "model",
 		      rawName: "v-model",
@@ -18387,6 +20287,15 @@
 		//
 		//
 		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
 
 		exports.default = {
 		  name: 'ElInputNumber',
@@ -18407,7 +20316,11 @@
 		      default: 0
 		    },
 		    disabled: Boolean,
-		    size: String
+		    size: String,
+		    controls: {
+		      type: Boolean,
+		      default: true
+		    }
 		  },
 		  directives: {
 		    repeatClick: {
@@ -18464,7 +20377,7 @@
 		    currentValue: function currentValue(newVal, oldVal) {
 		      var value = Number(newVal);
 		      if (value <= this.max && value >= this.min) {
-		        this.$emit('change', value);
+		        this.$emit('change', value, oldVal);
 		        this.$emit('input', value);
 		      }
 		    }
@@ -18567,21 +20480,23 @@
 	/* 60 */
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(47);
+		module.exports = __webpack_require__(77);
 
 	/***/ },
 	/* 61 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    staticClass: "el-input-number",
 		    class: [
 		      _vm.size ? 'el-input-number--' + _vm.size : '', {
 		        'is-disabled': _vm.disabled
+		      }, {
+		        'is-without-controls': !_vm.controls
 		      }
 		    ]
-		  }, [_vm._h('el-input', {
+		  }, [_h('el-input', {
 		    class: {
 		      'is-active': _vm.inputActive
 		    },
@@ -18605,7 +20520,11 @@
 		        _vm.decrease($event)
 		      }]
 		    }
-		  }), _vm._h('span', {
+		  }, [(_vm.$slots.prepend) ? _h('template', {
+		    slot: "prepend"
+		  }, [_vm._t("prepend")]) : _vm._e(), (_vm.$slots.append) ? _h('template', {
+		    slot: "append"
+		  }, [_vm._t("append")]) : _vm._e()]), (_vm.controls) ? _h('span', {
 		    directives: [{
 		      name: "repeat-click",
 		      rawName: "v-repeat-click",
@@ -18624,7 +20543,7 @@
 		        _vm.inactiveInput(_vm.minDisabled)
 		      }
 		    }
-		  }), _vm._h('span', {
+		  }) : _vm._e(), (_vm.controls) ? _h('span', {
 		    directives: [{
 		      name: "repeat-click",
 		      rawName: "v-repeat-click",
@@ -18643,7 +20562,7 @@
 		        _vm.inactiveInput(_vm.maxDisabled)
 		      }
 		    }
-		  })])
+		  }) : _vm._e()])
 		},staticRenderFns: []}
 
 	/***/ },
@@ -18718,44 +20637,46 @@
 		  componentName: 'ElRadio',
 
 		  props: {
-		    value: [String, Number],
-		    label: {
-		      type: [String, Number],
-		      required: true
-		    },
+		    value: {},
+		    label: {},
 		    disabled: Boolean,
 		    name: String
 		  },
 
 		  data: function data() {
 		    return {
-		      focus: false,
-		      isGroup: false,
-		      store: this.value
+		      focus: false
 		    };
 		  },
 
 
-		  watch: {
-		    store: function store(_store) {
-		      if (this.isGroup) {
-		        this.dispatch('ElRadioGroup', 'input', _store);
-		      } else {
-		        this.$emit('input', _store);
+		  computed: {
+		    isGroup: function isGroup() {
+		      var parent = this.$parent;
+		      while (parent) {
+		        if (parent.$options.componentName !== 'ElRadioGroup') {
+		          parent = parent.$parent;
+		        } else {
+		          this._radioGroup = parent;
+		          return true;
+		        }
 		      }
+		      return false;
 		    },
-		    value: function value(val) {
-		      this.store = val;
+
+
+		    model: {
+		      get: function get() {
+		        return this.isGroup ? this._radioGroup.value : this.value;
+		      },
+		      set: function set(val) {
+		        if (this.isGroup) {
+		          this.dispatch('ElRadioGroup', 'input', [val]);
+		        } else {
+		          this.$emit('input', val);
+		        }
+		      }
 		    }
-		  },
-
-		  created: function created() {
-		    var _this = this;
-
-		    this.$on('initData', function (data) {
-		      _this.store = data;
-		      _this.isGroup = true;
-		    });
 		  }
 		}; //
 		//
@@ -18787,24 +20708,24 @@
 	/* 65 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('label', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('label', {
 		    staticClass: "el-radio"
-		  }, [_vm._h('span', {
+		  }, [_h('span', {
 		    staticClass: "el-radio__input"
-		  }, [_vm._h('span', {
+		  }, [_h('span', {
 		    staticClass: "el-radio__inner",
 		    class: {
 		      'is-disabled': _vm.disabled,
-		      'is-checked': _vm.store === _vm.label,
+		      'is-checked': _vm.model === _vm.label,
 		        'is-focus': _vm.focus
 		    }
-		  }), _vm._h('input', {
+		  }), _h('input', {
 		    directives: [{
 		      name: "model",
 		      rawName: "v-model",
-		      value: (_vm.store),
-		      expression: "store"
+		      value: (_vm.model),
+		      expression: "model"
 		    }],
 		    staticClass: "el-radio__original",
 		    attrs: {
@@ -18814,7 +20735,7 @@
 		    },
 		    domProps: {
 		      "value": _vm.label,
-		      "checked": _vm._q(_vm.store, _vm.label)
+		      "checked": _vm._q(_vm.model, _vm.label)
 		    },
 		    on: {
 		      "focus": function($event) {
@@ -18824,10 +20745,10 @@
 		        _vm.focus = false
 		      },
 		      "change": function($event) {
-		        _vm.store = _vm.label
+		        _vm.model = _vm.label
 		      }
 		    }
-		  })]), _vm._h('span', {
+		  })]), _h('span', {
 		    staticClass: "el-radio__label"
 		  }, [_vm._t("default"), (!_vm.$slots.default) ? [_vm._s(_vm.label)] : _vm._e()])])
 		},staticRenderFns: []}
@@ -18918,12 +20839,8 @@
 		  watch: {
 		    value: function value(_value) {
 		      this.$emit('change', _value);
-		      this.broadcast('ElRadio', 'initData', _value);
 		      this.dispatch('ElFormItem', 'el.form.change', [this.value]);
 		    }
-		  },
-		  mounted: function mounted() {
-		    this.broadcast('ElRadio', 'initData', this.value);
 		  }
 		};
 
@@ -18931,8 +20848,8 @@
 	/* 69 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    staticClass: "el-radio-group"
 		  }, [_vm._t("default")])
 		},staticRenderFns: []}
@@ -18998,34 +20915,39 @@
 		  name: 'ElRadioButton',
 
 		  props: {
-		    label: {
-		      type: [String, Number],
-		      required: true
-		    },
+		    label: {},
 		    disabled: Boolean,
 		    name: String
 		  },
-		  data: function data() {
-		    return {
-		      size: this.$parent.size
-		    };
-		  },
-
 		  computed: {
 		    value: {
 		      get: function get() {
-		        return this.$parent.value;
+		        return this._radioGroup.value;
 		      },
-		      set: function set(newValue) {
-		        this.$parent.$emit('input', newValue);
+		      set: function set(value) {
+		        this._radioGroup.$emit('input', value);
 		      }
+		    },
+		    _radioGroup: function _radioGroup() {
+		      var parent = this.$parent;
+		      while (parent) {
+		        if (parent.$options.componentName !== 'ElRadioGroup') {
+		          parent = parent.$parent;
+		        } else {
+		          return parent;
+		        }
+		      }
+		      return false;
 		    },
 		    activeStyle: function activeStyle() {
 		      return {
-		        backgroundColor: this.$parent.fill,
-		        borderColor: this.$parent.fill,
-		        color: this.$parent.textColor
+		        backgroundColor: this._radioGroup.fill,
+		        borderColor: this._radioGroup.fill,
+		        color: this._radioGroup.textColor
 		      };
+		    },
+		    size: function size() {
+		      return this._radioGroup.size;
 		    }
 		  }
 		};
@@ -19034,15 +20956,15 @@
 	/* 73 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('label', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('label', {
 		    staticClass: "el-radio-button",
 		    class: [
 		      _vm.size ? 'el-radio-button--' + _vm.size : '', {
 		        'is-active': _vm.value === _vm.label
 		      }
 		    ]
-		  }, [_vm._h('input', {
+		  }, [_h('input', {
 		    directives: [{
 		      name: "model",
 		      rawName: "v-model",
@@ -19064,7 +20986,7 @@
 		        _vm.value = _vm.label
 		      }
 		    }
-		  }), _vm._h('span', {
+		  }), _h('span', {
 		    staticClass: "el-radio-button__inner",
 		    style: (_vm.value === _vm.label ? _vm.activeStyle : null)
 		  }, [_vm._t("default"), (!_vm.$slots.default) ? [_vm._s(_vm.label)] : _vm._e()])])
@@ -19141,16 +21063,25 @@
 
 		  componentName: 'ElCheckbox',
 
+		  data: function data() {
+		    return {
+		      selfModel: false
+		    };
+		  },
+
+
 		  computed: {
 		    model: {
 		      get: function get() {
-		        return this.isGroup ? this.store : this.value;
+		        return this.isGroup ? this.store : this.value !== undefined ? this.value : this.selfModel;
 		      },
 		      set: function set(val) {
 		        if (this.isGroup) {
 		          this.dispatch('ElCheckboxGroup', 'input', [val]);
-		        } else {
+		        } else if (this.value !== undefined) {
 		          this.$emit('input', val);
+		        } else {
+		          this.selfModel = val;
 		        }
 		      }
 		    },
@@ -19163,6 +21094,21 @@
 		      } else if (this.model !== null && this.model !== undefined) {
 		        return this.model === this.trueLabel;
 		      }
+		    },
+		    isGroup: function isGroup() {
+		      var parent = this.$parent;
+		      while (parent) {
+		        if (parent.$options.componentName !== 'ElCheckboxGroup') {
+		          parent = parent.$parent;
+		        } else {
+		          this._checkboxGroup = parent;
+		          return true;
+		        }
+		      }
+		      return false;
+		    },
+		    store: function store() {
+		      return this._checkboxGroup ? this._checkboxGroup.value : this.value;
 		    }
 		  },
 
@@ -19177,18 +21123,10 @@
 		    falseLabel: [String, Number]
 		  },
 
-		  data: function data() {
-		    return {
-		      store: [],
-		      isGroup: false
-		    };
-		  },
-
-
 		  methods: {
 		    addToStore: function addToStore() {
-		      if (Array.isArray(this.model)) {
-		        this.model.indexOf(this.label) === -1 && this.model.push(this.label);
+		      if (Array.isArray(this.model) && this.model.indexOf(this.label) === -1) {
+		        this.model.push(this.label);
 		      } else {
 		        this.model = this.trueLabel || true;
 		      }
@@ -19196,14 +21134,7 @@
 		  },
 
 		  created: function created() {
-		    var _this = this;
-
 		    this.checked && this.addToStore();
-		    this.$on('initData', function (data) {
-		      _this.store = data;
-		      _this.isGroup = true;
-		      _this.checked && _this.addToStore();
-		    });
 		  }
 		}; //
 		//
@@ -19251,12 +21182,12 @@
 	/* 77 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('label', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('label', {
 		    staticClass: "el-checkbox"
-		  }, [_vm._h('span', {
+		  }, [_h('span', {
 		    staticClass: "el-checkbox__input"
-		  }, [_vm._h('span', {
+		  }, [_h('span', {
 		    staticClass: "el-checkbox__inner",
 		    class: {
 		      'is-disabled': _vm.disabled,
@@ -19264,7 +21195,7 @@
 		      'is-indeterminate': _vm.indeterminate,
 		      'is-focus': _vm.focus
 		    }
-		  }), (_vm.trueLabel || _vm.falseLabel) ? _vm._h('input', {
+		  }), (_vm.trueLabel || _vm.falseLabel) ? _h('input', {
 		    directives: [{
 		      name: "model",
 		      rawName: "v-model",
@@ -19308,7 +21239,7 @@
 		        _vm.focus = false
 		      }
 		    }
-		  }) : _vm._h('input', {
+		  }) : _h('input', {
 		    directives: [{
 		      name: "model",
 		      rawName: "v-model",
@@ -19351,7 +21282,7 @@
 		        _vm.focus = false
 		      }
 		    }
-		  })]), (_vm.$slots.default || _vm.label) ? _vm._h('span', {
+		  })]), (_vm.$slots.default || _vm.label) ? _h('span', {
 		    staticClass: "el-checkbox__label"
 		  }, [_vm._t("default"), (!_vm.$slots.default) ? [_vm._s(_vm.label)] : _vm._e()]) : _vm._e()])
 		},staticRenderFns: []}
@@ -19435,12 +21366,7 @@
 		    value: function value(_value) {
 		      this.$emit('change', _value);
 		      this.dispatch('ElFormItem', 'el.form.change', [_value]);
-		      this.broadcast('ElCheckbox', 'initData', [_value]);
 		    }
-		  },
-
-		  mounted: function mounted() {
-		    this.broadcast('ElCheckbox', 'initData', [this.value]);
 		  }
 		};
 
@@ -19448,8 +21374,8 @@
 	/* 81 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    staticClass: "el-checkbox-group"
 		  }, [_vm._t("default")])
 		},staticRenderFns: []}
@@ -19641,7 +21567,7 @@
 		      this.coreWidth = this.hasText ? 58 : 46;
 		    }
 		    this.handleButtonTransform();
-		    if ((this.onColor || this.offColor) && !this.disabled) {
+		    if (this.onColor || this.offColor) {
 		      this.setBackgroundColor();
 		    }
 		  }
@@ -19651,13 +21577,13 @@
 	/* 85 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('label', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('label', {
 		    staticClass: "el-switch",
 		    class: {
 		      'is-disabled': _vm.disabled, 'el-switch--wide': _vm.hasText
 		    }
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -19665,7 +21591,7 @@
 		      expression: "disabled"
 		    }],
 		    staticClass: "el-switch__mask"
-		  }), _vm._h('input', {
+		  }), _h('input', {
 		    directives: [{
 		      name: "model",
 		      rawName: "v-model",
@@ -19699,20 +21625,20 @@
 		        }
 		      }, _vm.handleChange]
 		    }
-		  }), _vm._h('span', {
+		  }), _h('span', {
 		    ref: "core",
 		    staticClass: "el-switch__core",
 		    style: ({
 		      'width': _vm.coreWidth + 'px'
 		    })
-		  }, [_vm._h('span', {
+		  }, [_h('span', {
 		    staticClass: "el-switch__button",
 		    style: (_vm.buttonStyle)
-		  })]), _vm._h('transition', {
+		  })]), _h('transition', {
 		    attrs: {
 		      "name": "label-fade"
 		    }
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -19723,13 +21649,13 @@
 		    style: ({
 		      'width': _vm.coreWidth + 'px'
 		    })
-		  }, [(_vm.onIconClass) ? _vm._h('i', {
+		  }, [(_vm.onIconClass) ? _h('i', {
 		    class: [_vm.onIconClass]
-		  }) : _vm._e(), (!_vm.onIconClass && _vm.onText) ? _vm._h('span', [_vm._s(_vm.onText)]) : _vm._e()])]), _vm._h('transition', {
+		  }) : _vm._e(), (!_vm.onIconClass && _vm.onText) ? _h('span', [_vm._s(_vm.onText)]) : _vm._e()])]), _h('transition', {
 		    attrs: {
 		      "name": "label-fade"
 		    }
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -19740,9 +21666,9 @@
 		    style: ({
 		      'width': _vm.coreWidth + 'px'
 		    })
-		  }, [(_vm.offIconClass) ? _vm._h('i', {
+		  }, [(_vm.offIconClass) ? _h('i', {
 		    class: [_vm.offIconClass]
-		  }) : _vm._e(), (!_vm.offIconClass && _vm.offText) ? _vm._h('span', [_vm._s(_vm.offText)]) : _vm._e()])])])
+		  }) : _vm._e(), (!_vm.offIconClass && _vm.offText) ? _h('span', [_vm._s(_vm.offText)]) : _vm._e()])])])
 		},staticRenderFns: []}
 
 	/***/ },
@@ -19777,7 +21703,7 @@
 		__vue_exports__ = __webpack_require__(88)
 
 		/* template */
-		var __vue_template__ = __webpack_require__(97)
+		var __vue_template__ = __webpack_require__(100)
 		__vue_options__ = __vue_exports__ = __vue_exports__ || {}
 		if (
 		  typeof __vue_exports__.default === "object" ||
@@ -19819,11 +21745,15 @@
 
 		var _selectDropdown2 = _interopRequireDefault(_selectDropdown);
 
-		var _tag = __webpack_require__(92);
+		var _option = __webpack_require__(92);
+
+		var _option2 = _interopRequireDefault(_option);
+
+		var _tag = __webpack_require__(95);
 
 		var _tag2 = _interopRequireDefault(_tag);
 
-		var _debounce = __webpack_require__(93);
+		var _debounce = __webpack_require__(96);
 
 		var _debounce2 = _interopRequireDefault(_debounce);
 
@@ -19831,14 +21761,35 @@
 
 		var _clickoutside2 = _interopRequireDefault(_clickoutside);
 
-		var _class = __webpack_require__(94);
+		var _class = __webpack_require__(97);
 
-		var _resizeEvent = __webpack_require__(95);
+		var _resizeEvent = __webpack_require__(98);
 
-		var _locale3 = __webpack_require__(96);
+		var _locale3 = __webpack_require__(99);
 
 		function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+		var sizeMap = {
+		  'large': 42,
+		  'small': 30,
+		  'mini': 22
+		}; //
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
 		//
 		//
 		//
@@ -19916,54 +21867,42 @@
 
 		  computed: {
 		    iconClass: function iconClass() {
-		      return this.showCloseIcon ? 'circle-close' : this.remote && this.filterable ? '' : 'caret-top';
+		      var criteria = this.clearable && !this.disabled && this.inputHovering && !this.multiple && this.value !== undefined && this.value !== '';
+		      return criteria ? 'circle-close is-show-close' : this.remote && this.filterable ? '' : 'caret-top';
 		    },
 		    debounce: function debounce() {
 		      return this.remote ? 300 : 0;
 		    },
-		    showCloseIcon: function showCloseIcon() {
-		      var _this = this;
-
-		      var criteria = this.clearable && this.inputHovering && !this.multiple && this.options.indexOf(this.selected) > -1;
-		      if (!this.$el) return false;
-
-		      this.$nextTick(function () {
-		        var icon = _this.$el.querySelector('.el-input__icon');
-		        if (icon) {
-		          if (criteria) {
-		            icon.addEventListener('click', _this.deleteSelected);
-		            (0, _class.addClass)(icon, 'is-show-close');
-		          } else {
-		            icon.removeEventListener('click', _this.deleteSelected);
-		            (0, _class.removeClass)(icon, 'is-show-close');
-		          }
-		        }
-		      });
-
-		      return criteria;
-		    },
 		    emptyText: function emptyText() {
 		      if (this.loading) {
-		        return this.t('el.select.loading');
+		        return this.loadingText || this.t('el.select.loading');
 		      } else {
-		        if (this.voidRemoteQuery) {
-		          this.voidRemoteQuery = false;
-		          return false;
-		        }
-		        if (this.filterable && this.filteredOptionsCount === 0) {
-		          return this.t('el.select.noMatch');
+		        if (this.remote && this.query === '' && this.options.length === 0) return false;
+		        if (this.filterable && this.options.length > 0 && this.filteredOptionsCount === 0) {
+		          return this.noMatchText || this.t('el.select.noMatch');
 		        }
 		        if (this.options.length === 0) {
-		          return this.t('el.select.noData');
+		          return this.noDataText || this.t('el.select.noData');
 		        }
 		      }
 		      return null;
+		    },
+		    showNewOption: function showNewOption() {
+		      var _this = this;
+
+		      var hasExistingOption = this.options.filter(function (option) {
+		        return !option.created;
+		      }).some(function (option) {
+		        return option.currentLabel === _this.query;
+		      });
+		      return this.filterable && this.allowCreate && this.query !== '' && !hasExistingOption;
 		    }
 		  },
 
 		  components: {
 		    ElInput: _input2.default,
 		    ElSelectMenu: _selectDropdown2.default,
+		    ElOption: _option2.default,
 		    ElTag: _tag2.default
 		  },
 
@@ -19976,11 +21915,20 @@
 		    disabled: Boolean,
 		    clearable: Boolean,
 		    filterable: Boolean,
+		    allowCreate: Boolean,
 		    loading: Boolean,
+		    popperClass: String,
 		    remote: Boolean,
+		    loadingText: String,
+		    noMatchText: String,
+		    noDataText: String,
 		    remoteMethod: Function,
 		    filterMethod: Function,
 		    multiple: Boolean,
+		    multipleLimit: {
+		      type: Number,
+		      default: 0
+		    },
 		    placeholder: {
 		      type: String,
 		      default: function _default() {
@@ -19992,22 +21940,21 @@
 		  data: function data() {
 		    return {
 		      options: [],
-		      selected: {},
+		      cachedOptions: [],
+		      selected: this.multiple ? [] : {},
 		      isSelect: true,
 		      inputLength: 20,
 		      inputWidth: 0,
-		      valueChangeBySelected: false,
 		      cachedPlaceHolder: '',
 		      optionsCount: 0,
 		      filteredOptionsCount: 0,
 		      dropdownUl: null,
 		      visible: false,
 		      selectedLabel: '',
-		      selectInit: false,
 		      hoverIndex: -1,
 		      query: '',
-		      voidRemoteQuery: false,
 		      bottomOverflowBeforeHidden: 0,
+		      topOverflowBeforeHidden: 0,
 		      optionsAllDisabled: false,
 		      inputHovering: false,
 		      currentPlaceholder: ''
@@ -20020,134 +21967,76 @@
 		      this.currentPlaceholder = val;
 		    },
 		    value: function value(val) {
-		      var _this2 = this;
-
-		      if (this.valueChangeBySelected) {
-		        this.valueChangeBySelected = false;
-		        return;
-		      }
-		      this.$nextTick(function () {
-		        if (_this2.multiple && Array.isArray(val)) {
-		          _this2.$nextTick(function () {
-		            _this2.resetInputHeight();
-		          });
-		          _this2.selectedInit = true;
-		          _this2.selected = [];
-		          _this2.currentPlaceholder = _this2.cachedPlaceHolder;
-		          val.forEach(function (item) {
-		            var option = _this2.options.filter(function (option) {
-		              return option.value === item;
-		            })[0];
-		            if (option) {
-		              _this2.$emit('addOptionToValue', option);
-		            }
-		          });
-		        }
-		        if (!_this2.multiple) {
-		          var option = _this2.options.filter(function (option) {
-		            return option.value === val;
-		          })[0];
-		          if (option) {
-		            _this2.$emit('addOptionToValue', option);
-		          } else {
-		            _this2.selected = {};
-		            _this2.selectedLabel = '';
-		          }
-		        }
-		        _this2.resetHoverIndex();
-		      });
-		    },
-		    selected: function selected(val, oldVal) {
-		      var _this3 = this;
-
 		      if (this.multiple) {
-		        if (this.selected.length > 0) {
+		        this.resetInputHeight();
+		        if (val.length > 0 || this.$refs.input && this.query !== '') {
 		          this.currentPlaceholder = '';
 		        } else {
 		          this.currentPlaceholder = this.cachedPlaceHolder;
 		        }
-		        this.$nextTick(function () {
-		          _this3.resetInputHeight();
-		        });
-		        if (this.selectedInit) {
-		          this.selectedInit = false;
-		          return;
-		        }
-		        this.valueChangeBySelected = true;
-		        var result = val.map(function (item) {
-		          return item.value;
-		        });
-
-		        this.$emit('input', result);
-		        this.$emit('change', result);
 		        this.dispatch('ElFormItem', 'el.form.change', val);
-		        if (this.filterable) {
-		          this.query = '';
-		          this.hoverIndex = -1;
-		          this.$refs.input.focus();
-		          this.inputLength = 20;
-		        }
-		      } else {
-		        if (this.selectedInit) {
-		          this.selectedInit = false;
-		          return;
-		        }
-		        if (val.value === oldVal.value) return;
-		        this.$emit('input', val.value);
-		        this.$emit('change', val.value);
 		      }
+		      this.setSelected();
+		      if (this.filterable && !this.multiple) {
+		        this.inputLength = 20;
+		      }
+		      this.$emit('change', val);
 		    },
 		    query: function query(val) {
-		      var _this4 = this;
-
-		      this.$nextTick(function () {
-		        _this4.broadcast('ElSelectDropdown', 'updatePopper');
-		      });
+		      this.broadcast('ElSelectDropdown', 'updatePopper');
+		      this.hoverIndex = -1;
 		      if (this.multiple && this.filterable) {
 		        this.resetInputHeight();
 		      }
 		      if (this.remote && typeof this.remoteMethod === 'function') {
 		        this.hoverIndex = -1;
 		        this.remoteMethod(val);
-		        this.voidRemoteQuery = val === '';
 		        this.broadcast('ElOption', 'resetIndex');
 		      } else if (typeof this.filterMethod === 'function') {
 		        this.filterMethod(val);
+		        this.broadcast('ElOptionGroup', 'queryChange');
 		      } else {
 		        this.filteredOptionsCount = this.optionsCount;
 		        this.broadcast('ElOption', 'queryChange', val);
+		        this.broadcast('ElOptionGroup', 'queryChange');
 		      }
 		    },
 		    visible: function visible(val) {
+		      var _this2 = this;
+
 		      if (!val) {
 		        this.$refs.reference.$el.querySelector('input').blur();
-		        if (this.$el.querySelector('.el-input__icon')) {
-		          (0, _class.removeClass)(this.$el.querySelector('.el-input__icon'), 'is-reverse');
-		        }
+		        this.handleIconHide();
 		        this.broadcast('ElSelectDropdown', 'destroyPopper');
 		        if (this.$refs.input) {
 		          this.$refs.input.blur();
 		        }
+		        this.query = '';
+		        this.selectedLabel = '';
 		        this.resetHoverIndex();
-		        if (!this.multiple) {
-		          if (this.dropdownUl && this.selected.$el) {
-		            this.bottomOverflowBeforeHidden = this.selected.$el.getBoundingClientRect().bottom - this.$refs.popper.$el.getBoundingClientRect().bottom;
+		        this.$nextTick(function () {
+		          if (_this2.$refs.input && _this2.$refs.input.value === '' && _this2.selected.length === 0) {
+		            _this2.currentPlaceholder = _this2.cachedPlaceHolder;
 		          }
-		          if (this.selected && this.selected.value) {
+		        });
+		        if (!this.multiple) {
+		          this.getOverflows();
+		          if (this.selected) {
 		            this.selectedLabel = this.selected.currentLabel;
+		            if (this.filterable) this.query = this.selectedLabel;
 		          }
 		        }
 		      } else {
-		        var icon = this.$el.querySelector('.el-input__icon');
-		        if (icon && !(0, _class.hasClass)(icon, 'el-icon-circle-close')) {
-		          (0, _class.addClass)(this.$el.querySelector('.el-input__icon'), 'is-reverse');
-		        }
+		        this.handleIconShow();
 		        this.broadcast('ElSelectDropdown', 'updatePopper');
 		        if (this.filterable) {
 		          this.query = this.selectedLabel;
 		          if (this.multiple) {
 		            this.$refs.input.focus();
 		          } else {
+		            if (!this.remote) {
+		              this.broadcast('ElOption', 'queryChange', '');
+		            }
 		            this.broadcast('ElInput', 'inputSelect');
 		          }
 		        }
@@ -20158,20 +22047,98 @@
 		          })[0];
 		        }
 		        if (!this.multiple && this.dropdownUl) {
-		          if (this.bottomOverflowBeforeHidden > 0) {
-		            this.dropdownUl.scrollTop += this.bottomOverflowBeforeHidden;
-		          }
+		          this.setOverflow();
 		        }
 		      }
+		      this.$emit('visible-change', val);
 		    },
 		    options: function options(val) {
 		      this.optionsAllDisabled = val.length === val.filter(function (item) {
 		        return item.disabled === true;
 		      }).length;
+		      if (this.multiple) {
+		        this.resetInputHeight();
+		      }
+		      var inputs = this.$el.querySelectorAll('input');
+		      if ([].indexOf.call(inputs, document.activeElement) === -1) {
+		        this.setSelected();
+		      }
 		    }
 		  },
 
 		  methods: {
+		    handleIconHide: function handleIconHide() {
+		      var icon = this.$el.querySelector('.el-input__icon');
+		      if (icon) {
+		        (0, _class.removeClass)(icon, 'is-reverse');
+		      }
+		    },
+		    handleIconShow: function handleIconShow() {
+		      var icon = this.$el.querySelector('.el-input__icon');
+		      if (icon && !(0, _class.hasClass)(icon, 'el-icon-circle-close')) {
+		        (0, _class.addClass)(icon, 'is-reverse');
+		      }
+		    },
+		    getOverflows: function getOverflows() {
+		      if (this.dropdownUl && this.selected && this.selected.$el) {
+		        var selectedRect = this.selected.$el.getBoundingClientRect();
+		        var popperRect = this.$refs.popper.$el.getBoundingClientRect();
+		        this.bottomOverflowBeforeHidden = selectedRect.bottom - popperRect.bottom;
+		        this.topOverflowBeforeHidden = selectedRect.top - popperRect.top;
+		      }
+		    },
+		    setOverflow: function setOverflow() {
+		      var _this3 = this;
+
+		      if (this.bottomOverflowBeforeHidden > 0) {
+		        this.$nextTick(function () {
+		          _this3.dropdownUl.scrollTop += _this3.bottomOverflowBeforeHidden;
+		        });
+		      } else if (this.topOverflowBeforeHidden < 0) {
+		        this.$nextTick(function () {
+		          _this3.dropdownUl.scrollTop += _this3.topOverflowBeforeHidden;
+		        });
+		      }
+		    },
+		    getOption: function getOption(value) {
+		      var option = this.cachedOptions.filter(function (option) {
+		        return option.value === value;
+		      })[0];
+		      if (option) return option;
+		      var label = typeof value === 'string' || typeof value === 'number' ? value : '';
+		      var newOption = {
+		        value: value,
+		        currentLabel: label
+		      };
+		      if (this.multiple) {
+		        newOption.hitState = false;
+		      }
+		      return newOption;
+		    },
+		    setSelected: function setSelected() {
+		      var _this4 = this;
+
+		      if (!this.multiple) {
+		        var option = this.getOption(this.value);
+		        this.selectedLabel = option.currentLabel;
+		        this.selected = option;
+		        return;
+		      }
+		      var result = [];
+		      if (Array.isArray(this.value)) {
+		        this.value.forEach(function (value) {
+		          result.push(_this4.getOption(value));
+		        });
+		      }
+		      this.selected = result;
+		    },
+		    handleIconClick: function handleIconClick(event) {
+		      if (this.iconClass.indexOf('circle-close') > -1) {
+		        this.deleteSelected(event);
+		      } else {
+		        this.toggleMenu();
+		      }
+		    },
 		    handleMouseDown: function handleMouseDown(event) {
 		      if (event.target.tagName !== 'INPUT') return;
 		      if (this.visible) {
@@ -20200,21 +22167,7 @@
 		    },
 		    deletePrevTag: function deletePrevTag(e) {
 		      if (e.target.value.length <= 0 && !this.toggleLastOptionHitState()) {
-		        this.selected.pop();
-		      }
-		    },
-		    addOptionToValue: function addOptionToValue(option, init) {
-		      if (this.multiple) {
-		        if (this.selected.indexOf(option) === -1 && (this.remote ? this.value.indexOf(option.value) === -1 : true)) {
-		          this.selectedInit = !!init;
-		          this.selected.push(option);
-		          this.resetHoverIndex();
-		        }
-		      } else {
-		        this.selectedInit = !!init;
-		        this.selected = option;
-		        this.selectedLabel = option.currentLabel;
-		        this.hoverIndex = option.index;
+		        this.value.pop();
 		      }
 		    },
 		    managePlaceholder: function managePlaceholder() {
@@ -20225,6 +22178,7 @@
 		    resetInputState: function resetInputState(e) {
 		      if (e.keyCode !== 8) this.toggleLastOptionHitState(false);
 		      this.inputLength = this.$refs.input.value.length * 15 + 20;
+		      this.resetInputHeight();
 		    },
 		    resetInputHeight: function resetInputHeight() {
 		      var _this5 = this;
@@ -20234,8 +22188,10 @@
 		        var input = [].filter.call(inputChildNodes, function (item) {
 		          return item.tagName === 'INPUT';
 		        })[0];
-		        input.style.height = Math.max(_this5.$refs.tags.clientHeight + 6, _this5.size === 'small' ? 28 : 36) + 'px';
-		        _this5.broadcast('ElSelectDropdown', 'updatePopper');
+		        input.style.height = Math.max(_this5.$refs.tags.clientHeight + 6, sizeMap[_this5.size] || 36) + 'px';
+		        if (_this5.visible && _this5.emptyText !== false) {
+		          _this5.broadcast('ElSelectDropdown', 'updatePopper');
+		        }
 		      });
 		    },
 		    resetHoverIndex: function resetHoverIndex() {
@@ -20257,20 +22213,24 @@
 		    },
 		    handleOptionSelect: function handleOptionSelect(option) {
 		      if (!this.multiple) {
-		        this.selected = option;
-		        this.selectedLabel = option.currentLabel;
+		        this.$emit('input', option.value);
 		        this.visible = false;
 		      } else {
 		        var optionIndex = -1;
-		        this.selected.forEach(function (item, index) {
-		          if (item === option || item.currentValue === option.currentValue) {
+		        this.value.forEach(function (item, index) {
+		          if (item === option.value) {
 		            optionIndex = index;
 		          }
 		        });
 		        if (optionIndex > -1) {
-		          this.selected.splice(optionIndex, 1);
-		        } else {
-		          this.selected.push(option);
+		          this.value.splice(optionIndex, 1);
+		        } else if (this.multipleLimit <= 0 || this.value.length < this.multipleLimit) {
+		          this.value.push(option.value);
+		        }
+		        if (option.created) {
+		          this.query = '';
+		          this.inputLength = 20;
+		          this.$refs.input.focus();
 		        }
 		      }
 		    },
@@ -20287,6 +22247,7 @@
 		        this.visible = true;
 		        return;
 		      }
+		      if (this.options.length === 0 || this.filteredOptionsCount === 0) return;
 		      if (!this.optionsAllDisabled) {
 		        if (direction === 'next') {
 		          this.hoverIndex++;
@@ -20327,21 +22288,18 @@
 		    },
 		    deleteSelected: function deleteSelected(event) {
 		      event.stopPropagation();
-		      this.selected = {};
-		      this.selectedLabel = '';
 		      this.$emit('input', '');
-		      this.$emit('change', '');
 		      this.visible = false;
 		    },
 		    deleteTag: function deleteTag(event, tag) {
 		      var index = this.selected.indexOf(tag);
 		      if (index > -1) {
-		        this.selected.splice(index, 1);
+		        this.value.splice(index, 1);
 		      }
 		      event.stopPropagation();
 		    },
 		    onInputChange: function onInputChange() {
-		      if (this.filterable && this.selectedLabel !== this.value) {
+		      if (this.filterable) {
 		        this.query = this.selectedLabel;
 		      }
 		    },
@@ -20363,33 +22321,31 @@
 		    var _this7 = this;
 
 		    this.cachedPlaceHolder = this.currentPlaceholder = this.placeholder;
-		    if (this.multiple) {
-		      this.selectedInit = true;
-		      this.selected = [];
+		    if (this.multiple && !Array.isArray(this.value)) {
+		      this.$emit('input', []);
 		    }
-		    if (this.remote) {
-		      this.voidRemoteQuery = true;
+		    if (!this.multiple && Array.isArray(this.value)) {
+		      this.$emit('input', '');
 		    }
+		    this.setSelected();
 
 		    this.debouncedOnInputChange = (0, _debounce2.default)(this.debounce, function () {
 		      _this7.onInputChange();
 		    });
 
-		    this.$on('addOptionToValue', this.addOptionToValue);
 		    this.$on('handleOptionClick', this.handleOptionSelect);
 		    this.$on('onOptionDestroy', this.onOptionDestroy);
+		    this.$on('setSelected', this.setSelected);
 		  },
 		  mounted: function mounted() {
 		    var _this8 = this;
 
+		    if (this.multiple && Array.isArray(this.value) && this.value.length > 0) {
+		      this.currentPlaceholder = '';
+		    }
 		    (0, _resizeEvent.addResizeListener)(this.$el, this.resetInputWidth);
-		    if (this.remote && this.multiple && Array.isArray(this.value)) {
-		      this.selected = this.options.reduce(function (prev, curr) {
-		        return _this8.value.indexOf(curr.value) > -1 ? prev.concat(curr) : prev;
-		      }, []);
-		      this.$nextTick(function () {
-		        _this8.resetInputHeight();
-		      });
+		    if (this.remote && this.multiple) {
+		      this.resetInputHeight();
 		    }
 		    this.$nextTick(function () {
 		      if (_this8.$refs.reference.$el) {
@@ -20478,6 +22434,12 @@
 		  },
 
 
+		  computed: {
+		    popperClass: function popperClass() {
+		      return this.$parent.popperClass;
+		    }
+		  },
+
 		  watch: {
 		    '$parent.inputWidth': function $parentInputWidth() {
 		      this.minWidth = this.$parent.$el.getBoundingClientRect().width + 'px';
@@ -20504,12 +22466,12 @@
 	/* 91 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    staticClass: "el-select-dropdown",
-		    class: {
+		    class: [{
 		      'is-multiple': _vm.$parent.multiple
-		    },
+		    }, _vm.popperClass],
 		    style: ({
 		      minWidth: _vm.minWidth
 		    })
@@ -20518,51 +22480,261 @@
 
 	/***/ },
 	/* 92 */
-	/***/ function(module, exports) {
+	/***/ function(module, exports, __webpack_require__) {
 
-		module.exports = __webpack_require__(57);
+		var __vue_exports__, __vue_options__
+		var __vue_styles__ = {}
+
+		/* script */
+		__vue_exports__ = __webpack_require__(93)
+
+		/* template */
+		var __vue_template__ = __webpack_require__(94)
+		__vue_options__ = __vue_exports__ = __vue_exports__ || {}
+		if (
+		  typeof __vue_exports__.default === "object" ||
+		  typeof __vue_exports__.default === "function"
+		) {
+		__vue_options__ = __vue_exports__ = __vue_exports__.default
+		}
+		if (typeof __vue_options__ === "function") {
+		  __vue_options__ = __vue_options__.options
+		}
+
+		__vue_options__.render = __vue_template__.render
+		__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
+
+		module.exports = __vue_exports__
+
 
 	/***/ },
 	/* 93 */
-	/***/ function(module, exports) {
+	/***/ function(module, exports, __webpack_require__) {
 
-		module.exports = __webpack_require__(58);
+		'use strict';
+
+		exports.__esModule = true;
+
+		var _emitter = __webpack_require__(25);
+
+		var _emitter2 = _interopRequireDefault(_emitter);
+
+		function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+		exports.default = {
+		  mixins: [_emitter2.default],
+
+		  name: 'el-option',
+
+		  componentName: 'ElOption',
+
+		  props: {
+		    value: {
+		      required: true
+		    },
+		    label: [String, Number],
+		    selected: {
+		      type: Boolean,
+		      default: false
+		    },
+		    created: Boolean,
+		    disabled: {
+		      type: Boolean,
+		      default: false
+		    }
+		  },
+
+		  data: function data() {
+		    return {
+		      index: -1,
+		      groupDisabled: false,
+		      visible: true,
+		      hitState: false
+		    };
+		  },
+
+
+		  computed: {
+		    currentLabel: function currentLabel() {
+		      return this.label || (typeof this.value === 'string' || typeof this.value === 'number' ? this.value : '');
+		    },
+		    currentValue: function currentValue() {
+		      return this.value || this.label || '';
+		    },
+		    parent: function parent() {
+		      var result = this.$parent;
+		      while (!result.isSelect) {
+		        result = result.$parent;
+		      }
+		      return result;
+		    },
+		    itemSelected: function itemSelected() {
+		      if (!this.parent.multiple) {
+		        return this.value === this.parent.value;
+		      } else {
+		        return this.parent.value.indexOf(this.value) > -1;
+		      }
+		    },
+		    limitReached: function limitReached() {
+		      if (this.parent.multiple) {
+		        return !this.itemSelected && this.parent.value.length >= this.parent.multipleLimit && this.parent.multipleLimit > 0;
+		      } else {
+		        return false;
+		      }
+		    }
+		  },
+
+		  watch: {
+		    currentLabel: function currentLabel() {
+		      this.dispatch('ElSelect', 'setSelected');
+		    },
+		    value: function value() {
+		      this.dispatch('ElSelect', 'setSelected');
+		    },
+		    visible: function visible() {
+		      var _this = this;
+
+		      this.$nextTick(function () {
+		        _this.dispatch('ElSelectDropdown', 'updatePopper');
+		      });
+		    }
+		  },
+
+		  methods: {
+		    handleGroupDisabled: function handleGroupDisabled(val) {
+		      this.groupDisabled = val;
+		    },
+		    hoverItem: function hoverItem() {
+		      if (!this.disabled && !this.groupDisabled) {
+		        this.parent.hoverIndex = this.parent.options.indexOf(this);
+		      }
+		    },
+		    selectOptionClick: function selectOptionClick() {
+		      if (this.disabled !== true && this.groupDisabled !== true) {
+		        this.dispatch('ElSelect', 'handleOptionClick', this);
+		      }
+		    },
+		    queryChange: function queryChange(query) {
+		      // query 里如果有正则中的特殊字符，需要先将这些字符转义
+		      var parsedQuery = query.replace(/(\^|\(|\)|\[|\]|\$|\*|\+|\.|\?|\\|\{|\}|\|)/g, '\\$1');
+		      this.visible = new RegExp(parsedQuery, 'i').test(this.currentLabel) || this.created;
+		      if (!this.visible) {
+		        this.parent.filteredOptionsCount--;
+		      }
+		    },
+		    resetIndex: function resetIndex() {
+		      var _this2 = this;
+
+		      this.$nextTick(function () {
+		        _this2.index = _this2.parent.options.indexOf(_this2);
+		      });
+		    }
+		  },
+
+		  created: function created() {
+		    this.parent.options.push(this);
+		    this.parent.cachedOptions.push(this);
+		    this.parent.optionsCount++;
+		    this.parent.filteredOptionsCount++;
+		    this.index = this.parent.options.indexOf(this);
+
+		    this.$on('queryChange', this.queryChange);
+		    this.$on('handleGroupDisabled', this.handleGroupDisabled);
+		    this.$on('resetIndex', this.resetIndex);
+		  },
+		  beforeDestroy: function beforeDestroy() {
+		    this.dispatch('ElSelect', 'onOptionDestroy', this);
+		  }
+		}; //
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
 
 	/***/ },
 	/* 94 */
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(56);
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('li', {
+		    directives: [{
+		      name: "show",
+		      rawName: "v-show",
+		      value: (_vm.visible),
+		      expression: "visible"
+		    }],
+		    staticClass: "el-select-dropdown__item",
+		    class: {
+		      'selected': _vm.itemSelected,
+		      'is-disabled': _vm.disabled || _vm.groupDisabled || _vm.limitReached,
+		        'hover': _vm.parent.hoverIndex === _vm.index
+		    },
+		    on: {
+		      "mouseenter": _vm.hoverItem,
+		      "click": function($event) {
+		        $event.stopPropagation();
+		        _vm.selectOptionClick($event)
+		      }
+		    }
+		  }, [_vm._t("default", [_h('span', [_vm._s(_vm.currentLabel)])])])
+		},staticRenderFns: []}
 
 	/***/ },
 	/* 95 */
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(60);
+		module.exports = __webpack_require__(87);
 
 	/***/ },
 	/* 96 */
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(52);
+		module.exports = __webpack_require__(88);
 
 	/***/ },
 	/* 97 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports = __webpack_require__(86);
+
+	/***/ },
+	/* 98 */
+	/***/ function(module, exports) {
+
+		module.exports = __webpack_require__(90);
+
+	/***/ },
+	/* 99 */
+	/***/ function(module, exports) {
+
+		module.exports = __webpack_require__(82);
+
+	/***/ },
+	/* 100 */
+	/***/ function(module, exports) {
+
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    directives: [{
 		      name: "clickoutside",
 		      rawName: "v-clickoutside",
 		      value: (_vm.handleClose),
 		      expression: "handleClose"
 		    }],
-		    staticClass: "el-select",
-		    class: {
-		      'is-multiple': _vm.multiple, 'is-small': _vm.size === 'small'
-		    }
-		  }, [(_vm.multiple) ? _vm._h('div', {
+		    staticClass: "el-select"
+		  }, [(_vm.multiple) ? _h('div', {
 		    ref: "tags",
 		    staticClass: "el-select__tags",
 		    style: ({
@@ -20574,13 +22746,13 @@
 		        _vm.toggleMenu($event)
 		      }
 		    }
-		  }, [_vm._h('transition-group', {
+		  }, [_h('transition-group', {
 		    on: {
 		      "after-leave": _vm.resetInputHeight
 		    }
 		  }, [_vm._l((_vm.selected), function(item) {
-		    return _vm._h('el-tag', {
-		      key: item,
+		    return _h('el-tag', {
+		      key: item.value,
 		      attrs: {
 		        "closable": "",
 		        "hit": item.hitState,
@@ -20592,8 +22764,8 @@
 		          _vm.deleteTag($event, item)
 		        }
 		      }
-		    }, [_vm._s(item.currentLabel)])
-		  })]), (_vm.filterable) ? _vm._h('input', {
+		    }, ["\n        " + _vm._s(item.currentLabel) + "\n      "])
+		  })]), (_vm.filterable) ? _h('input', {
 		    directives: [{
 		      name: "model",
 		      rawName: "v-model",
@@ -20602,6 +22774,7 @@
 		    }],
 		    ref: "input",
 		    staticClass: "el-select__input",
+		    class: ("is-" + _vm.size),
 		    style: ({
 		      width: _vm.inputLength + 'px',
 		      'max-width': _vm.inputWidth - 42 + 'px'
@@ -20643,7 +22816,7 @@
 		        _vm.query = $event.target.value
 		      }
 		    }
-		  }) : _vm._e()]) : _vm._e(), _vm._h('el-input', {
+		  }) : _vm._e()]) : _vm._e(), _h('el-input', {
 		    directives: [{
 		      name: "model",
 		      rawName: "v-model",
@@ -20655,6 +22828,7 @@
 		      "type": "text",
 		      "placeholder": _vm.currentPlaceholder,
 		      "name": _vm.name,
+		      "size": _vm.size,
 		      "disabled": _vm.disabled,
 		      "readonly": !_vm.filterable || _vm.multiple,
 		      "icon": _vm.iconClass
@@ -20664,7 +22838,7 @@
 		    },
 		    on: {
 		      "focus": _vm.toggleMenu,
-		      "click": _vm.toggleMenu,
+		      "click": _vm.handleIconClick,
 		      "input": function($event) {
 		        _vm.selectedLabel = $event
 		      }
@@ -20703,14 +22877,14 @@
 		        _vm.inputHovering = false
 		      }
 		    }
-		  }), _vm._h('transition', {
+		  }), _h('transition', {
 		    attrs: {
-		      "name": "md-fade-bottom"
+		      "name": "el-zoom-in-top"
 		    },
 		    on: {
 		      "after-leave": _vm.doDestroy
 		    }
-		  }, [_vm._h('el-select-menu', {
+		  }, [_h('el-select-menu', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -20718,28 +22892,38 @@
 		      expression: "visible && emptyText !== false"
 		    }],
 		    ref: "popper"
-		  }, [_vm._h('ul', {
+		  }, [_h('ul', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
-		      value: (_vm.options.length > 0 && _vm.filteredOptionsCount > 0 && !_vm.loading),
-		      expression: "options.length > 0 && filteredOptionsCount > 0 && !loading"
+		      value: (_vm.options.length > 0 && !_vm.loading),
+		      expression: "options.length > 0 && !loading"
 		    }],
-		    staticClass: "el-select-dropdown__list"
-		  }, [_vm._t("default")]), (_vm.emptyText) ? _vm._h('p', {
+		    staticClass: "el-select-dropdown__list",
+		    class: {
+		      'is-empty': !_vm.allowCreate && _vm.filteredOptionsCount === 0
+		    }
+		  }, [(_vm.showNewOption) ? _h('el-option', {
+		    attrs: {
+		      "created": ""
+		    },
+		    domProps: {
+		      "value": _vm.query
+		    }
+		  }) : _vm._e(), _vm._t("default")]), (_vm.emptyText && !_vm.allowCreate) ? _h('p', {
 		    staticClass: "el-select-dropdown__empty"
 		  }, [_vm._s(_vm.emptyText)]) : _vm._e()])])])
 		},staticRenderFns: []}
 
 	/***/ },
-	/* 98 */
+	/* 101 */
 	/***/ function(module, exports, __webpack_require__) {
 
 		'use strict';
 
 		exports.__esModule = true;
 
-		var _option = __webpack_require__(99);
+		var _option = __webpack_require__(92);
 
 		var _option2 = _interopRequireDefault(_option);
 
@@ -20751,203 +22935,6 @@
 		};
 
 		exports.default = _option2.default;
-
-	/***/ },
-	/* 99 */
-	/***/ function(module, exports, __webpack_require__) {
-
-		var __vue_exports__, __vue_options__
-		var __vue_styles__ = {}
-
-		/* script */
-		__vue_exports__ = __webpack_require__(100)
-
-		/* template */
-		var __vue_template__ = __webpack_require__(101)
-		__vue_options__ = __vue_exports__ = __vue_exports__ || {}
-		if (
-		  typeof __vue_exports__.default === "object" ||
-		  typeof __vue_exports__.default === "function"
-		) {
-		__vue_options__ = __vue_exports__ = __vue_exports__.default
-		}
-		if (typeof __vue_options__ === "function") {
-		  __vue_options__ = __vue_options__.options
-		}
-
-		__vue_options__.render = __vue_template__.render
-		__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
-
-		module.exports = __vue_exports__
-
-
-	/***/ },
-	/* 100 */
-	/***/ function(module, exports, __webpack_require__) {
-
-		'use strict';
-
-		exports.__esModule = true;
-
-		var _emitter = __webpack_require__(25);
-
-		var _emitter2 = _interopRequireDefault(_emitter);
-
-		function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-		exports.default = {
-		  mixins: [_emitter2.default],
-
-		  name: 'el-option',
-
-		  componentName: 'ElOption',
-
-		  props: {
-		    value: {
-		      required: true
-		    },
-		    label: [String, Number],
-		    selected: {
-		      type: Boolean,
-		      default: false
-		    },
-		    disabled: {
-		      type: Boolean,
-		      default: false
-		    }
-		  },
-
-		  data: function data() {
-		    return {
-		      index: -1,
-		      groupDisabled: false,
-		      visible: true,
-		      hitState: false
-		    };
-		  },
-
-
-		  computed: {
-		    currentLabel: function currentLabel() {
-		      return this.label || (typeof this.value === 'string' || typeof this.value === 'number' ? this.value : '');
-		    },
-		    currentValue: function currentValue() {
-		      return this.value || this.label || '';
-		    },
-		    parent: function parent() {
-		      var result = this.$parent;
-		      while (!result.isSelect) {
-		        result = result.$parent;
-		      }
-		      return result;
-		    },
-		    itemSelected: function itemSelected() {
-		      if (Object.prototype.toString.call(this.parent.selected) === '[object Object]') {
-		        return this === this.parent.selected;
-		      } else if (Array.isArray(this.parent.selected)) {
-		        return this.parent.value.indexOf(this.value) > -1;
-		      }
-		    },
-		    currentSelected: function currentSelected() {
-		      return this.selected || (this.parent.multiple ? this.parent.value.indexOf(this.value) > -1 : this.parent.value === this.value);
-		    }
-		  },
-
-		  watch: {
-		    currentSelected: function currentSelected(val) {
-		      if (val === true) {
-		        this.dispatch('ElSelect', 'addOptionToValue', this);
-		      }
-		    }
-		  },
-
-		  methods: {
-		    handleGroupDisabled: function handleGroupDisabled(val) {
-		      this.groupDisabled = val;
-		    },
-		    hoverItem: function hoverItem() {
-		      if (!this.disabled && !this.groupDisabled) {
-		        this.parent.hoverIndex = this.parent.options.indexOf(this);
-		      }
-		    },
-		    selectOptionClick: function selectOptionClick() {
-		      if (this.disabled !== true && this.groupDisabled !== true) {
-		        this.dispatch('ElSelect', 'handleOptionClick', this);
-		      }
-		    },
-		    queryChange: function queryChange(query) {
-		      // query 里如果有正则中的特殊字符，需要先将这些字符转义
-		      var parsedQuery = query.replace(/(\^|\(|\)|\[|\]|\$|\*|\+|\.|\?|\\|\{|\}|\|)/g, '\\$1');
-		      this.visible = new RegExp(parsedQuery, 'i').test(this.currentLabel);
-		      if (!this.visible) {
-		        this.parent.filteredOptionsCount--;
-		      }
-		    },
-		    resetIndex: function resetIndex() {
-		      var _this = this;
-
-		      this.$nextTick(function () {
-		        _this.index = _this.parent.options.indexOf(_this);
-		      });
-		    }
-		  },
-
-		  created: function created() {
-		    this.parent.options.push(this);
-		    this.parent.optionsCount++;
-		    this.parent.filteredOptionsCount++;
-		    this.index = this.parent.options.indexOf(this);
-
-		    if (this.currentSelected === true) {
-		      this.dispatch('ElSelect', 'addOptionToValue', [this, true]);
-		    }
-
-		    this.$on('queryChange', this.queryChange);
-		    this.$on('handleGroupDisabled', this.handleGroupDisabled);
-		    this.$on('resetIndex', this.resetIndex);
-		  },
-		  beforeDestroy: function beforeDestroy() {
-		    this.dispatch('ElSelect', 'onOptionDestroy', this);
-		  }
-		}; //
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-
-	/***/ },
-	/* 101 */
-	/***/ function(module, exports) {
-
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('li', {
-		    directives: [{
-		      name: "show",
-		      rawName: "v-show",
-		      value: (_vm.visible),
-		      expression: "visible"
-		    }],
-		    staticClass: "el-select-dropdown__item",
-		    class: {
-		      'selected': _vm.itemSelected, 'is-disabled': _vm.disabled || _vm.groupDisabled, 'hover': _vm.parent.hoverIndex === _vm.index
-		    },
-		    on: {
-		      "mouseenter": _vm.hoverItem,
-		      "click": function($event) {
-		        $event.stopPropagation();
-		        _vm.selectOptionClick($event)
-		      }
-		    }
-		  }, [_vm._t("default", [_vm._h('span', [_vm._s(_vm.currentLabel)])])])
-		},staticRenderFns: []}
 
 	/***/ },
 	/* 102 */
@@ -21018,6 +23005,8 @@
 
 		  name: 'el-option-group',
 
+		  componentName: 'ElOptionGroup',
+
 		  props: {
 		    label: String,
 		    disabled: {
@@ -21026,12 +23015,30 @@
 		    }
 		  },
 
+		  data: function data() {
+		    return {
+		      visible: true
+		    };
+		  },
+
+
 		  watch: {
 		    disabled: function disabled(val) {
 		      this.broadcast('ElOption', 'handleGroupDisabled', val);
 		    }
 		  },
 
+		  methods: {
+		    queryChange: function queryChange() {
+		      this.visible = this.$children && Array.isArray(this.$children) && this.$children.some(function (option) {
+		        return option.visible === true;
+		      });
+		    }
+		  },
+
+		  created: function created() {
+		    this.$on('queryChange', this.queryChange);
+		  },
 		  mounted: function mounted() {
 		    if (this.disabled) {
 		      this.broadcast('ElOption', 'handleGroupDisabled', this.disabled);
@@ -21053,12 +23060,18 @@
 	/* 105 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('ul', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('ul', {
 		    staticClass: "el-select-group__wrap"
-		  }, [_vm._h('li', {
+		  }, [_h('li', {
+		    directives: [{
+		      name: "show",
+		      rawName: "v-show",
+		      value: (_vm.visible),
+		      expression: "visible"
+		    }],
 		    staticClass: "el-select-group__title"
-		  }, [_vm._s(_vm.label)]), _vm._h('li', [_vm._h('ul', {
+		  }, [_vm._s(_vm.label)]), _h('li', [_h('ul', {
 		    staticClass: "el-select-group"
 		  }, [_vm._t("default")])])])
 		},staticRenderFns: []}
@@ -21175,8 +23188,8 @@
 	/* 109 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('button', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('button', {
 		    staticClass: "el-button",
 		    class: [
 		      _vm.type ? 'el-button--' + _vm.type : '',
@@ -21194,11 +23207,11 @@
 		    on: {
 		      "click": _vm.handleClick
 		    }
-		  }, [(_vm.loading) ? _vm._h('i', {
+		  }, [(_vm.loading) ? _h('i', {
 		    staticClass: "el-icon-loading"
-		  }) : _vm._e(), (_vm.icon && !_vm.loading) ? _vm._h('i', {
+		  }) : _vm._e(), (_vm.icon && !_vm.loading) ? _h('i', {
 		    class: 'el-icon-' + _vm.icon
-		  }) : _vm._e(), (_vm.$slots.default) ? _vm._h('span', [_vm._t("default")]) : _vm._e()])
+		  }) : _vm._e(), (_vm.$slots.default) ? _h('span', [_vm._t("default")]) : _vm._e()])
 		},staticRenderFns: []}
 
 	/***/ },
@@ -21278,8 +23291,8 @@
 	/* 113 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    staticClass: "el-button-group"
 		  }, [_vm._t("default")])
 		},staticRenderFns: []}
@@ -21342,42 +23355,49 @@
 
 		exports.__esModule = true;
 
+		var _checkbox = __webpack_require__(117);
+
+		var _checkbox2 = _interopRequireDefault(_checkbox);
+
 		var _migrating = __webpack_require__(9);
 
 		var _migrating2 = _interopRequireDefault(_migrating);
 
-		var _throttle = __webpack_require__(117);
+		var _throttle = __webpack_require__(118);
 
 		var _throttle2 = _interopRequireDefault(_throttle);
 
-		var _debounce = __webpack_require__(93);
+		var _debounce = __webpack_require__(96);
 
 		var _debounce2 = _interopRequireDefault(_debounce);
 
-		var _resizeEvent = __webpack_require__(95);
+		var _resizeEvent = __webpack_require__(98);
 
-		var _locale = __webpack_require__(96);
+		var _locale = __webpack_require__(10);
 
-		var _tableStore = __webpack_require__(118);
+		var _locale2 = _interopRequireDefault(_locale);
+
+		var _tableStore = __webpack_require__(119);
 
 		var _tableStore2 = _interopRequireDefault(_tableStore);
 
-		var _tableLayout = __webpack_require__(121);
+		var _tableLayout = __webpack_require__(122);
 
 		var _tableLayout2 = _interopRequireDefault(_tableLayout);
 
-		var _tableBody = __webpack_require__(122);
+		var _tableBody = __webpack_require__(123);
 
 		var _tableBody2 = _interopRequireDefault(_tableBody);
 
-		var _tableHeader = __webpack_require__(123);
+		var _tableHeader = __webpack_require__(124);
 
 		var _tableHeader2 = _interopRequireDefault(_tableHeader);
 
-		var _util = __webpack_require__(120);
+		var _util = __webpack_require__(121);
 
 		function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+		var tableIdSeed = 1; //
 		//
 		//
 		//
@@ -21477,13 +23497,13 @@
 		//
 		//
 		//
-
-		var tableIdSeed = 1;
+		//
+		//
 
 		exports.default = {
 		  name: 'el-table',
 
-		  mixins: [_migrating2.default],
+		  mixins: [_migrating2.default, _locale2.default],
 
 		  props: {
 		    data: {
@@ -21496,6 +23516,8 @@
 		    width: [String, Number],
 
 		    height: [String, Number],
+
+		    maxHeight: [String, Number],
 
 		    fit: {
 		      type: Boolean,
@@ -21521,17 +23543,13 @@
 
 		    highlightCurrentRow: Boolean,
 
-		    emptyText: {
-		      type: String,
-		      default: function _default() {
-		        return (0, _locale.t)('el.table.emptyText');
-		      }
-		    }
+		    emptyText: String
 		  },
 
 		  components: {
 		    TableHeader: _tableHeader2.default,
-		    TableBody: _tableBody2.default
+		    TableBody: _tableBody2.default,
+		    ElCheckbox: _checkbox2.default
 		  },
 
 		  methods: {
@@ -21569,9 +23587,9 @@
 		    bindEvents: function bindEvents() {
 		      var _this = this;
 
-		      var _$refs = this.$refs;
-		      var bodyWrapper = _$refs.bodyWrapper;
-		      var headerWrapper = _$refs.headerWrapper;
+		      var _$refs = this.$refs,
+		          bodyWrapper = _$refs.bodyWrapper,
+		          headerWrapper = _$refs.headerWrapper;
 
 		      var refs = this.$refs;
 		      bodyWrapper.addEventListener('scroll', function () {
@@ -21608,6 +23626,8 @@
 		      this.$nextTick(function () {
 		        if (_this2.height) {
 		          _this2.layout.setHeight(_this2.height);
+		        } else if (_this2.maxHeight) {
+		          _this2.layout.setMaxHeight(_this2.maxHeight);
 		        } else if (_this2.shouldUpdateHeight) {
 		          _this2.layout.updateHeight();
 		        }
@@ -21643,6 +23663,57 @@
 		    },
 		    rightFixedColumns: function rightFixedColumns() {
 		      return this.store.states.rightFixedColumns;
+		    },
+		    bodyHeight: function bodyHeight() {
+		      var style = {};
+
+		      if (this.height) {
+		        style = {
+		          height: this.layout.bodyHeight ? this.layout.bodyHeight + 'px' : ''
+		        };
+		      } else if (this.maxHeight) {
+		        style = {
+		          'max-height': (this.showHeader ? this.maxHeight - this.layout.headerHeight : this.maxHeight) + 'px'
+		        };
+		      }
+
+		      return style;
+		    },
+		    fixedBodyHeight: function fixedBodyHeight() {
+		      var style = {};
+
+		      if (this.height) {
+		        style = {
+		          height: this.layout.fixedBodyHeight ? this.layout.fixedBodyHeight + 'px' : ''
+		        };
+		      } else if (this.maxHeight) {
+		        var maxHeight = this.layout.scrollX ? this.maxHeight - this.layout.gutterWidth : this.maxHeight;
+
+		        if (this.showHeader) {
+		          maxHeight -= this.layout.headerHeight;
+		        }
+
+		        style = {
+		          'max-height': maxHeight + 'px'
+		        };
+		      }
+
+		      return style;
+		    },
+		    fixedHeight: function fixedHeight() {
+		      var style = {};
+
+		      if (this.maxHeight) {
+		        style = {
+		          bottom: this.layout.scrollX && this.data.length ? this.layout.gutterWidth + 'px' : ''
+		        };
+		      } else {
+		        style = {
+		          height: this.layout.viewportHeight ? this.layout.viewportHeight + 'px' : ''
+		        };
+		      }
+
+		      return style;
 		    }
 		  },
 
@@ -21691,25 +23762,31 @@
 	/* 117 */
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(59);
+		module.exports = __webpack_require__(93);
 
 	/***/ },
 	/* 118 */
+	/***/ function(module, exports) {
+
+		module.exports = __webpack_require__(89);
+
+	/***/ },
+	/* 119 */
 	/***/ function(module, exports, __webpack_require__) {
 
 		'use strict';
 
 		exports.__esModule = true;
 
-		var _vue = __webpack_require__(119);
+		var _vue = __webpack_require__(120);
 
 		var _vue2 = _interopRequireDefault(_vue);
 
-		var _debounce = __webpack_require__(93);
+		var _debounce = __webpack_require__(96);
 
 		var _debounce2 = _interopRequireDefault(_debounce);
 
-		var _util = __webpack_require__(120);
+		var _util = __webpack_require__(121);
 
 		function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -21855,8 +23932,8 @@
 		  filterChange: function filterChange(states, options) {
 		    var _this3 = this;
 
-		    var column = options.column;
-		    var values = options.values;
+		    var column = options.column,
+		        values = options.values;
 
 		    if (values && !Array.isArray(values)) {
 		      values = [values];
@@ -21885,6 +23962,8 @@
 
 		    states.filteredData = data;
 		    states.data = sortData(data, states);
+
+		    this.table.$emit('filter-change', filters);
 
 		    _vue2.default.nextTick(function () {
 		      return _this3.table.updateScrollY();
@@ -22055,10 +24134,10 @@
 
 		TableStore.prototype.updateAllSelected = function () {
 		  var states = this.states;
-		  var selection = states.selection;
-		  var rowKey = states.rowKey;
-		  var selectable = states.selectable;
-		  var data = states.data;
+		  var selection = states.selection,
+		      rowKey = states.rowKey,
+		      selectable = states.selectable,
+		      data = states.data;
 
 		  if (!data || data.length === 0) {
 		    states.isAllSelected = false;
@@ -22140,13 +24219,13 @@
 		exports.default = TableStore;
 
 	/***/ },
-	/* 119 */
+	/* 120 */
 	/***/ function(module, exports) {
 
 		module.exports = __webpack_require__(1);
 
 	/***/ },
-	/* 120 */
+	/* 121 */
 	/***/ function(module, exports) {
 
 		'use strict';
@@ -22274,14 +24353,14 @@
 		};
 
 	/***/ },
-	/* 121 */
+	/* 122 */
 	/***/ function(module, exports, __webpack_require__) {
 
 		'use strict';
 
 		exports.__esModule = true;
 
-		var _util = __webpack_require__(120);
+		var _util = __webpack_require__(121);
 
 		function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -22330,33 +24409,36 @@
 
 		  TableLayout.prototype.updateScrollY = function updateScrollY() {
 		    var height = this.height;
-		    if (typeof height !== 'string' || typeof height !== 'number') return;
+		    if (typeof height !== 'string' && typeof height !== 'number') return;
 		    var bodyWrapper = this.table.$refs.bodyWrapper;
 		    if (this.table.$el && bodyWrapper) {
 		      var body = bodyWrapper.querySelector('.el-table__body');
-
 		      this.scrollY = body.offsetHeight > bodyWrapper.offsetHeight;
 		    }
 		  };
 
-		  TableLayout.prototype.setHeight = function setHeight(height) {
+		  TableLayout.prototype.setHeight = function setHeight(value) {
+		    var prop = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'height';
+
 		    var el = this.table.$el;
-		    if (typeof height === 'string') {
-		      if (/^\d+$/.test(height)) {
-		        height = Number(height);
-		      }
+		    if (typeof value === 'string' && /^\d+$/.test(value)) {
+		      value = Number(value);
 		    }
 
-		    this.height = height;
+		    this.height = value;
 
 		    if (!el) return;
-		    if (!isNaN(height)) {
-		      el.style.height = height + 'px';
+		    if (typeof value === 'number') {
+		      el.style[prop] = value + 'px';
 
 		      this.updateHeight();
-		    } else if (typeof height === 'string') {
+		    } else if (typeof value === 'string') {
 		      this.updateHeight();
 		    }
+		  };
+
+		  TableLayout.prototype.setMaxHeight = function setMaxHeight(value) {
+		    return this.setHeight(value, 'max-height');
 		  };
 
 		  TableLayout.prototype.updateHeight = function updateHeight() {
@@ -22370,7 +24452,6 @@
 		        this.bodyHeight = height;
 		      }
 		      this.fixedBodyHeight = this.scrollX ? height - this.gutterWidth : height;
-		      this.viewportHeight = this.scrollX ? height - this.gutterWidth : height;
 		    } else {
 		      var headerHeight = this.headerHeight = headerWrapper.offsetHeight;
 		      var bodyHeight = height - headerHeight;
@@ -22378,8 +24459,8 @@
 		        this.bodyHeight = bodyHeight;
 		      }
 		      this.fixedBodyHeight = this.scrollX ? bodyHeight - this.gutterWidth : bodyHeight;
-		      this.viewportHeight = this.scrollX ? height - this.gutterWidth : height;
 		    }
+		    this.viewportHeight = this.scrollX ? height - this.gutterWidth : height;
 		  };
 
 		  TableLayout.prototype.update = function update() {
@@ -22484,16 +24565,26 @@
 		exports.default = TableLayout;
 
 	/***/ },
-	/* 122 */
+	/* 123 */
 	/***/ function(module, exports, __webpack_require__) {
 
-		"use strict";
+		'use strict';
 
 		exports.__esModule = true;
 
-		var _util = __webpack_require__(120);
+		var _util = __webpack_require__(121);
+
+		var _checkbox = __webpack_require__(117);
+
+		var _checkbox2 = _interopRequireDefault(_checkbox);
+
+		function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 		exports.default = {
+		  components: {
+		    ElCheckbox: _checkbox2.default
+		  },
+
 		  props: {
 		    store: {
 		      required: true
@@ -22515,16 +24606,16 @@
 		      return _this.isColumnHidden(index);
 		    });
 		    return h(
-		      "table",
+		      'table',
 		      {
-		        "class": "el-table__body",
-		        attrs: { cellspacing: "0",
-		          cellpadding: "0",
-		          border: "0" }
+		        'class': 'el-table__body',
+		        attrs: { cellspacing: '0',
+		          cellpadding: '0',
+		          border: '0' }
 		      },
 		      [this._l(this.columns, function (column) {
 		        return h(
-		          "col",
+		          'col',
 		          {
 		            attrs: {
 		              name: column.id,
@@ -22534,44 +24625,50 @@
 		          []
 		        );
 		      }), h(
-		        "tbody",
+		        'tbody',
 		        null,
 		        [this._l(this.data, function (row, $index) {
 		          return h(
-		            "tr",
+		            'tr',
 		            {
 		              style: _this.rowStyle ? _this.getRowStyle(row, $index) : null,
 		              key: _this.$parent.rowKey ? _this.getKeyOfRow(row, $index) : $index,
 		              on: {
-		                click: function click($event) {
+		                'dblclick': function dblclick($event) {
+		                  return _this.handleDoubleClick($event, row);
+		                },
+		                'click': function click($event) {
 		                  return _this.handleClick($event, row);
 		                },
-		                mouseenter: function mouseenter(_) {
+		                'contextmenu': function contextmenu($event) {
+		                  return _this.handleContextMenu($event, row);
+		                },
+		                'mouseenter': function mouseenter(_) {
 		                  return _this.handleMouseEnter($index);
 		                },
-		                mouseleave: function mouseleave(_) {
+		                'mouseleave': function mouseleave(_) {
 		                  return _this.handleMouseLeave();
 		                }
 		              },
 
-		              "class": _this.getRowClass(row, $index) },
+		              'class': _this.getRowClass(row, $index) },
 		            [_this._l(_this.columns, function (column, cellIndex) {
 		              return h(
-		                "td",
+		                'td',
 		                {
-		                  "class": [column.id, column.align, column.className || '', columnsHidden[cellIndex] ? 'is-hidden' : ''],
+		                  'class': [column.id, column.align, column.className || '', columnsHidden[cellIndex] ? 'is-hidden' : ''],
 		                  on: {
-		                    mouseenter: function mouseenter($event) {
+		                    'mouseenter': function mouseenter($event) {
 		                      return _this.handleCellMouseEnter($event, row);
 		                    },
-		                    mouseleave: _this.handleCellMouseLeave
+		                    'mouseleave': _this.handleCellMouseLeave
 		                  }
 		                },
 		                [column.renderCell.call(_this._renderProxy, h, { row: row, column: column, $index: $index, store: _this.store, _self: _this.context || _this.$parent.$vnode.context })]
 		              );
 		            }), !_this.fixed && _this.layout.scrollY && _this.layout.gutterWidth ? h(
-		              "td",
-		              { "class": "gutter" },
+		              'td',
+		              { 'class': 'gutter' },
 		              []
 		            ) : '']
 		          );
@@ -22702,12 +24799,20 @@
 		    handleMouseLeave: function handleMouseLeave() {
 		      this.store.commit('setHoverRow', null);
 		    },
+		    handleContextMenu: function handleContextMenu(event, row) {
+		      var table = this.$parent;
+		      table.$emit('row-contextmenu', row, event);
+		    },
+		    handleDoubleClick: function handleDoubleClick(event, row) {
+		      var table = this.$parent;
+		      table.$emit('row-dblclick', row, event);
+		    },
 		    handleClick: function handleClick(event, row) {
 		      var table = this.$parent;
 		      var cell = (0, _util.getCell)(event);
-
+		      var column = void 0;
 		      if (cell) {
-		        var column = (0, _util.getColumnByCell)(table, cell);
+		        column = (0, _util.getColumnByCell)(table, cell);
 		        if (column) {
 		          table.$emit('cell-click', row, column, cell, event);
 		        }
@@ -22715,28 +24820,28 @@
 
 		      this.store.commit('setCurrentRow', row);
 
-		      table.$emit('row-click', row, event);
+		      table.$emit('row-click', row, event, column);
 		    }
 		  }
 		};
 
 	/***/ },
-	/* 123 */
+	/* 124 */
 	/***/ function(module, exports, __webpack_require__) {
 
 		'use strict';
 
 		exports.__esModule = true;
 
-		var _checkbox = __webpack_require__(124);
+		var _checkbox = __webpack_require__(117);
 
 		var _checkbox2 = _interopRequireDefault(_checkbox);
 
-		var _tag = __webpack_require__(92);
+		var _tag = __webpack_require__(95);
 
 		var _tag2 = _interopRequireDefault(_tag);
 
-		var _vue = __webpack_require__(119);
+		var _vue = __webpack_require__(120);
 
 		var _vue2 = _interopRequireDefault(_vue);
 
@@ -22847,7 +24952,7 @@
 		      ) : '', h(
 		        'thead',
 		        null,
-		        [this._l(columnRows, function (columns) {
+		        [this._l(columnRows, function (columns, rowIndex) {
 		          return h(
 		            'tr',
 		            null,
@@ -22860,26 +24965,26 @@
 		                    rowspan: column.rowSpan
 		                  },
 		                  on: {
-		                    mousemove: function mousemove($event) {
+		                    'mousemove': function mousemove($event) {
 		                      return _this.handleMouseMove($event, column);
 		                    },
-		                    mouseout: _this.handleMouseOut,
-		                    mousedown: function mousedown($event) {
+		                    'mouseout': _this.handleMouseOut,
+		                    'mousedown': function mousedown($event) {
 		                      return _this.handleMouseDown($event, column);
 		                    },
-		                    click: function click($event) {
+		                    'click': function click($event) {
 		                      return _this.handleClick($event, column);
 		                    }
 		                  },
 
-		                  'class': [column.id, column.order, column.align, column.className || '', _this.isCellHidden(cellIndex) ? 'is-hidden' : '', !column.children ? 'is-leaf' : ''] },
+		                  'class': [column.id, column.order, column.align, column.className || '', rowIndex === 0 && _this.isCellHidden(cellIndex) ? 'is-hidden' : '', !column.children ? 'is-leaf' : ''] },
 		                [h(
 		                  'div',
 		                  { 'class': ['cell', column.filteredValue && column.filteredValue.length > 0 ? 'highlight' : ''] },
 		                  [column.renderHeader ? column.renderHeader.call(_this._renderProxy, h, { column: column, $index: cellIndex, store: _this.store, _self: _this.$parent.$vnode.context }) : column.label, column.sortable ? h(
 		                    'span',
 		                    { 'class': 'caret-wrapper', on: {
-		                        click: function click($event) {
+		                        'click': function click($event) {
 		                          return _this.handleHeaderClick($event, column);
 		                        }
 		                      }
@@ -22896,7 +25001,7 @@
 		                  ) : '', column.filterable ? h(
 		                    'span',
 		                    { 'class': 'el-table__column-filter-trigger', on: {
-		                        click: function click($event) {
+		                        'click': function click($event) {
 		                          return _this.handleFilterClick($event, column);
 		                        }
 		                      }
@@ -23164,12 +25269,6 @@
 		};
 
 	/***/ },
-	/* 124 */
-	/***/ function(module, exports) {
-
-		module.exports = __webpack_require__(63);
-
-	/***/ },
 	/* 125 */
 	/***/ function(module, exports, __webpack_require__) {
 
@@ -23222,7 +25321,7 @@
 
 		var _dropdown2 = _interopRequireDefault(_dropdown);
 
-		var _checkbox = __webpack_require__(124);
+		var _checkbox = __webpack_require__(117);
 
 		var _checkbox2 = _interopRequireDefault(_checkbox);
 
@@ -23301,7 +25400,7 @@
 		          'button',
 		          {
 		            on: {
-		              click: this.handleConfirm
+		              'click': this.handleConfirm
 		            }
 		          },
 		          [this.t('el.table.confirmFilter')]
@@ -23309,7 +25408,7 @@
 		          'button',
 		          {
 		            on: {
-		              click: this.handleReset
+		              'click': this.handleReset
 		            }
 		          },
 		          [this.t('el.table.resetFilter')]
@@ -23464,18 +25563,18 @@
 	/* 128 */
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(64);
+		module.exports = __webpack_require__(94);
 
 	/***/ },
 	/* 129 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('transition', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('transition', {
 		    attrs: {
-		      "name": "md-fade-bottom"
+		      "name": "el-zoom-in-top"
 		    }
-		  }, [(_vm.multiple) ? _vm._h('div', {
+		  }, [(_vm.multiple) ? _h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -23483,9 +25582,9 @@
 		      expression: "showPopper"
 		    }],
 		    staticClass: "el-table-filter"
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    staticClass: "el-table-filter__content"
-		  }, [_vm._h('el-checkbox-group', {
+		  }, [_h('el-checkbox-group', {
 		    directives: [{
 		      name: "model",
 		      rawName: "v-model",
@@ -23502,14 +25601,14 @@
 		      }
 		    }
 		  }, [_vm._l((_vm.filters), function(filter) {
-		    return _vm._h('el-checkbox', {
+		    return _h('el-checkbox', {
 		      attrs: {
 		        "label": filter.value
 		      }
 		    }, [_vm._s(filter.text)])
-		  })])]), _vm._h('div', {
+		  })])]), _h('div', {
 		    staticClass: "el-table-filter__bottom"
-		  }, [_vm._h('button', {
+		  }, [_h('button', {
 		    class: {
 		      'is-disabled': _vm.filteredValue.length === 0
 		    },
@@ -23519,11 +25618,11 @@
 		    on: {
 		      "click": _vm.handleConfirm
 		    }
-		  }, [_vm._s(_vm.t('el.table.confirmFilter'))]), _vm._h('button', {
+		  }, [_vm._s(_vm.t('el.table.confirmFilter'))]), _h('button', {
 		    on: {
 		      "click": _vm.handleReset
 		    }
-		  }, [_vm._s(_vm.t('el.table.resetFilter'))])])]) : _vm._h('div', {
+		  }, [_vm._s(_vm.t('el.table.resetFilter'))])])]) : _h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -23531,9 +25630,9 @@
 		      expression: "showPopper"
 		    }],
 		    staticClass: "el-table-filter"
-		  }, [_vm._h('ul', {
+		  }, [_h('ul', {
 		    staticClass: "el-table-filter__list"
-		  }, [_vm._h('li', {
+		  }, [_h('li', {
 		    staticClass: "el-table-filter__list-item",
 		    class: {
 		      'is-active': !_vm.filterValue
@@ -23544,7 +25643,7 @@
 		      }
 		    }
 		  }, [_vm._s(_vm.t('el.table.clearFilter'))]), _vm._l((_vm.filters), function(filter) {
-		    return _vm._h('li', {
+		    return _h('li', {
 		      staticClass: "el-table-filter__list-item",
 		      class: {
 		        'is-active': _vm.isActive(filter)
@@ -23565,13 +25664,14 @@
 	/* 130 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    staticClass: "el-table",
 		    class: {
 		      'el-table--fit': _vm.fit,
 		      'el-table--striped': _vm.stripe,
 		      'el-table--border': _vm.border,
+		      'el-table--fluid-height': _vm.maxHeight,
 		      'el-table--enable-row-hover': !_vm.store.states.isComplex,
 		        'el-table--enable-row-transition': true || (_vm.store.states.data || []).length !== 0 && (_vm.store.states.data || []).length < 100
 		    },
@@ -23580,13 +25680,13 @@
 		        _vm.handleMouseLeave($event)
 		      }
 		    }
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    ref: "hiddenColumns",
 		    staticClass: "hidden-columns"
-		  }, [_vm._t("default")]), (_vm.showHeader) ? _vm._h('div', {
+		  }, [_vm._t("default")]), (_vm.showHeader) ? _h('div', {
 		    ref: "headerWrapper",
 		    staticClass: "el-table__header-wrapper"
-		  }, [_vm._h('table-header', {
+		  }, [_h('table-header', {
 		    style: ({
 		      width: _vm.layout.bodyWidth ? _vm.layout.bodyWidth + 'px' : ''
 		    }),
@@ -23595,13 +25695,11 @@
 		      "layout": _vm.layout,
 		      "border": _vm.border
 		    }
-		  })]) : _vm._e(), _vm._h('div', {
+		  })]) : _vm._e(), _h('div', {
 		    ref: "bodyWrapper",
 		    staticClass: "el-table__body-wrapper",
-		    style: ({
-		      height: _vm.layout.bodyHeight ? _vm.layout.bodyHeight + 'px' : ''
-		    })
-		  }, [_vm._h('table-body', {
+		    style: ([_vm.bodyHeight])
+		  }, [_h('table-body', {
 		    style: ({
 		      width: _vm.layout.bodyWidth ? _vm.layout.bodyWidth - (_vm.layout.scrollY ? _vm.layout.gutterWidth : 0) + 'px' : ''
 		    }),
@@ -23613,21 +25711,22 @@
 		      "row-style": _vm.rowStyle,
 		      "highlight": _vm.highlightCurrentRow
 		    }
-		  }), (!_vm.data || _vm.data.length === 0) ? _vm._h('div', {
+		  }), (!_vm.data || _vm.data.length === 0) ? _h('div', {
 		    staticClass: "el-table__empty-block"
-		  }, [_vm._h('span', {
+		  }, [_h('span', {
 		    staticClass: "el-table__empty-text"
-		  }, [_vm._s(_vm.emptyText)])]) : _vm._e()]), (_vm.fixedColumns.length > 0) ? _vm._h('div', {
+		  }, [_vm._t("empty", [_vm._s(_vm.emptyText || _vm.t('el.table.emptyText'))])])]) : _vm._e()]), (_vm.fixedColumns.length > 0) ? _h('div', {
 		    ref: "fixedWrapper",
 		    staticClass: "el-table__fixed",
-		    style: ({
-		      width: _vm.layout.fixedWidth ? _vm.layout.fixedWidth + 'px' : '',
-		      height: _vm.layout.viewportHeight ? _vm.layout.viewportHeight + 'px' : ''
-		    })
-		  }, [(_vm.showHeader) ? _vm._h('div', {
+		    style: ([{
+		        width: _vm.layout.fixedWidth ? _vm.layout.fixedWidth + 'px' : ''
+		      },
+		      _vm.fixedHeight
+		    ])
+		  }, [(_vm.showHeader) ? _h('div', {
 		    ref: "fixedHeaderWrapper",
 		    staticClass: "el-table__fixed-header-wrapper"
-		  }, [_vm._h('table-header', {
+		  }, [_h('table-header', {
 		    style: ({
 		      width: _vm.layout.fixedWidth ? _vm.layout.fixedWidth + 'px' : ''
 		    }),
@@ -23637,14 +25736,15 @@
 		      "store": _vm.store,
 		      "layout": _vm.layout
 		    }
-		  })]) : _vm._e(), _vm._h('div', {
+		  })]) : _vm._e(), _h('div', {
 		    ref: "fixedBodyWrapper",
 		    staticClass: "el-table__fixed-body-wrapper",
-		    style: ({
-		      top: _vm.layout.headerHeight + 'px',
-		      height: _vm.layout.fixedBodyHeight ? _vm.layout.fixedBodyHeight + 'px' : ''
-		    })
-		  }, [_vm._h('table-body', {
+		    style: ([{
+		        top: _vm.layout.headerHeight + 'px'
+		      },
+		      _vm.fixedBodyHeight
+		    ])
+		  }, [_h('table-body', {
 		    style: ({
 		      width: _vm.layout.fixedWidth ? _vm.layout.fixedWidth + 'px' : ''
 		    }),
@@ -23656,18 +25756,20 @@
 		      "row-class-name": _vm.rowClassName,
 		      "row-style": _vm.rowStyle
 		    }
-		  })])]) : _vm._e(), (_vm.rightFixedColumns.length > 0) ? _vm._h('div', {
+		  })])]) : _vm._e(), (_vm.rightFixedColumns.length > 0) ? _h('div', {
 		    ref: "rightFixedWrapper",
 		    staticClass: "el-table__fixed-right",
-		    style: ({
-		      width: _vm.layout.rightFixedWidth ? _vm.layout.rightFixedWidth + 'px' : '',
-		      height: _vm.layout.viewportHeight ? _vm.layout.viewportHeight + 'px' : '',
-		      right: _vm.layout.scrollY ? _vm.layout.gutterWidth + 'px' : ''
-		    })
-		  }, [(_vm.showHeader) ? _vm._h('div', {
+		    style: ([{
+		        width: _vm.layout.rightFixedWidth ? _vm.layout.rightFixedWidth + 'px' : ''
+		      }, {
+		        right: _vm.layout.scrollY ? (_vm.border ? _vm.layout.gutterWidth : (_vm.layout.gutterWidth || 1)) + 'px' : ''
+		      },
+		      _vm.fixedHeight
+		    ])
+		  }, [(_vm.showHeader) ? _h('div', {
 		    ref: "rightFixedHeaderWrapper",
 		    staticClass: "el-table__fixed-header-wrapper"
-		  }, [_vm._h('table-header', {
+		  }, [_h('table-header', {
 		    style: ({
 		      width: _vm.layout.rightFixedWidth ? _vm.layout.rightFixedWidth + 'px' : ''
 		    }),
@@ -23677,14 +25779,15 @@
 		      "store": _vm.store,
 		      "layout": _vm.layout
 		    }
-		  })]) : _vm._e(), _vm._h('div', {
+		  })]) : _vm._e(), _h('div', {
 		    ref: "rightFixedBodyWrapper",
 		    staticClass: "el-table__fixed-body-wrapper",
-		    style: ({
-		      top: _vm.layout.headerHeight + 'px',
-		      height: _vm.layout.fixedBodyHeight ? _vm.layout.fixedBodyHeight + 'px' : ''
-		    })
-		  }, [_vm._h('table-body', {
+		    style: ([{
+		        top: _vm.layout.headerHeight + 'px'
+		      },
+		      _vm.fixedBodyHeight
+		    ])
+		  }, [_h('table-body', {
 		    style: ({
 		      width: _vm.layout.rightFixedWidth ? _vm.layout.rightFixedWidth + 'px' : ''
 		    }),
@@ -23696,7 +25799,13 @@
 		      "row-style": _vm.rowStyle,
 		      "highlight": _vm.highlightCurrentRow
 		    }
-		  })])]) : _vm._e(), _vm._h('div', {
+		  })])]) : _vm._e(), (_vm.rightFixedColumns.length > 0) ? _h('div', {
+		    staticClass: "el-table__fixed-right-patch",
+		    style: ({
+		      width: _vm.layout.scrollY ? _vm.layout.gutterWidth + 'px' : '0',
+		      height: _vm.layout.headerHeight + 'px'
+		    })
+		  }) : _vm._e(), _h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -23737,11 +25846,11 @@
 
 		exports.__esModule = true;
 
-		var _checkbox = __webpack_require__(124);
+		var _checkbox = __webpack_require__(117);
 
 		var _checkbox2 = _interopRequireDefault(_checkbox);
 
-		var _tag = __webpack_require__(92);
+		var _tag = __webpack_require__(95);
 
 		var _tag2 = _interopRequireDefault(_tag);
 
@@ -23749,7 +25858,7 @@
 
 		var _merge2 = _interopRequireDefault(_merge);
 
-		var _util = __webpack_require__(120);
+		var _util = __webpack_require__(121);
 
 		function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -23763,7 +25872,8 @@
 		    width: 48,
 		    minWidth: 48,
 		    realWidth: 48,
-		    order: ''
+		    order: '',
+		    className: 'el-table-column--selection'
 		  },
 		  index: {
 		    width: 48,
@@ -23780,32 +25890,32 @@
 		        'el-checkbox',
 		        {
 		          nativeOn: {
-		            click: this.toggleAllSelection
+		            'click': this.toggleAllSelection
 		          },
 		          domProps: {
-		            value: this.isAllSelected
+		            'value': this.isAllSelected
 		          }
 		        },
 		        []
 		      );
 		    },
 		    renderCell: function renderCell(h, _ref) {
-		      var row = _ref.row;
-		      var column = _ref.column;
-		      var store = _ref.store;
-		      var $index = _ref.$index;
+		      var row = _ref.row,
+		          column = _ref.column,
+		          store = _ref.store,
+		          $index = _ref.$index;
 
 		      return h(
 		        'el-checkbox',
 		        {
 		          domProps: {
-		            value: store.isSelected(row)
+		            'value': store.isSelected(row)
 		          },
 		          attrs: {
 		            disabled: column.selectable ? !column.selectable.call(null, row, $index) : false
 		          },
 		          on: {
-		            input: function input() {
+		            'input': function input() {
 		              store.commit('rowSelectedChanged', row);
 		            }
 		          }
@@ -23859,8 +25969,8 @@
 		};
 
 		var DEFAULT_RENDER_CELL = function DEFAULT_RENDER_CELL(h, _ref4) {
-		  var row = _ref4.row;
-		  var column = _ref4.column;
+		  var row = _ref4.row,
+		      column = _ref4.column;
 
 		  var property = column.property;
 		  if (column && column.formatter) {
@@ -23899,6 +26009,7 @@
 		      default: true
 		    },
 		    context: {},
+		    columnKey: String,
 		    align: String,
 		    showTooltipWhenOverflow: Boolean,
 		    showOverflowTooltip: Boolean,
@@ -23961,7 +26072,7 @@
 		      );
 		    };
 
-		    var columnId = this.columnId = (this.$parent.tableId || this.$parent.columnId + '_') + 'column_' + columnIdSeed++;
+		    var columnId = this.columnId = this.columnKey || (this.$parent.tableId || this.$parent.columnId + '_') + 'column_' + columnIdSeed++;
 
 		    var parent = this.$parent;
 		    var owner = this.owner;
@@ -24146,7 +26257,7 @@
 	/* 133 */
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(65);
+		module.exports = __webpack_require__(95);
 
 	/***/ },
 	/* 134 */
@@ -24252,7 +26363,7 @@
 
 		exports.__esModule = true;
 
-		var _vue = __webpack_require__(119);
+		var _vue = __webpack_require__(120);
 
 		var _vue2 = _interopRequireDefault(_vue);
 
@@ -24270,7 +26381,37 @@
 
 		var _emitter2 = _interopRequireDefault(_emitter);
 
+		var _input = __webpack_require__(19);
+
+		var _input2 = _interopRequireDefault(_input);
+
 		function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
 
 		var NewPopper = {
 		  props: {
@@ -24281,40 +26422,7 @@
 		  methods: _vuePopper2.default.methods,
 		  data: _vuePopper2.default.data,
 		  beforeDestroy: _vuePopper2.default.beforeDestroy
-		}; //
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
+		};
 
 		var RANGE_SEPARATOR = ' - ';
 		var DEFAULT_FORMATS = {
@@ -24332,12 +26440,6 @@
 		  return (0, _util.formatDate)(value, format);
 		};
 		var DATE_PARSER = function DATE_PARSER(text, format) {
-		  text = text.split(':');
-		  if (text.length > 1) text = text.map(function (item) {
-		    return item.slice(-2);
-		  });
-		  text = text.join(':');
-
 		  return (0, _util.parseDate)(text, format);
 		};
 		var RANGE_FORMATTER = function RANGE_FORMATTER(value, format) {
@@ -24354,12 +26456,9 @@
 		var RANGE_PARSER = function RANGE_PARSER(text, format) {
 		  var array = text.split(RANGE_SEPARATOR);
 		  if (array.length === 2) {
-		    var range1 = array[0].split(':').map(function (item) {
-		      return item.slice(-2);
-		    }).join(':');
-		    var range2 = array[1].split(':').map(function (item) {
-		      return item.slice(-2);
-		    }).join(':');
+		    var range1 = array[0];
+		    var range2 = array[1];
+
 		    return [(0, _util.parseDate)(range1, format), (0, _util.parseDate)(range2, format)];
 		  }
 		  return [];
@@ -24454,10 +26553,12 @@
 		  mixins: [_emitter2.default, NewPopper],
 
 		  props: {
+		    size: String,
 		    format: String,
 		    readonly: Boolean,
 		    placeholder: String,
 		    disabled: Boolean,
+		    popperClass: String,
 		    editable: {
 		      type: Boolean,
 		      default: true
@@ -24470,6 +26571,8 @@
 		    haveTrigger: {},
 		    pickerOptions: {}
 		  },
+
+		  components: { ElInput: _input2.default },
 
 		  directives: { Clickoutside: _clickoutside2.default },
 
@@ -24491,7 +26594,6 @@
 		      if (!val && this.picker && typeof this.picker.handleClear === 'function') {
 		        this.picker.handleClear();
 		      }
-		      this.dispatch('ElFormItem', 'el.form.change');
 		    },
 
 		    value: {
@@ -24503,10 +26605,17 @@
 		  },
 
 		  computed: {
+		    reference: function reference() {
+		      return this.$refs.reference.$el;
+		    },
+		    refInput: function refInput() {
+		      if (this.reference) return this.reference.querySelector('input');
+		      return {};
+		    },
 		    valueIsEmpty: function valueIsEmpty() {
 		      var val = this.internalValue;
 		      if (Array.isArray(val)) {
-		        for (var i = 0, j = val.length; i < j; i++) {
+		        for (var i = 0, len = val.length; i < len; i++) {
 		          if (val[i]) {
 		            return false;
 		          }
@@ -24543,6 +26652,7 @@
 		    visualValue: {
 		      get: function get() {
 		        var value = this.internalValue;
+		        if (!value) return;
 		        var formatter = (TYPE_VALUE_RESOLVER_MAP[this.type] || TYPE_VALUE_RESOLVER_MAP['default']).formatter;
 		        var format = DEFAULT_FORMATS[this.type];
 
@@ -24554,7 +26664,7 @@
 		          var parser = (TYPE_VALUE_RESOLVER_MAP[type] || TYPE_VALUE_RESOLVER_MAP['default']).parser;
 		          var parsedValue = parser(value, this.format || DEFAULT_FORMATS[type]);
 
-		          if (parsedValue) {
+		          if (parsedValue && this.picker) {
 		            this.picker.value = parsedValue;
 		          }
 		          return;
@@ -24587,6 +26697,7 @@
 		        this.pickerVisible = !this.pickerVisible;
 		      } else {
 		        this.internalValue = '';
+		        this.$emit('input', '');
 		      }
 		    },
 		    handleClose: function handleClose() {
@@ -24606,42 +26717,10 @@
 		    },
 		    handleKeydown: function handleKeydown(event) {
 		      var keyCode = event.keyCode;
-		      var target = event.target;
-		      var selectionStart = target.selectionStart;
-		      var selectionEnd = target.selectionEnd;
-		      var length = target.value.length;
 
 		      // tab
 		      if (keyCode === 9) {
 		        this.pickerVisible = false;
-		        // enter
-		      } else if (keyCode === 13) {
-		        this.pickerVisible = this.picker.visible = false;
-		        this.visualValue = target.value;
-		        target.blur();
-		        // left
-		      } else if (keyCode === 37) {
-		        event.preventDefault();
-
-		        if (selectionEnd === length && selectionStart === length) {
-		          target.selectionStart = length - 2;
-		        } else if (selectionStart >= 3) {
-		          target.selectionStart -= 3;
-		        } else {
-		          target.selectionStart = 0;
-		        }
-		        target.selectionEnd = target.selectionStart + 2;
-		        // right
-		      } else if (keyCode === 39) {
-		        event.preventDefault();
-		        if (selectionEnd === 0 && selectionStart === 0) {
-		          target.selectionEnd = 2;
-		        } else if (selectionEnd <= length - 3) {
-		          target.selectionEnd += 3;
-		        } else {
-		          target.selectionEnd = length;
-		        }
-		        target.selectionStart = target.selectionEnd - 2;
 		      }
 		    },
 		    hidePicker: function hidePicker() {
@@ -24657,8 +26736,9 @@
 		      if (!this.picker) {
 		        this.panel.defaultValue = this.internalValue;
 		        this.picker = new _vue2.default(this.panel).$mount(document.createElement('div'));
+		        this.picker.popperClass = this.popperClass;
 		        this.popperElm = this.picker.$el;
-		        this.picker.width = this.$refs.reference.getBoundingClientRect().width;
+		        this.picker.width = this.reference.getBoundingClientRect().width;
 		        this.picker.showTime = this.type === 'datetime' || this.type === 'datetimerange';
 		        this.picker.selectionMode = this.selectionMode;
 		        if (this.format) {
@@ -24708,10 +26788,8 @@
 		        });
 
 		        this.picker.$on('select-range', function (start, end) {
-		          setTimeout(function () {
-		            _this.$refs.reference.setSelectionRange(start, end);
-		            _this.$refs.reference.focus();
-		          }, 0);
+		          _this.refInput.setSelectionRange(start, end);
+		          _this.refInput.focus();
 		        });
 		      } else {
 		        this.pickerVisible = this.picker.visible = true;
@@ -24721,10 +26799,10 @@
 
 		      if (this.internalValue instanceof Date) {
 		        this.picker.date = new Date(this.internalValue.getTime());
-		        this.picker.resetView && this.picker.resetView();
 		      } else {
 		        this.picker.value = this.internalValue;
 		      }
+		      this.picker.resetView && this.picker.resetView();
 
 		      this.$nextTick(function () {
 		        _this.picker.ajustScrollTop && _this.picker.ajustScrollTop();
@@ -24912,66 +26990,49 @@
 	/* 139 */
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(66);
+		module.exports = __webpack_require__(96);
 
 	/***/ },
 	/* 140 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('span', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('el-input', {
 		    directives: [{
 		      name: "clickoutside",
 		      rawName: "v-clickoutside",
 		      value: (_vm.handleClose),
 		      expression: "handleClose"
 		    }],
-		    staticClass: "el-date-editor",
-		    class: {
-		      'is-have-trigger': _vm.haveTrigger,
-		      'is-active': _vm.pickerVisible,
-		      'is-filled': !!this.internalValue
-		    }
-		  }, [_vm._h('input', {
-		    directives: [{
-		      name: "model",
-		      rawName: "v-model.lazy",
-		      value: (_vm.visualValue),
-		      expression: "visualValue",
-		      modifiers: {
-		        "lazy": true
-		      }
-		    }],
 		    ref: "reference",
-		    staticClass: "el-date-editor__editor",
-		    class: {
-		      'is-disabled': _vm.disabled
-		    },
+		    staticClass: "el-date-editor",
 		    attrs: {
 		      "readonly": !_vm.editable || _vm.readonly,
 		      "disabled": _vm.disabled,
-		      "type": "text",
+		      "size": _vm.size,
 		      "placeholder": _vm.placeholder
 		    },
 		    domProps: {
-		      "value": _vm._s(_vm.visualValue)
+		      "value": _vm.visualValue
 		    },
 		    on: {
 		      "focus": _vm.handleFocus,
-		      "blur": _vm.handleBlur,
-		      "keydown": _vm.handleKeydown,
+		      "blur": _vm.handleBlur
+		    },
+		    nativeOn: {
+		      "keydown": function($event) {
+		        _vm.handleKeydown($event)
+		      },
 		      "change": function($event) {
 		        _vm.visualValue = $event.target.value
 		      }
 		    }
-		  }), (_vm.haveTrigger) ? _vm._h('span', {
-		    staticClass: "el-date-editor__trigger el-icon",
+		  }, [(_vm.haveTrigger) ? _h('i', {
+		    slot: "icon",
+		    staticClass: "el-input__icon",
 		    class: [_vm.showClose ? 'el-icon-close' : _vm.triggerClass],
 		    on: {
-		      "click": function($event) {
-		        $event.stopPropagation();
-		        _vm.handleClickIcon($event)
-		      },
+		      "click": _vm.handleClickIcon,
 		      "mouseenter": _vm.handleMouseEnterIcon,
 		      "mouseleave": function($event) {
 		        _vm.showClose = false
@@ -25023,135 +27084,27 @@
 
 		var _locale2 = _interopRequireDefault(_locale);
 
-		function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+		var _input = __webpack_require__(19);
 
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
+		var _input2 = _interopRequireDefault(_input);
+
+		var _time = __webpack_require__(143);
+
+		var _time2 = _interopRequireDefault(_time);
+
+		var _yearTable = __webpack_require__(149);
+
+		var _yearTable2 = _interopRequireDefault(_yearTable);
+
+		var _monthTable = __webpack_require__(152);
+
+		var _monthTable2 = _interopRequireDefault(_monthTable);
+
+		var _dateTable = __webpack_require__(155);
+
+		var _dateTable2 = _interopRequireDefault(_dateTable);
+
+		function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 		exports.default = {
 		  mixins: [_locale2.default],
@@ -25163,13 +27116,14 @@
 		      /* istanbul ignore if */
 		      if (!val) return;
 		      this.$nextTick(function (_) {
-		        var inputElm = _this.$refs.input;
+		        var inputElm = _this.$refs.input.$el;
 		        if (inputElm) {
 		          _this.pickerWidth = inputElm.getBoundingClientRect().width + 10;
 		        }
 		      });
 		    },
 		    value: function value(newVal) {
+		      if (!newVal) return;
 		      newVal = new Date(newVal);
 		      if (!isNaN(newVal)) {
 		        if (typeof this.disabledDate === 'function' && this.disabledDate(new Date(newVal))) {
@@ -25357,10 +27311,7 @@
 		  },
 
 		  components: {
-		    TimePicker: __webpack_require__(143),
-		    YearTable: __webpack_require__(149),
-		    MonthTable: __webpack_require__(152),
-		    DateTable: __webpack_require__(155)
+		    TimePicker: _time2.default, YearTable: _yearTable2.default, MonthTable: _monthTable2.default, DateTable: _dateTable2.default, ElInput: _input2.default
 		  },
 
 		  mounted: function mounted() {
@@ -25375,6 +27326,7 @@
 		  },
 		  data: function data() {
 		    return {
+		      popperClass: '',
 		      pickerWidth: 0,
 		      date: new Date(),
 		      value: '',
@@ -25446,7 +27398,133 @@
 		      return this.year + ' ' + yearTranslation;
 		    }
 		  }
-		};
+		}; //
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
 
 	/***/ },
 	/* 143 */
@@ -25524,6 +27602,7 @@
 		//
 		//
 		//
+		//
 
 		exports.default = {
 		  mixins: [_locale2.default],
@@ -25550,6 +27629,8 @@
 		      this.width = val;
 		    },
 		    value: function value(newVal) {
+		      var _this = this;
+
 		      var date = void 0;
 		      if (newVal instanceof Date) {
 		        date = (0, _util.limitRange)(newVal, this.selectableRange);
@@ -25562,6 +27643,9 @@
 		        minutes: date.getMinutes(),
 		        seconds: date.getSeconds()
 		      });
+		      this.$nextTick(function (_) {
+		        return _this.ajustScrollTop();
+		      });
 		    },
 		    selectableRange: function selectableRange(val) {
 		      this.$refs.spinner.selectableRange = val;
@@ -25570,6 +27654,7 @@
 
 		  data: function data() {
 		    return {
+		      popperClass: '',
 		      format: 'HH:mm:ss',
 		      value: '',
 		      hours: 0,
@@ -25634,10 +27719,10 @@
 		    this.seconds = this.currentDate.getSeconds();
 		  },
 		  mounted: function mounted() {
-		    var _this = this;
+		    var _this2 = this;
 
 		    this.$nextTick(function () {
-		      return _this.handleConfirm(true, true);
+		      return _this2.handleConfirm(true, true);
 		    });
 		  }
 		};
@@ -25764,14 +27849,10 @@
 		      }
 		    },
 		    handleScroll: function handleScroll(type) {
-		      var _this = this;
+		      var ajust = {};
 
-		      window.setTimeout(function () {
-		        var ajust = {};
-
-		        ajust[type + 's'] = Math.min(Math.floor((_this.$refs[type].scrollTop - 80) / 32 + 3), 59);
-		        _this.$emit('change', ajust);
-		      }, 0);
+		      ajust[type + 's'] = Math.min(Math.floor((this.$refs[type].scrollTop - 80) / 32 + 3), 59);
+		      this.$emit('change', ajust);
 		    },
 		    ajustScrollTop: function ajustScrollTop() {
 		      this.$refs.hour.scrollTop = Math.max(0, (this.hours - 2.5) * 32 + 80);
@@ -25833,10 +27914,13 @@
 	/* 147 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
-		    staticClass: "el-time-spinner"
-		  }, [_vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
+		    staticClass: "el-time-spinner",
+		    class: {
+		      'has-seconds': _vm.showSeconds
+		    }
+		  }, [_h('div', {
 		    ref: "hour",
 		    staticClass: "el-time-spinner__wrapper",
 		    on: {
@@ -25847,10 +27931,10 @@
 		        _vm.handleScroll('hour')
 		      }
 		    }
-		  }, [_vm._h('ul', {
+		  }, [_h('ul', {
 		    staticClass: "el-time-spinner__list"
 		  }, [_vm._l((_vm.hoursList), function(disabled, hour) {
-		    return _vm._h('li', {
+		    return _h('li', {
 		      staticClass: "el-time-spinner__item",
 		      class: {
 		        'active': hour === _vm.hours, 'disabled': disabled
@@ -25870,7 +27954,7 @@
 		        }
 		      }
 		    })
-		  })])]), _vm._h('div', {
+		  })])]), _h('div', {
 		    ref: "minute",
 		    staticClass: "el-time-spinner__wrapper",
 		    on: {
@@ -25881,10 +27965,10 @@
 		        _vm.handleScroll('minute')
 		      }
 		    }
-		  }, [_vm._h('ul', {
+		  }, [_h('ul', {
 		    staticClass: "el-time-spinner__list"
 		  }, [_vm._l((60), function(minute, key) {
-		    return _vm._h('li', {
+		    return _h('li', {
 		      staticClass: "el-time-spinner__item",
 		      class: {
 		        'active': key === _vm.minutes
@@ -25898,7 +27982,7 @@
 		        }
 		      }
 		    })
-		  })])]), _vm._h('div', {
+		  })])]), _h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -25915,10 +27999,10 @@
 		        _vm.handleScroll('second')
 		      }
 		    }
-		  }, [_vm._h('ul', {
+		  }, [_h('ul', {
 		    staticClass: "el-time-spinner__list"
 		  }, [_vm._l((60), function(second, key) {
-		    return _vm._h('li', {
+		    return _h('li', {
 		      staticClass: "el-time-spinner__item",
 		      class: {
 		        'active': key === _vm.seconds
@@ -25939,17 +28023,17 @@
 	/* 148 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('transition', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('transition', {
 		    attrs: {
-		      "name": "md-fade-bottom"
+		      "name": "el-zoom-in-top"
 		    },
 		    on: {
 		      "after-leave": function($event) {
 		        _vm.$emit('dodestroy')
 		      }
 		    }
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -25957,12 +28041,16 @@
 		      expression: "currentVisible"
 		    }],
 		    staticClass: "el-time-panel",
+		    class: _vm.popperClass,
 		    style: ({
 		      width: _vm.width + 'px'
 		    })
-		  }, [_vm._h('div', {
-		    staticClass: "el-time-panel__content"
-		  }, [_vm._h('time-spinner', {
+		  }, [_h('div', {
+		    staticClass: "el-time-panel__content",
+		    class: {
+		      'has-seconds': _vm.showSeconds
+		    }
+		  }, [_h('time-spinner', {
 		    ref: "spinner",
 		    attrs: {
 		      "show-seconds": _vm.showSeconds,
@@ -25974,9 +28062,9 @@
 		      "change": _vm.handleChange,
 		      "select-range": _vm.setSelectionRange
 		    }
-		  })]), _vm._h('div', {
+		  })]), _h('div', {
 		    staticClass: "el-time-panel__footer"
-		  }, [_vm._h('button', {
+		  }, [_h('button', {
 		    staticClass: "el-time-panel__btn cancel",
 		    attrs: {
 		      "type": "button"
@@ -25984,7 +28072,7 @@
 		    on: {
 		      "click": _vm.handleCancel
 		    }
-		  }, [_vm._s(_vm.t('el.datepicker.cancel'))]), _vm._h('button', {
+		  }, [_vm._s(_vm.t('el.datepicker.cancel'))]), _h('button', {
 		    staticClass: "el-time-panel__btn confirm",
 		    attrs: {
 		      "type": "button"
@@ -26034,7 +28122,7 @@
 
 		exports.__esModule = true;
 
-		var _class = __webpack_require__(94);
+		var _class = __webpack_require__(97);
 
 		exports.default = {
 		  props: {
@@ -26056,15 +28144,15 @@
 
 		      date.setFullYear(year);
 		      style.disabled = typeof this.disabledDate === 'function' && this.disabledDate(date);
-		      style.current = this.year === year;
+		      style.current = Number(this.year) === year;
 
 		      return style;
 		    },
 		    nextTenYear: function nextTenYear() {
-		      this.$emit('pick', this.year + 10, false);
+		      this.$emit('pick', Number(this.year) + 10, false);
 		    },
 		    prevTenYear: function prevTenYear() {
-		      this.$emit('pick', this.year - 10, false);
+		      this.$emit('pick', Number(this.year) - 10, false);
 		    },
 		    handleYearTableClick: function handleYearTableClick(event) {
 		      var target = event.target;
@@ -26125,67 +28213,67 @@
 	/* 151 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('table', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('table', {
 		    staticClass: "el-year-table",
 		    on: {
 		      "click": _vm.handleYearTableClick
 		    }
-		  }, [_vm._h('tbody', [_vm._h('tr', [_vm._h('td', {
+		  }, [_h('tbody', [_h('tr', [_h('td', {
 		    staticClass: "available",
 		    class: _vm.getCellStyle(_vm.startYear + 0)
-		  }, [_vm._h('a', {
+		  }, [_h('a', {
 		    staticClass: "cell"
-		  }, [_vm._s(_vm.startYear)])]), _vm._h('td', {
+		  }, [_vm._s(_vm.startYear)])]), _h('td', {
 		    staticClass: "available",
 		    class: _vm.getCellStyle(_vm.startYear + 1)
-		  }, [_vm._h('a', {
+		  }, [_h('a', {
 		    staticClass: "cell"
-		  }, [_vm._s(_vm.startYear + 1)])]), _vm._h('td', {
+		  }, [_vm._s(_vm.startYear + 1)])]), _h('td', {
 		    staticClass: "available",
 		    class: _vm.getCellStyle(_vm.startYear + 2)
-		  }, [_vm._h('a', {
+		  }, [_h('a', {
 		    staticClass: "cell"
-		  }, [_vm._s(_vm.startYear + 2)])]), _vm._h('td', {
+		  }, [_vm._s(_vm.startYear + 2)])]), _h('td', {
 		    staticClass: "available",
 		    class: _vm.getCellStyle(_vm.startYear + 3)
-		  }, [_vm._h('a', {
+		  }, [_h('a', {
 		    staticClass: "cell"
-		  }, [_vm._s(_vm.startYear + 3)])])]), _vm._h('tr', [_vm._h('td', {
+		  }, [_vm._s(_vm.startYear + 3)])])]), _h('tr', [_h('td', {
 		    staticClass: "available",
 		    class: _vm.getCellStyle(_vm.startYear + 4)
-		  }, [_vm._h('a', {
+		  }, [_h('a', {
 		    staticClass: "cell"
-		  }, [_vm._s(_vm.startYear + 4)])]), _vm._h('td', {
+		  }, [_vm._s(_vm.startYear + 4)])]), _h('td', {
 		    staticClass: "available",
 		    class: _vm.getCellStyle(_vm.startYear + 5)
-		  }, [_vm._h('a', {
+		  }, [_h('a', {
 		    staticClass: "cell"
-		  }, [_vm._s(_vm.startYear + 5)])]), _vm._h('td', {
+		  }, [_vm._s(_vm.startYear + 5)])]), _h('td', {
 		    staticClass: "available",
 		    class: _vm.getCellStyle(_vm.startYear + 6)
-		  }, [_vm._h('a', {
+		  }, [_h('a', {
 		    staticClass: "cell"
-		  }, [_vm._s(_vm.startYear + 6)])]), _vm._h('td', {
+		  }, [_vm._s(_vm.startYear + 6)])]), _h('td', {
 		    staticClass: "available",
 		    class: _vm.getCellStyle(_vm.startYear + 7)
-		  }, [_vm._h('a', {
+		  }, [_h('a', {
 		    staticClass: "cell"
-		  }, [_vm._s(_vm.startYear + 7)])])]), _vm._h('tr', [_vm._h('td', {
+		  }, [_vm._s(_vm.startYear + 7)])])]), _h('tr', [_h('td', {
 		    staticClass: "available",
 		    class: _vm.getCellStyle(_vm.startYear + 8)
-		  }, [_vm._h('a', {
+		  }, [_h('a', {
 		    staticClass: "cell"
-		  }, [_vm._s(_vm.startYear + 8)])]), _vm._h('td', {
+		  }, [_vm._s(_vm.startYear + 8)])]), _h('td', {
 		    staticClass: "available",
 		    class: _vm.getCellStyle(_vm.startYear + 9)
-		  }, [_vm._h('a', {
+		  }, [_h('a', {
 		    staticClass: "cell"
 		  }, [_vm._s(_vm.startYear + 9)])]), _vm._m(0), _vm._m(1)])])])
-		},staticRenderFns: [function (){var _vm=this;
-		  return _vm._h('td')
-		},function (){var _vm=this;
-		  return _vm._h('td')
+		},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('td')
+		},function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('td')
 		}]}
 
 	/***/ },
@@ -26229,7 +28317,7 @@
 
 		var _locale2 = _interopRequireDefault(_locale);
 
-		var _class = __webpack_require__(94);
+		var _class = __webpack_require__(97);
 
 		function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -26320,59 +28408,59 @@
 	/* 154 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('table', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('table', {
 		    staticClass: "el-month-table",
 		    on: {
 		      "click": _vm.handleMonthTableClick
 		    }
-		  }, [_vm._h('tbody', [_vm._h('tr', [_vm._h('td', {
+		  }, [_h('tbody', [_h('tr', [_h('td', {
 		    class: _vm.getCellStyle(0)
-		  }, [_vm._h('a', {
+		  }, [_h('a', {
 		    staticClass: "cell"
-		  }, [_vm._s(_vm.t('el.datepicker.months.jan'))])]), _vm._h('td', {
+		  }, [_vm._s(_vm.t('el.datepicker.months.jan'))])]), _h('td', {
 		    class: _vm.getCellStyle(1)
-		  }, [_vm._h('a', {
+		  }, [_h('a', {
 		    staticClass: "cell"
-		  }, [_vm._s(_vm.t('el.datepicker.months.feb'))])]), _vm._h('td', {
+		  }, [_vm._s(_vm.t('el.datepicker.months.feb'))])]), _h('td', {
 		    class: _vm.getCellStyle(2)
-		  }, [_vm._h('a', {
+		  }, [_h('a', {
 		    staticClass: "cell"
-		  }, [_vm._s(_vm.t('el.datepicker.months.mar'))])]), _vm._h('td', {
+		  }, [_vm._s(_vm.t('el.datepicker.months.mar'))])]), _h('td', {
 		    class: _vm.getCellStyle(3)
-		  }, [_vm._h('a', {
+		  }, [_h('a', {
 		    staticClass: "cell"
-		  }, [_vm._s(_vm.t('el.datepicker.months.apr'))])])]), _vm._h('tr', [_vm._h('td', {
+		  }, [_vm._s(_vm.t('el.datepicker.months.apr'))])])]), _h('tr', [_h('td', {
 		    class: _vm.getCellStyle(4)
-		  }, [_vm._h('a', {
+		  }, [_h('a', {
 		    staticClass: "cell"
-		  }, [_vm._s(_vm.t('el.datepicker.months.may'))])]), _vm._h('td', {
+		  }, [_vm._s(_vm.t('el.datepicker.months.may'))])]), _h('td', {
 		    class: _vm.getCellStyle(5)
-		  }, [_vm._h('a', {
+		  }, [_h('a', {
 		    staticClass: "cell"
-		  }, [_vm._s(_vm.t('el.datepicker.months.jun'))])]), _vm._h('td', {
+		  }, [_vm._s(_vm.t('el.datepicker.months.jun'))])]), _h('td', {
 		    class: _vm.getCellStyle(6)
-		  }, [_vm._h('a', {
+		  }, [_h('a', {
 		    staticClass: "cell"
-		  }, [_vm._s(_vm.t('el.datepicker.months.jul'))])]), _vm._h('td', {
+		  }, [_vm._s(_vm.t('el.datepicker.months.jul'))])]), _h('td', {
 		    class: _vm.getCellStyle(7)
-		  }, [_vm._h('a', {
+		  }, [_h('a', {
 		    staticClass: "cell"
-		  }, [_vm._s(_vm.t('el.datepicker.months.aug'))])])]), _vm._h('tr', [_vm._h('td', {
+		  }, [_vm._s(_vm.t('el.datepicker.months.aug'))])])]), _h('tr', [_h('td', {
 		    class: _vm.getCellStyle(8)
-		  }, [_vm._h('a', {
+		  }, [_h('a', {
 		    staticClass: "cell"
-		  }, [_vm._s(_vm.t('el.datepicker.months.sep'))])]), _vm._h('td', {
+		  }, [_vm._s(_vm.t('el.datepicker.months.sep'))])]), _h('td', {
 		    class: _vm.getCellStyle(9)
-		  }, [_vm._h('a', {
+		  }, [_h('a', {
 		    staticClass: "cell"
-		  }, [_vm._s(_vm.t('el.datepicker.months.oct'))])]), _vm._h('td', {
+		  }, [_vm._s(_vm.t('el.datepicker.months.oct'))])]), _h('td', {
 		    class: _vm.getCellStyle(10)
-		  }, [_vm._h('a', {
+		  }, [_h('a', {
 		    staticClass: "cell"
-		  }, [_vm._s(_vm.t('el.datepicker.months.nov'))])]), _vm._h('td', {
+		  }, [_vm._s(_vm.t('el.datepicker.months.nov'))])]), _h('td', {
 		    class: _vm.getCellStyle(11)
-		  }, [_vm._h('a', {
+		  }, [_h('a', {
 		    staticClass: "cell"
 		  }, [_vm._s(_vm.t('el.datepicker.months.dec'))])])])])])
 		},staticRenderFns: []}
@@ -26416,7 +28504,7 @@
 
 		var _util = __webpack_require__(138);
 
-		var _class = __webpack_require__(94);
+		var _class = __webpack_require__(97);
 
 		var _locale = __webpack_require__(10);
 
@@ -26647,7 +28735,7 @@
 		        classes.push(cell.type);
 		      }
 
-		      if (selectionMode === 'day' && (cell.type === 'normal' || cell.type === 'today') && this.year === this.date.getFullYear() && this.month === this.date.getMonth() && monthDate === Number(cell.text)) {
+		      if (selectionMode === 'day' && (cell.type === 'normal' || cell.type === 'today') && Number(this.year) === this.date.getFullYear() && this.month === this.date.getMonth() && monthDate === Number(cell.text)) {
 		        classes.push('current');
 		      }
 
@@ -26743,9 +28831,9 @@
 
 		      var column = target.cellIndex;
 		      var row = target.parentNode.rowIndex - 1;
-		      var _rangeState = this.rangeState;
-		      var oldRow = _rangeState.row;
-		      var oldColumn = _rangeState.column;
+		      var _rangeState = this.rangeState,
+		          oldRow = _rangeState.row,
+		          oldColumn = _rangeState.column;
 
 
 		      if (oldRow !== row || oldColumn !== column) {
@@ -26779,8 +28867,6 @@
 
 		      var newDate = new Date(this.year, this.month, 1);
 
-		      var clickNormalCell = className.indexOf('prev') === -1 && className.indexOf('next') === -1;
-
 		      if (className.indexOf('prev') !== -1) {
 		        if (month === 0) {
 		          year = year - 1;
@@ -26803,7 +28889,7 @@
 
 		      newDate.setDate(parseInt(text, 10));
 
-		      if (clickNormalCell && this.selectionMode === 'range') {
+		      if (this.selectionMode === 'range') {
 		        if (this.minDate && this.maxDate) {
 		          var minDate = new Date(newDate.getTime());
 		          var maxDate = null;
@@ -26832,9 +28918,7 @@
 		          this.rangeState.selecting = true;
 		          this.markRange(this.minDate);
 		        }
-		      }
-
-		      if (selectionMode === 'day') {
+		      } else if (selectionMode === 'day') {
 		        this.$emit('pick', newDate);
 		      } else if (selectionMode === 'week') {
 		        var weekNumber = (0, _util.getWeekNumber)(newDate);
@@ -26855,8 +28939,8 @@
 	/* 157 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('table', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('table', {
 		    staticClass: "el-date-table",
 		    class: {
 		      'is-week-mode': _vm.selectionMode === 'week'
@@ -26869,14 +28953,14 @@
 		      "click": _vm.handleClick,
 		      "mousemove": _vm.handleMouseMove
 		    }
-		  }, [_vm._h('tbody', [_vm._h('tr', [(_vm.showWeekNumber) ? _vm._h('th', [_vm._s(_vm.t('el.datepicker.week'))]) : _vm._e(), _vm._h('th', [_vm._s(_vm.t('el.datepicker.weeks.sun'))]), _vm._h('th', [_vm._s(_vm.t('el.datepicker.weeks.mon'))]), _vm._h('th', [_vm._s(_vm.t('el.datepicker.weeks.tue'))]), _vm._h('th', [_vm._s(_vm.t('el.datepicker.weeks.wed'))]), _vm._h('th', [_vm._s(_vm.t('el.datepicker.weeks.thu'))]), _vm._h('th', [_vm._s(_vm.t('el.datepicker.weeks.fri'))]), _vm._h('th', [_vm._s(_vm.t('el.datepicker.weeks.sat'))])]), _vm._l((_vm.rows), function(row) {
-		    return _vm._h('tr', {
+		  }, [_h('tbody', [_h('tr', [(_vm.showWeekNumber) ? _h('th', [_vm._s(_vm.t('el.datepicker.week'))]) : _vm._e(), _h('th', [_vm._s(_vm.t('el.datepicker.weeks.sun'))]), _h('th', [_vm._s(_vm.t('el.datepicker.weeks.mon'))]), _h('th', [_vm._s(_vm.t('el.datepicker.weeks.tue'))]), _h('th', [_vm._s(_vm.t('el.datepicker.weeks.wed'))]), _h('th', [_vm._s(_vm.t('el.datepicker.weeks.thu'))]), _h('th', [_vm._s(_vm.t('el.datepicker.weeks.fri'))]), _h('th', [_vm._s(_vm.t('el.datepicker.weeks.sat'))])]), _vm._l((_vm.rows), function(row) {
+		    return _h('tr', {
 		      staticClass: "el-date-table__row",
 		      class: {
 		        current: _vm.value && _vm.isWeekActive(row[1])
 		      }
 		    }, [_vm._l((row), function(cell) {
-		      return _vm._h('td', {
+		      return _h('td', {
 		        class: _vm.getCellClasses(cell),
 		        domProps: {
 		          "textContent": _vm._s(cell.type === 'today' ? _vm.t('el.datepicker.today') : cell.text)
@@ -26890,17 +28974,17 @@
 	/* 158 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('transition', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('transition', {
 		    attrs: {
-		      "name": "md-fade-bottom"
+		      "name": "el-zoom-in-top"
 		    },
 		    on: {
 		      "after-leave": function($event) {
 		        _vm.$emit('dodestroy')
 		      }
 		    }
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -26908,19 +28992,19 @@
 		      expression: "visible"
 		    }],
 		    staticClass: "el-picker-panel el-date-picker",
-		    class: {
+		    class: [{
 		      'has-sidebar': _vm.$slots.sidebar || _vm.shortcuts,
-		        'has-time': _vm.showTime
-		    },
+		      'has-time': _vm.showTime
+		    }, _vm.popperClass],
 		    style: ({
 		      width: _vm.width + 'px'
 		    })
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    staticClass: "el-picker-panel__body-wrapper"
-		  }, [_vm._t("sidebar"), (_vm.shortcuts) ? _vm._h('div', {
+		  }, [_vm._t("sidebar"), (_vm.shortcuts) ? _h('div', {
 		    staticClass: "el-picker-panel__sidebar"
 		  }, [_vm._l((_vm.shortcuts), function(shortcut) {
-		    return _vm._h('button', {
+		    return _h('button', {
 		      staticClass: "el-picker-panel__shortcut",
 		      attrs: {
 		        "type": "button"
@@ -26931,65 +29015,47 @@
 		        }
 		      }
 		    }, [_vm._s(shortcut.text)])
-		  })]) : _vm._e(), _vm._h('div', {
+		  })]) : _vm._e(), _h('div', {
 		    staticClass: "el-picker-panel__body"
-		  }, [(_vm.showTime) ? _vm._h('div', {
+		  }, [(_vm.showTime) ? _h('div', {
 		    staticClass: "el-date-picker__time-header"
-		  }, [_vm._h('span', {
+		  }, [_h('span', {
 		    staticClass: "el-date-picker__editor-wrap"
-		  }, [_vm._h('input', {
-		    directives: [{
-		      name: "model",
-		      rawName: "v-model.lazy",
-		      value: (_vm.visibleDate),
-		      expression: "visibleDate",
-		      modifiers: {
-		        "lazy": true
-		      }
-		    }],
-		    staticClass: "el-date-picker__editor",
+		  }, [_h('el-input', {
 		    attrs: {
-		      "placehoder": _vm.t('el.datepicker.selectDate'),
-		      "type": "text"
+		      "placeholder": _vm.t('el.datepicker.selectDate'),
+		      "size": "small"
 		    },
 		    domProps: {
-		      "value": _vm._s(_vm.visibleDate)
+		      "value": _vm.visibleDate
 		    },
-		    on: {
+		    nativeOn: {
 		      "change": function($event) {
 		        _vm.visibleDate = $event.target.value
 		      }
 		    }
-		  })]), _vm._h('span', {
+		  })]), _h('span', {
 		    staticClass: "el-date-picker__editor-wrap"
-		  }, [_vm._h('input', {
-		    directives: [{
-		      name: "model",
-		      rawName: "v-model.lazy",
-		      value: (_vm.visibleTime),
-		      expression: "visibleTime",
-		      modifiers: {
-		        "lazy": true
-		      }
-		    }],
+		  }, [_h('el-input', {
 		    ref: "input",
-		    staticClass: "el-date-picker__editor",
 		    attrs: {
-		      "placehoder": _vm.t('el.datepicker.selectTime'),
-		      "type": "text"
+		      "placeholder": _vm.t('el.datepicker.selectTime'),
+		      "size": "small"
 		    },
 		    domProps: {
-		      "value": _vm._s(_vm.visibleTime)
+		      "value": _vm.visibleTime
 		    },
 		    on: {
 		      "focus": function($event) {
 		        _vm.timePickerVisible = !_vm.timePickerVisible
-		      },
+		      }
+		    },
+		    nativeOn: {
 		      "change": function($event) {
 		        _vm.visibleTime = $event.target.value
 		      }
 		    }
-		  }), _vm._h('time-picker', {
+		  }), _h('time-picker', {
 		    ref: "timepicker",
 		    attrs: {
 		      "date": _vm.date,
@@ -26999,7 +29065,7 @@
 		    on: {
 		      "pick": _vm.handleTimePick
 		    }
-		  })])]) : _vm._e(), _vm._h('div', {
+		  })])]) : _vm._e(), _h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -27007,7 +29073,7 @@
 		      expression: "currentView !== 'time'"
 		    }],
 		    staticClass: "el-date-picker__header"
-		  }, [_vm._h('button', {
+		  }, [_h('button', {
 		    staticClass: "el-picker-panel__icon-btn el-date-picker__prev-btn el-icon-d-arrow-left",
 		    attrs: {
 		      "type": "button"
@@ -27015,7 +29081,7 @@
 		    on: {
 		      "click": _vm.prevYear
 		    }
-		  }), _vm._h('button', {
+		  }), _h('button', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -27029,12 +29095,12 @@
 		    on: {
 		      "click": _vm.prevMonth
 		    }
-		  }), _vm._h('span', {
+		  }), _h('span', {
 		    staticClass: "el-date-picker__header-label",
 		    on: {
 		      "click": _vm.showYearPicker
 		    }
-		  }, [_vm._s(_vm.yearLabel)]), _vm._h('span', {
+		  }, [_vm._s(_vm.yearLabel)]), _h('span', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -27048,7 +29114,7 @@
 		    on: {
 		      "click": _vm.showMonthPicker
 		    }
-		  }, [_vm._s(_vm.t(("el.datepicker.month" + (_vm.month + 1))))]), _vm._h('button', {
+		  }, [_vm._s(_vm.t(("el.datepicker.month" + (_vm.month + 1))))]), _h('button', {
 		    staticClass: "el-picker-panel__icon-btn el-date-picker__next-btn el-icon-d-arrow-right",
 		    attrs: {
 		      "type": "button"
@@ -27056,7 +29122,7 @@
 		    on: {
 		      "click": _vm.nextYear
 		    }
-		  }), _vm._h('button', {
+		  }), _h('button', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -27070,9 +29136,9 @@
 		    on: {
 		      "click": _vm.nextMonth
 		    }
-		  })]), _vm._h('div', {
+		  })]), _h('div', {
 		    staticClass: "el-picker-panel__content"
-		  }, [_vm._h('date-table', {
+		  }, [_h('date-table', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -27093,7 +29159,7 @@
 		    on: {
 		      "pick": _vm.handleDatePick
 		    }
-		  }), _vm._h('year-table', {
+		  }), _h('year-table', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -27109,7 +29175,7 @@
 		    on: {
 		      "pick": _vm.handleYearPick
 		    }
-		  }), _vm._h('month-table', {
+		  }), _h('month-table', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -27124,7 +29190,7 @@
 		    on: {
 		      "pick": _vm.handleMonthPick
 		    }
-		  })])])]), _vm._h('div', {
+		  })])])]), _h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -27132,7 +29198,7 @@
 		      expression: "footerVisible && currentView === 'date'"
 		    }],
 		    staticClass: "el-picker-panel__footer"
-		  }, [_vm._h('a', {
+		  }, [_h('a', {
 		    staticClass: "el-picker-panel__link-btn",
 		    attrs: {
 		      "href": "JavaScript:"
@@ -27140,7 +29206,7 @@
 		    on: {
 		      "click": _vm.changeToNow
 		    }
-		  }, [_vm._s(_vm.t('el.datepicker.now'))]), _vm._h('button', {
+		  }, [_vm._s(_vm.t('el.datepicker.now'))]), _h('button', {
 		    staticClass: "el-picker-panel__btn",
 		    attrs: {
 		      "type": "button"
@@ -27194,149 +29260,19 @@
 
 		var _locale2 = _interopRequireDefault(_locale);
 
-		function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+		var _time = __webpack_require__(143);
 
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
+		var _time2 = _interopRequireDefault(_time);
+
+		var _dateTable = __webpack_require__(155);
+
+		var _dateTable2 = _interopRequireDefault(_dateTable);
+
+		var _input = __webpack_require__(19);
+
+		var _input2 = _interopRequireDefault(_input);
+
+		function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 		exports.default = {
 		  mixins: [_locale2.default],
@@ -27364,16 +29300,16 @@
 		      return this.rightDate.getMonth();
 		    },
 		    minVisibleDate: function minVisibleDate() {
-		      return (0, _util.formatDate)(this.minDate);
+		      return this.minDate ? (0, _util.formatDate)(this.minDate) : '';
 		    },
 		    maxVisibleDate: function maxVisibleDate() {
-		      return (0, _util.formatDate)(this.maxDate || this.minDate);
+		      return this.maxDate || this.minDate ? (0, _util.formatDate)(this.maxDate || this.minDate) : '';
 		    },
 		    minVisibleTime: function minVisibleTime() {
-		      return (0, _util.formatDate)(this.minDate, 'HH:mm:ss');
+		      return this.minDate ? (0, _util.formatDate)(this.minDate, 'HH:mm:ss') : '';
 		    },
 		    maxVisibleTime: function maxVisibleTime() {
-		      return (0, _util.formatDate)(this.maxDate, 'HH:mm:ss');
+		      return this.maxDate || this.minDate ? (0, _util.formatDate)(this.maxDate || this.minDate, 'HH:mm:ss') : '';
 		    },
 		    rightDate: function rightDate() {
 		      var newDate = new Date(this.date);
@@ -27392,6 +29328,7 @@
 
 		  data: function data() {
 		    return {
+		      popperClass: '',
 		      minPickerWidth: 0,
 		      maxPickerWidth: 0,
 		      date: new Date(),
@@ -27421,8 +29358,8 @@
 
 		      if (!val) return;
 		      this.$nextTick(function (_) {
-		        var minInputElm = _this.$refs.minInput;
-		        var maxInputElm = _this.$refs.maxInput;
+		        var minInputElm = _this.$refs.minInput.$el;
+		        var maxInputElm = _this.$refs.maxInput.$el;
 		        if (minInputElm) {
 		          _this.minPickerWidth = minInputElm.getBoundingClientRect().width + 10;
 		        }
@@ -27463,6 +29400,8 @@
 		      } else if (Array.isArray(newVal)) {
 		        this.minDate = newVal[0] ? (0, _util.toDate)(newVal[0]) : null;
 		        this.maxDate = newVal[1] ? (0, _util.toDate)(newVal[1]) : null;
+		        if (this.minDate) this.date = new Date(this.minDate);
+		        this.handleConfirm(true);
 		      }
 		    }
 		  },
@@ -27619,35 +29558,176 @@
 		      date.setFullYear(date.getFullYear() - 1);
 		      this.resetDate();
 		    },
-		    handleConfirm: function handleConfirm() {
-		      this.$emit('pick', [this.minDate, this.maxDate]);
+		    handleConfirm: function handleConfirm(visible) {
+		      this.$emit('pick', [this.minDate, this.maxDate], visible);
 		    },
 		    resetDate: function resetDate() {
 		      this.date = new Date(this.date);
 		    }
 		  },
 
-		  components: {
-		    TimePicker: __webpack_require__(143),
-		    DateTable: __webpack_require__(155)
-		  }
-		};
+		  components: { TimePicker: _time2.default, DateTable: _dateTable2.default, ElInput: _input2.default }
+		}; //
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
 
 	/***/ },
 	/* 161 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('transition', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('transition', {
 		    attrs: {
-		      "name": "md-fade-bottom"
+		      "name": "el-zoom-in-top"
 		    },
 		    on: {
 		      "after-leave": function($event) {
 		        _vm.$emit('dodestroy')
 		      }
 		    }
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -27655,19 +29735,19 @@
 		      expression: "visible"
 		    }],
 		    staticClass: "el-picker-panel el-date-range-picker",
-		    class: {
+		    class: [{
 		      'has-sidebar': _vm.$slots.sidebar || _vm.shortcuts,
-		        'has-time': _vm.showTime
-		    },
+		      'has-time': _vm.showTime
+		    }, _vm.popperClass],
 		    style: ({
 		      width: _vm.width + 'px'
 		    })
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    staticClass: "el-picker-panel__body-wrapper"
-		  }, [_vm._t("sidebar"), (_vm.shortcuts) ? _vm._h('div', {
+		  }, [_vm._t("sidebar"), (_vm.shortcuts) ? _h('div', {
 		    staticClass: "el-picker-panel__sidebar"
 		  }, [_vm._l((_vm.shortcuts), function(shortcut) {
-		    return _vm._h('button', {
+		    return _h('button', {
 		      staticClass: "el-picker-panel__shortcut",
 		      attrs: {
 		        "type": "button"
@@ -27678,23 +29758,25 @@
 		        }
 		      }
 		    }, [_vm._s(shortcut.text)])
-		  })]) : _vm._e(), _vm._h('div', {
+		  })]) : _vm._e(), _h('div', {
 		    staticClass: "el-picker-panel__body"
-		  }, [(_vm.showTime) ? _vm._h('div', {
+		  }, [(_vm.showTime) ? _h('div', {
 		    staticClass: "el-date-range-picker__time-header"
-		  }, [_vm._h('span', {
+		  }, [_h('span', {
 		    staticClass: "el-date-range-picker__editors-wrap"
-		  }, [_vm._h('span', {
+		  }, [_h('span', {
 		    staticClass: "el-date-range-picker__time-picker-wrap"
-		  }, [_vm._h('input', {
+		  }, [_h('el-input', {
+		    ref: "minInput",
 		    staticClass: "el-date-range-picker__editor",
 		    attrs: {
+		      "size": "small",
 		      "placeholder": _vm.t('el.datepicker.startDate')
 		    },
 		    domProps: {
 		      "value": _vm.minVisibleDate
 		    },
-		    on: {
+		    nativeOn: {
 		      "input": function($event) {
 		        _vm.handleDateInput($event, 'min')
 		      },
@@ -27702,11 +29784,12 @@
 		        _vm.handleDateChange($event, 'min')
 		      }
 		    }
-		  })]), _vm._h('span', {
+		  })]), _h('span', {
 		    staticClass: "el-date-range-picker__time-picker-wrap"
-		  }, [_vm._h('input', {
+		  }, [_h('el-input', {
 		    staticClass: "el-date-range-picker__editor",
 		    attrs: {
+		      "size": "small",
 		      "placeholder": _vm.t('el.datepicker.startTime')
 		    },
 		    domProps: {
@@ -27715,12 +29798,14 @@
 		    on: {
 		      "focus": function($event) {
 		        _vm.minTimePickerVisible = !_vm.minTimePickerVisible
-		      },
+		      }
+		    },
+		    nativeOn: {
 		      "change": function($event) {
 		        _vm.handleTimeChange($event, 'min')
 		      }
 		    }
-		  }), _vm._h('time-picker', {
+		  }), _h('time-picker', {
 		    ref: "minTimePicker",
 		    attrs: {
 		      "picker-width": _vm.minPickerWidth,
@@ -27730,23 +29815,21 @@
 		    on: {
 		      "pick": _vm.handleMinTimePick
 		    }
-		  })])]), _vm._h('span', {
-		    staticClass: "el-icon-arrow-right"
-		  }), _vm._h('span', {
+		  })])]), _vm._m(0), _h('span', {
 		    staticClass: "el-date-range-picker__editors-wrap is-right"
-		  }, [_vm._h('span', {
+		  }, [_h('span', {
 		    staticClass: "el-date-range-picker__time-picker-wrap"
-		  }, [_vm._h('input', {
-		    ref: "minInput",
+		  }, [_h('el-input', {
 		    staticClass: "el-date-range-picker__editor",
 		    attrs: {
+		      "size": "small",
 		      "placeholder": _vm.t('el.datepicker.endDate'),
 		      "readonly": !_vm.minDate
 		    },
 		    domProps: {
 		      "value": _vm.maxVisibleDate
 		    },
-		    on: {
+		    nativeOn: {
 		      "input": function($event) {
 		        _vm.handleDateInput($event, 'max')
 		      },
@@ -27754,12 +29837,13 @@
 		        _vm.handleDateChange($event, 'max')
 		      }
 		    }
-		  })]), _vm._h('span', {
+		  })]), _h('span', {
 		    staticClass: "el-date-range-picker__time-picker-wrap"
-		  }, [_vm._h('input', {
+		  }, [_h('el-input', {
 		    ref: "maxInput",
 		    staticClass: "el-date-range-picker__editor",
 		    attrs: {
+		      "size": "small",
 		      "placeholder": _vm.t('el.datepicker.endTime'),
 		      "readonly": !_vm.minDate
 		    },
@@ -27769,12 +29853,14 @@
 		    on: {
 		      "focus": function($event) {
 		        _vm.minDate && (_vm.maxTimePickerVisible = !_vm.maxTimePickerVisible)
-		      },
+		      }
+		    },
+		    nativeOn: {
 		      "change": function($event) {
 		        _vm.handleTimeChange($event, 'max')
 		      }
 		    }
-		  }), _vm._h('time-picker', {
+		  }), _h('time-picker', {
 		    ref: "maxTimePicker",
 		    attrs: {
 		      "picker-width": _vm.maxPickerWidth,
@@ -27784,11 +29870,11 @@
 		    on: {
 		      "pick": _vm.handleMaxTimePick
 		    }
-		  })])])]) : _vm._e(), _vm._h('div', {
+		  })])])]) : _vm._e(), _h('div', {
 		    staticClass: "el-picker-panel__content el-date-range-picker__content is-left"
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    staticClass: "el-date-range-picker__header"
-		  }, [_vm._h('button', {
+		  }, [_h('button', {
 		    staticClass: "el-picker-panel__icon-btn el-icon-d-arrow-left",
 		    attrs: {
 		      "type": "button"
@@ -27796,7 +29882,7 @@
 		    on: {
 		      "click": _vm.prevYear
 		    }
-		  }), _vm._h('button', {
+		  }), _h('button', {
 		    staticClass: "el-picker-panel__icon-btn el-icon-arrow-left",
 		    attrs: {
 		      "type": "button"
@@ -27804,7 +29890,7 @@
 		    on: {
 		      "click": _vm.prevMonth
 		    }
-		  }), _vm._h('div', [_vm._s(_vm.leftLabel)])]), _vm._h('date-table', {
+		  }), _h('div', [_vm._s(_vm.leftLabel)])]), _h('date-table', {
 		    attrs: {
 		      "selection-mode": "range",
 		      "date": _vm.date,
@@ -27819,11 +29905,11 @@
 		      "changerange": _vm.handleChangeRange,
 		      "pick": _vm.handleRangePick
 		    }
-		  })]), _vm._h('div', {
+		  })]), _h('div', {
 		    staticClass: "el-picker-panel__content el-date-range-picker__content is-right"
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    staticClass: "el-date-range-picker__header"
-		  }, [_vm._h('button', {
+		  }, [_h('button', {
 		    staticClass: "el-picker-panel__icon-btn el-icon-d-arrow-right",
 		    attrs: {
 		      "type": "button"
@@ -27831,7 +29917,7 @@
 		    on: {
 		      "click": _vm.nextYear
 		    }
-		  }), _vm._h('button', {
+		  }), _h('button', {
 		    staticClass: "el-picker-panel__icon-btn el-icon-arrow-right",
 		    attrs: {
 		      "type": "button"
@@ -27839,7 +29925,7 @@
 		    on: {
 		      "click": _vm.nextMonth
 		    }
-		  }), _vm._h('div', [_vm._s(_vm.rightLabel)])]), _vm._h('date-table', {
+		  }), _h('div', [_vm._s(_vm.rightLabel)])]), _h('date-table', {
 		    attrs: {
 		      "selection-mode": "range",
 		      "date": _vm.rightDate,
@@ -27854,24 +29940,30 @@
 		      "changerange": _vm.handleChangeRange,
 		      "pick": _vm.handleRangePick
 		    }
-		  })])])]), (_vm.showTime) ? _vm._h('div', {
+		  })])])]), (_vm.showTime) ? _h('div', {
 		    staticClass: "el-picker-panel__footer"
-		  }, [_vm._h('a', {
+		  }, [_h('a', {
 		    staticClass: "el-picker-panel__link-btn",
 		    on: {
 		      "click": _vm.handleClear
 		    }
-		  }, [_vm._s(_vm.t('el.datepicker.clear'))]), _vm._h('button', {
+		  }, [_vm._s(_vm.t('el.datepicker.clear'))]), _h('button', {
 		    staticClass: "el-picker-panel__btn",
 		    attrs: {
 		      "type": "button",
 		      "disabled": _vm.btnDisabled
 		    },
 		    on: {
-		      "click": _vm.handleConfirm
+		      "click": function($event) {
+		        _vm.handleConfirm()
+		      }
 		    }
 		  }, [_vm._s(_vm.t('el.datepicker.confirm'))])]) : _vm._e()])])
-		},staticRenderFns: []}
+		},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('span', {
+		    staticClass: "el-icon-arrow-right"
+		  })
+		}]}
 
 	/***/ },
 	/* 162 */
@@ -27976,6 +30068,7 @@
 		//
 		//
 		//
+		//
 
 		var parseTime = function parseTime(time) {
 		  var values = ('' || time).split(':');
@@ -28050,6 +30143,7 @@
 
 		  data: function data() {
 		    return {
+		      popperClass: '',
 		      start: '09:00',
 		      end: '18:00',
 		      step: '00:30',
@@ -28089,17 +30183,17 @@
 	/* 166 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('transition', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('transition', {
 		    attrs: {
-		      "name": "md-fade-bottom"
+		      "name": "el-zoom-in-top"
 		    },
 		    on: {
 		      "after-leave": function($event) {
 		        _vm.$emit('dodestroy')
 		      }
 		    }
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -28107,13 +30201,14 @@
 		      expression: "visible"
 		    }],
 		    staticClass: "el-picker-panel time-select",
+		    class: _vm.popperClass,
 		    style: ({
 		      width: _vm.width + 'px'
 		    })
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    staticClass: "el-picker-panel__content"
 		  }, [_vm._l((_vm.items), function(item) {
-		    return _vm._h('div', {
+		    return _h('div', {
 		      staticClass: "time-select-item",
 		      class: {
 		        selected: _vm.value === item.value, disabled: item.disabled
@@ -28231,8 +30326,20 @@
 
 		var _locale2 = _interopRequireDefault(_locale);
 
+		var _timeSpinner = __webpack_require__(145);
+
+		var _timeSpinner2 = _interopRequireDefault(_timeSpinner);
+
 		function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+		var MIN_TIME = (0, _util.parseDate)('00:00:00', 'HH:mm:ss'); //
+		//
+		//
+		//
+		//
+		//
+		//
+		//
 		//
 		//
 		//
@@ -28285,7 +30392,6 @@
 		//
 		//
 
-		var MIN_TIME = (0, _util.parseDate)('00:00:00', 'HH:mm:ss');
 		var MAX_TIME = (0, _util.parseDate)('23:59:59', 'HH:mm:ss');
 		var isDisabled = function isDisabled(minTime, maxTime) {
 		  var minValue = minTime.getHours() * 3600 + minTime.getMinutes() * 60 + minTime.getSeconds();
@@ -28307,9 +30413,7 @@
 		exports.default = {
 		  mixins: [_locale2.default],
 
-		  components: {
-		    TimeSpinner: __webpack_require__(145)
-		  },
+		  components: { TimeSpinner: _timeSpinner2.default },
 
 		  computed: {
 		    showSeconds: function showSeconds() {
@@ -28319,30 +30423,11 @@
 
 		  props: ['value'],
 
-		  watch: {
-		    value: function value(val) {
-		      var time = clacTime(val);
-		      if (time.minTime === this.minTime && time.maxTime === this.maxTime) {
-		        return;
-		      }
-
-		      this.handleMinChange({
-		        hours: time.minTime.getHours(),
-		        minutes: time.minTime.getMinutes(),
-		        seconds: time.minTime.getSeconds()
-		      });
-		      this.handleMaxChange({
-		        hours: time.maxTime.getHours(),
-		        minutes: time.maxTime.getMinutes(),
-		        seconds: time.maxTime.getSeconds()
-		      });
-		    }
-		  },
-
 		  data: function data() {
 		    var time = clacTime(this.$options.defaultValue);
 
 		    return {
+		      popperClass: '',
 		      minTime: time.minTime,
 		      maxTime: time.maxTime,
 		      btnDisabled: isDisabled(time.minTime, time.maxTime),
@@ -28359,7 +30444,35 @@
 		  },
 
 
+		  watch: {
+		    value: function value(newVal) {
+		      var _this = this;
+
+		      this.panelCreated();
+		      this.$nextTick(function (_) {
+		        return _this.ajustScrollTop();
+		      });
+		    }
+		  },
+
 		  methods: {
+		    panelCreated: function panelCreated() {
+		      var time = clacTime(this.value);
+		      if (time.minTime === this.minTime && time.maxTime === this.maxTime) {
+		        return;
+		      }
+
+		      this.handleMinChange({
+		        hours: time.minTime.getHours(),
+		        minutes: time.minTime.getMinutes(),
+		        seconds: time.minTime.getSeconds()
+		      });
+		      this.handleMaxChange({
+		        hours: time.maxTime.getHours(),
+		        minutes: time.maxTime.getMinutes(),
+		        seconds: time.maxTime.getSeconds()
+		      });
+		    },
 		    handleClear: function handleClear() {
 		      this.handleCancel();
 		    },
@@ -28429,10 +30542,10 @@
 		  },
 
 		  mounted: function mounted() {
-		    var _this = this;
+		    var _this2 = this;
 
 		    this.$nextTick(function () {
-		      return _this.handleConfirm(true, true);
+		      return _this2.handleConfirm(true, true);
 		    });
 		  }
 		};
@@ -28441,17 +30554,18 @@
 	/* 171 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('transition', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('transition', {
 		    attrs: {
-		      "name": "md-fade-bottom"
+		      "name": "el-zoom-in-top"
 		    },
 		    on: {
+		      "before-enter": _vm.panelCreated,
 		      "after-leave": function($event) {
 		        _vm.$emit('dodestroy')
 		      }
 		    }
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -28459,18 +30573,22 @@
 		      expression: "visible"
 		    }],
 		    staticClass: "el-time-range-picker el-picker-panel",
+		    class: _vm.popperClass,
 		    style: ({
 		      width: _vm.width + 'px'
 		    })
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    staticClass: "el-time-range-picker__content"
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    staticClass: "el-time-range-picker__cell"
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    staticClass: "el-time-range-picker__header"
-		  }, [_vm._s(_vm.t('el.datepicker.startTime'))]), _vm._h('div', {
-		    staticClass: "el-time-range-picker__body el-time-panel__content"
-		  }, [_vm._h('time-spinner', {
+		  }, [_vm._s(_vm.t('el.datepicker.startTime'))]), _h('div', {
+		    staticClass: "el-time-range-picker__body el-time-panel__content",
+		    class: {
+		      'has-seconds': _vm.showSeconds
+		    }
+		  }, [_h('time-spinner', {
 		    ref: "minSpinner",
 		    attrs: {
 		      "show-seconds": _vm.showSeconds,
@@ -28482,13 +30600,16 @@
 		      "change": _vm.handleMinChange,
 		      "select-range": _vm.setMinSelectionRange
 		    }
-		  })])]), _vm._h('div', {
+		  })])]), _h('div', {
 		    staticClass: "el-time-range-picker__cell"
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    staticClass: "el-time-range-picker__header"
-		  }, [_vm._s(_vm.t('el.datepicker.endTime'))]), _vm._h('div', {
-		    staticClass: "el-time-range-picker__body el-time-panel__content"
-		  }, [_vm._h('time-spinner', {
+		  }, [_vm._s(_vm.t('el.datepicker.endTime'))]), _h('div', {
+		    staticClass: "el-time-range-picker__body el-time-panel__content",
+		    class: {
+		      'has-seconds': _vm.showSeconds
+		    }
+		  }, [_h('time-spinner', {
 		    ref: "maxSpinner",
 		    attrs: {
 		      "show-seconds": _vm.showSeconds,
@@ -28500,9 +30621,9 @@
 		      "change": _vm.handleMaxChange,
 		      "select-range": _vm.setMaxSelectionRange
 		    }
-		  })])])]), _vm._h('div', {
+		  })])])]), _h('div', {
 		    staticClass: "el-time-panel__footer"
-		  }, [_vm._h('button', {
+		  }, [_h('button', {
 		    staticClass: "el-time-panel__btn cancel",
 		    attrs: {
 		      "type": "button"
@@ -28512,7 +30633,7 @@
 		        _vm.handleCancel()
 		      }
 		    }
-		  }, [_vm._s(_vm.t('el.datepicker.cancel'))]), _vm._h('button', {
+		  }, [_vm._s(_vm.t('el.datepicker.cancel'))]), _h('button', {
 		    staticClass: "el-time-panel__btn confirm",
 		    attrs: {
 		      "type": "button",
@@ -28542,7 +30663,7 @@
 
 		var _directive2 = _interopRequireDefault(_directive);
 
-		var _vue = __webpack_require__(119);
+		var _vue = __webpack_require__(120);
 
 		var _vue2 = _interopRequireDefault(_vue);
 
@@ -28746,15 +30867,15 @@
 	/* 175 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('span', [_vm._h('transition', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('span', [_h('transition', {
 		    attrs: {
 		      "name": _vm.transition
 		    },
 		    on: {
 		      "after-leave": _vm.doDestroy
 		    }
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -28767,7 +30888,7 @@
 		    style: ({
 		      width: _vm.width + 'px'
 		    })
-		  }, [(_vm.title) ? _vm._h('div', {
+		  }, [(_vm.title) ? _h('div', {
 		    staticClass: "el-popover__title",
 		    domProps: {
 		      "textContent": _vm._s(_vm.title)
@@ -28868,6 +30989,7 @@
 		      type: String,
 		      default: 'dark'
 		    },
+		    popperClass: String,
 		    content: String,
 		    visibleArrow: {
 		      default: true
@@ -28927,24 +31049,24 @@
 	/* 180 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    staticClass: "el-tooltip",
 		    on: {
 		      "mouseenter": _vm.handleShowPopper,
 		      "mouseleave": _vm.handleClosePopper
 		    }
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    ref: "reference",
 		    staticClass: "el-tooltip__rel"
-		  }, [_vm._t("default")]), _vm._h('transition', {
+		  }, [_vm._t("default")]), _h('transition', {
 		    attrs: {
 		      "name": _vm.transition
 		    },
 		    on: {
 		      "after-leave": _vm.doDestroy
 		    }
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -28953,8 +31075,8 @@
 		    }],
 		    ref: "popper",
 		    staticClass: "el-tooltip__popper",
-		    class: ['is-' + _vm.effect]
-		  }, [_vm._t("content", [_vm._h('div', {
+		    class: ['is-' + _vm.effect, _vm.popperClass]
+		  }, [_vm._t("content", [_h('div', {
 		    domProps: {
 		      "textContent": _vm._s(_vm.content)
 		    }
@@ -28988,7 +31110,7 @@
 
 		var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-		var _vue = __webpack_require__(119);
+		var _vue = __webpack_require__(120);
 
 		var _vue2 = _interopRequireDefault(_vue);
 
@@ -29246,9 +31368,9 @@
 
 		var _button2 = _interopRequireDefault(_button);
 
-		var _class = __webpack_require__(94);
+		var _class = __webpack_require__(97);
 
-		var _locale3 = __webpack_require__(96);
+		var _locale3 = __webpack_require__(99);
 
 		function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -29423,6 +31545,7 @@
 		      title: undefined,
 		      message: '',
 		      type: '',
+		      customClass: '',
 		      showInput: false,
 		      inputValue: null,
 		      inputPlaceholder: '',
@@ -29446,18 +31569,18 @@
 	/* 185 */
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(67);
+		module.exports = __webpack_require__(97);
 
 	/***/ },
 	/* 186 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('transition', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('transition', {
 		    attrs: {
 		      "name": "msgbox-fade"
 		    }
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -29471,30 +31594,31 @@
 		        _vm.handleWrapperClick($event)
 		      }
 		    }
-		  }, [_vm._h('div', {
-		    staticClass: "el-message-box"
-		  }, [(_vm.title !== undefined) ? _vm._h('div', {
+		  }, [_h('div', {
+		    staticClass: "el-message-box",
+		    class: _vm.customClass
+		  }, [(_vm.title !== undefined) ? _h('div', {
 		    staticClass: "el-message-box__header"
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    staticClass: "el-message-box__title"
-		  }, [_vm._s(_vm.title || _vm.t('el.messagebox.title'))]), (_vm.showClose) ? _vm._h('i', {
+		  }, [_vm._s(_vm.title || _vm.t('el.messagebox.title'))]), (_vm.showClose) ? _h('i', {
 		    staticClass: "el-message-box__close el-icon-close",
 		    on: {
 		      "click": function($event) {
 		        _vm.handleAction('cancel')
 		      }
 		    }
-		  }) : _vm._e()]) : _vm._e(), (_vm.message !== '') ? _vm._h('div', {
+		  }) : _vm._e()]) : _vm._e(), (_vm.message !== '') ? _h('div', {
 		    staticClass: "el-message-box__content"
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    staticClass: "el-message-box__status",
 		    class: [_vm.typeClass]
-		  }), _vm._h('div', {
+		  }), _h('div', {
 		    staticClass: "el-message-box__message",
 		    style: ({
 		      'margin-left': _vm.typeClass ? '50px' : '0'
 		    })
-		  }, [_vm._h('p', [_vm._s(_vm.message)])]), _vm._h('div', {
+		  }, [_h('p', [_vm._s(_vm.message)])]), _h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -29502,7 +31626,7 @@
 		      expression: "showInput"
 		    }],
 		    staticClass: "el-message-box__input"
-		  }, [_vm._h('el-input', {
+		  }, [_h('el-input', {
 		    directives: [{
 		      name: "model",
 		      rawName: "v-model",
@@ -29521,14 +31645,14 @@
 		        _vm.inputValue = $event
 		      }
 		    }
-		  }), _vm._h('div', {
+		  }), _h('div', {
 		    staticClass: "el-message-box__errormsg",
 		    style: ({
 		      visibility: !!_vm.editorErrorMessage ? 'visible' : 'hidden'
 		    })
-		  }, [_vm._s(_vm.editorErrorMessage)])])]) : _vm._e(), _vm._h('div', {
+		  }, [_vm._s(_vm.editorErrorMessage)])])]) : _vm._e(), _h('div', {
 		    staticClass: "el-message-box__btns"
-		  }, [_vm._h('el-button', {
+		  }, [_h('el-button', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -29541,7 +31665,7 @@
 		        _vm.handleAction('cancel')
 		      }
 		    }
-		  }, [_vm._s(_vm.cancelButtonText || _vm.t('el.messagebox.cancel'))]), _vm._h('el-button', {
+		  }, [_vm._s(_vm.cancelButtonText || _vm.t('el.messagebox.cancel'))]), _h('el-button', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -29636,8 +31760,8 @@
 	/* 190 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    staticClass: "el-breadcrumb"
 		  }, [_vm._t("default")])
 		},staticRenderFns: []}
@@ -29735,13 +31859,13 @@
 	/* 194 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('span', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('span', {
 		    staticClass: "el-breadcrumb__item"
-		  }, [_vm._h('span', {
+		  }, [_h('span', {
 		    ref: "link",
 		    staticClass: "el-breadcrumb__item__inner"
-		  }, [_vm._t("default")]), _vm._h('span', {
+		  }, [_vm._t("default")]), _h('span', {
 		    staticClass: "el-breadcrumb__separator"
 		  }, [_vm._s(_vm.separator)])])
 		},staticRenderFns: []}
@@ -29892,8 +32016,8 @@
 	/* 198 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('form', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('form', {
 		    staticClass: "el-form",
 		    class: [
 		      _vm.labelPosition ? 'el-form--label-' + _vm.labelPosition : '', {
@@ -30201,31 +32325,31 @@
 	/* 202 */
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(68);
+		module.exports = __webpack_require__(98);
 
 	/***/ },
 	/* 203 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    staticClass: "el-form-item",
 		    class: {
 		      'is-error': _vm.validateState === 'error',
 		        'is-validating': _vm.validateState === 'validating',
 		        'is-required': _vm.isRequired || _vm.required
 		    }
-		  }, [(_vm.label) ? _vm._h('label', {
+		  }, [(_vm.label) ? _h('label', {
 		    staticClass: "el-form-item__label",
 		    style: (_vm.labelStyle)
-		  }, ["\n    " + _vm._s(_vm.label + _vm.form.labelSuffix) + "\n  "]) : _vm._e(), _vm._h('div', {
+		  }, ["\n    " + _vm._s(_vm.label + _vm.form.labelSuffix) + "\n  "]) : _vm._e(), _h('div', {
 		    staticClass: "el-form-item__content",
 		    style: (_vm.contentStyle)
-		  }, [_vm._t("default"), _vm._h('transition', {
+		  }, [_vm._t("default"), _h('transition', {
 		    attrs: {
-		      "name": "md-fade-bottom"
+		      "name": "el-zoom-in-top"
 		    }
-		  }, [(_vm.validateState === 'error') ? _vm._h('div', {
+		  }, [(_vm.validateState === 'error') ? _h('div', {
 		    staticClass: "el-form-item__error"
 		  }, [_vm._s(_vm.validateMessage)]) : _vm._e()])])])
 		},staticRenderFns: []}
@@ -30322,12 +32446,17 @@
 		        var nextChild = tabs[index];
 		        var prevChild = tabs[index - 1];
 
+		        while (prevChild && prevChild.disabled) {
+		          prevChild = tabs[tabs.indexOf(prevChild) - 1];
+		        }
+
 		        this.currentName = nextChild ? nextChild.index : prevChild ? prevChild.index : '-1';
 		      }
 		      this.$emit('tab-remove', tab);
 		      this.$forceUpdate();
 		    },
 		    handleTabClick: function handleTabClick(tab, event) {
+		      if (tab.disabled) return;
 		      this.currentName = tab.index;
 		      this.$emit('tab-click', tab, event);
 		    },
@@ -30362,17 +32491,19 @@
 		  mounted: function mounted() {
 		    var _this2 = this;
 
-		    this.currentName = this.activeName || this.$children[0].index || '1';
+		    this.currentName = this.activeName || this.$children[0] && this.$children[0].index || '1';
 		    this.$nextTick(function () {
 		      _this2.$forceUpdate();
 		    });
 		  },
 		  render: function render(h) {
-		    var type = this.type;
-		    var panes = this.panes;
-		    var handleTabRemove = this.handleTabRemove;
-		    var handleTabClick = this.handleTabClick;
-		    var currentName = this.currentName;
+		    var _this3 = this;
+
+		    var type = this.type,
+		        panes = this.panes,
+		        handleTabRemove = this.handleTabRemove,
+		        handleTabClick = this.handleTabClick,
+		        currentName = this.currentName;
 
 
 		    var barStyle = this.calcBarStyle();
@@ -30403,7 +32534,7 @@
 		        on: { click: function click(ev) {
 		            handleTabClick(tab, ev);
 		          } }
-		      }, [tab.label, tab.isClosable ? btnClose : null, index === 0 ? activeBar : null]);
+		      }, [tab.labelContent ? tab.labelContent.call(_this3._renderProxy, h, tab) : tab.label, tab.isClosable ? btnClose : null, index === 0 ? activeBar : null]);
 		      return _tab;
 		    });
 		    return h(
@@ -30486,12 +32617,11 @@
 		  name: 'el-tab-pane',
 
 		  props: {
-		    label: {
-		      type: String,
-		      required: true
-		    },
+		    label: String,
+		    labelContent: Function,
 		    name: String,
-		    closable: Boolean
+		    closable: Boolean,
+		    disabled: Boolean
 		  },
 
 		  data: function data() {
@@ -30555,6 +32685,9 @@
 		      if (this.index === oldValue) {
 		        this.transition = oldValue > newValue ? 'slideInRight' : 'slideInLeft';
 		      }
+		    },
+		    label: function label() {
+		      this.$parent.$forceUpdate();
 		    }
 		  }
 		};
@@ -30563,8 +32696,8 @@
 	/* 210 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -30644,6 +32777,7 @@
 		//
 		//
 		//
+		//
 
 		exports.default = {
 		  name: 'ElTag',
@@ -30652,7 +32786,8 @@
 		    closable: Boolean,
 		    type: String,
 		    hit: Boolean,
-		    closeTransition: Boolean
+		    closeTransition: Boolean,
+		    color: String
 		  },
 		  methods: {
 		    handleClose: function handleClose(event) {
@@ -30665,17 +32800,20 @@
 	/* 214 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('transition', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('transition', {
 		    attrs: {
-		      "name": _vm.closeTransition ? '' : 'md-fade-center'
+		      "name": _vm.closeTransition ? '' : 'el-zoom-in-center'
 		    }
-		  }, [_vm._h('span', {
+		  }, [_h('span', {
 		    staticClass: "el-tag",
 		    class: [_vm.type ? 'el-tag--' + _vm.type : '', {
 		      'is-hit': _vm.hit
-		    }]
-		  }, [_vm._t("default"), (_vm.closable) ? _vm._h('i', {
+		    }],
+		    style: ({
+		      backgroundColor: _vm.color
+		    })
+		  }, [_vm._t("default"), (_vm.closable) ? _h('i', {
 		    staticClass: "el-tag__close el-icon-close",
 		    on: {
 		      "click": _vm.handleClose
@@ -30745,7 +32883,7 @@
 
 		var _treeStore2 = _interopRequireDefault(_treeStore);
 
-		var _locale = __webpack_require__(96);
+		var _locale = __webpack_require__(99);
 
 		function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -30781,6 +32919,10 @@
 		    nodeKey: String,
 		    checkStrictly: Boolean,
 		    defaultExpandAll: Boolean,
+		    expandOnClickNode: {
+		      type: Boolean,
+		      default: true
+		    },
 		    autoExpandParent: {
 		      type: Boolean,
 		      default: true
@@ -30806,6 +32948,7 @@
 		      default: false
 		    },
 		    highlightCurrent: Boolean,
+		    currentNodeKey: [String, Number],
 		    load: Function,
 		    filterNodeMethod: Function
 		  },
@@ -30819,6 +32962,7 @@
 		      lazy: this.lazy,
 		      props: this.props,
 		      load: this.load,
+		      currentNodeKey: this.currentNodeKey,
 		      checkStrictly: this.checkStrictly,
 		      defaultCheckedKeys: this.defaultCheckedKeys,
 		      defaultExpandedKeys: this.defaultExpandedKeys,
@@ -30861,6 +33005,9 @@
 		    defaultExpandedKeys: function defaultExpandedKeys(newVal) {
 		      this.store.defaultExpandedKeys = newVal;
 		      this.store.setDefaultExpandedKeys(newVal);
+		    },
+		    currentNodeKey: function currentNodeKey(newVal) {
+		      this.store.setCurrentNodeKey(newVal);
 		    },
 		    data: function data(newVal) {
 		      this.store.setData(newVal);
@@ -30924,6 +33071,9 @@
 		    var _this = this;
 
 		    _classCallCheck(this, TreeStore);
+
+		    this.currentNode = null;
+		    this.currentNodeKey = null;
 
 		    for (var option in options) {
 		      if (options.hasOwnProperty(option)) {
@@ -31168,6 +33318,21 @@
 		    }
 		  };
 
+		  TreeStore.prototype.getCurrentNode = function getCurrentNode() {
+		    return this.currentNode;
+		  };
+
+		  TreeStore.prototype.setCurrentNode = function setCurrentNode(node) {
+		    this.currentNode = node;
+		  };
+
+		  TreeStore.prototype.setCurrentNodeKey = function setCurrentNodeKey(key) {
+		    var node = this.getNode(key);
+		    if (node) {
+		      this.currentNode = node;
+		    }
+		  };
+
 		  return TreeStore;
 		}();
 
@@ -31293,6 +33458,10 @@
 		    var key = store.key;
 		    if (key && defaultExpandedKeys && defaultExpandedKeys.indexOf(this.key) !== -1) {
 		      this.expand(null, store.autoExpandParent);
+		    }
+
+		    if (key && store.currentNodeKey && this.key === store.currentNodeKey) {
+		      store.currentNode = this;
 		    }
 
 		    if (store.lazy) {
@@ -31520,8 +33689,8 @@
 		    });
 
 		    newNodes.forEach(function (_ref) {
-		      var index = _ref.index;
-		      var data = _ref.data;
+		      var index = _ref.index,
+		          data = _ref.data;
 
 		      _this4.insertChild({ data: data }, index);
 		    });
@@ -31544,6 +33713,7 @@
 
 		        _this5.doCreateChildren(children, defaultProps);
 
+		        _this5.updateLeafState();
 		        if (callback) {
 		          callback.call(_this5, children);
 		        }
@@ -31646,12 +33816,16 @@
 
 		var _transition2 = _interopRequireDefault(_transition);
 
-		var _checkbox = __webpack_require__(124);
+		var _checkbox = __webpack_require__(117);
 
 		var _checkbox2 = _interopRequireDefault(_checkbox);
 
 		function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+		//
+		//
+		//
+		//
 		//
 		//
 		//
@@ -31772,17 +33946,21 @@
 		      this.indeterminate = indeterminate;
 		    },
 		    handleClick: function handleClick() {
+		      var store = this.tree.store;
+		      store.setCurrentNode(this.node);
+		      this.tree.$emit('current-change', store.currentNode ? store.currentNode.data : null, store.currentNode);
 		      this.tree.currentNode = this;
+		      if (this.tree.expandOnClickNode) {
+		        this.handleExpandIconClick(event);
+		      }
+		      this.tree.$emit('node-click', this.node.data, this.node, this);
 		    },
 		    handleExpandIconClick: function handleExpandIconClick(event) {
-		      var target = event.target;
-		      if (target.tagName.toUpperCase() !== 'DIV' && target.parentNode.nodeName.toUpperCase() !== 'DIV' || target.nodeName.toUpperCase() === 'LABEL') return;
 		      if (this.expanded) {
 		        this.node.collapse();
 		      } else {
 		        this.node.expand();
 		      }
-		      this.tree.$emit('node-click', this.node.data, this.node, this);
 		    },
 		    handleUserClick: function handleUserClick() {
 		      if (this.node.indeterminate) {
@@ -31808,16 +33986,16 @@
 		    }
 
 		    var tree = this.tree;
-		    var props = this.props || {};
+		    if (!tree) {
+		      console.warn('Can not find node\'s tree.');
+		    }
+
+		    var props = tree.props || {};
 		    var childrenKey = props['children'] || 'children';
 
 		    this.$watch('node.data.' + childrenKey, function () {
 		      _this.node.updateChildren();
 		    });
-
-		    if (!tree) {
-		      console.warn('Can not find node\'s tree.');
-		    }
 
 		    this.showCheckbox = tree.showCheckbox;
 
@@ -31930,8 +34108,8 @@
 	/* 224 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -31940,7 +34118,9 @@
 		    }],
 		    staticClass: "el-tree-node",
 		    class: {
-		      'is-expanded': _vm.childNodeRendered && _vm.expanded, 'is-current': _vm.tree.currentNode === _vm._self, 'is-hidden': !_vm.node.visible
+		      'is-expanded': _vm.childNodeRendered && _vm.expanded,
+		        'is-current': _vm.tree.store.currentNode === _vm.node,
+		        'is-hidden': !_vm.node.visible
 		    },
 		    on: {
 		      "click": function($event) {
@@ -31948,20 +34128,23 @@
 		        _vm.handleClick($event)
 		      }
 		    }
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    staticClass: "el-tree-node__content",
 		    style: ({
 		      'padding-left': (_vm.node.level - 1) * 16 + 'px'
-		    }),
-		    on: {
-		      "click": _vm.handleExpandIconClick
-		    }
-		  }, [_vm._h('span', {
+		    })
+		  }, [_h('span', {
 		    staticClass: "el-tree-node__expand-icon",
 		    class: {
 		      'is-leaf': _vm.node.isLeaf, expanded: !_vm.node.isLeaf && _vm.expanded
+		    },
+		    on: {
+		      "click": function($event) {
+		        $event.stopPropagation();
+		        _vm.handleExpandIconClick($event)
+		      }
 		    }
-		  }), (_vm.showCheckbox) ? _vm._h('el-checkbox', {
+		  }), (_vm.showCheckbox) ? _h('el-checkbox', {
 		    directives: [{
 		      name: "model",
 		      rawName: "v-model",
@@ -31985,13 +34168,13 @@
 		        _vm.handleUserClick($event)
 		      }
 		    }
-		  }) : _vm._e(), (_vm.node.loading) ? _vm._h('span', {
+		  }) : _vm._e(), (_vm.node.loading) ? _h('span', {
 		    staticClass: "el-tree-node__loading-icon el-icon-loading"
-		  }) : _vm._e(), _vm._h('node-content', {
+		  }) : _vm._e(), _h('node-content', {
 		    attrs: {
 		      "node": _vm.node
 		    }
-		  })]), _vm._h('collapse-transition', [_vm._h('div', {
+		  })]), _h('collapse-transition', [_h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -32000,7 +34183,7 @@
 		    }],
 		    staticClass: "el-tree-node__children"
 		  }, [_vm._l((_vm.node.childNodes), function(child) {
-		    return _vm._h('el-tree-node', {
+		    return _h('el-tree-node', {
 		      key: _vm.getNodeKey(child),
 		      attrs: {
 		        "render-content": _vm.renderContent,
@@ -32014,14 +34197,14 @@
 	/* 225 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    staticClass: "el-tree",
 		    class: {
 		      'el-tree--highlight-current': _vm.highlightCurrent
 		    }
 		  }, [_vm._l((_vm.root.childNodes), function(child) {
-		    return _vm._h('el-tree-node', {
+		    return _h('el-tree-node', {
 		      key: _vm.getNodeKey(child),
 		      attrs: {
 		        "node": child,
@@ -32029,9 +34212,9 @@
 		        "render-content": _vm.renderContent
 		      }
 		    })
-		  }), (!_vm.root.childNodes || _vm.root.childNodes.length === 0) ? _vm._h('div', {
+		  }), (!_vm.root.childNodes || _vm.root.childNodes.length === 0) ? _h('div', {
 		    staticClass: "el-tree__empty-block"
-		  }, [_vm._h('span', {
+		  }, [_h('span', {
 		    staticClass: "el-tree__empty-text"
 		  }, [_vm._s(_vm.emptyText)])]) : _vm._e()])
 		},staticRenderFns: []}
@@ -32197,12 +34380,12 @@
 	/* 229 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('transition', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('transition', {
 		    attrs: {
 		      "name": "el-alert-fade"
 		    }
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -32211,15 +34394,15 @@
 		    }],
 		    staticClass: "el-alert",
 		    class: [_vm.typeClass]
-		  }, [(_vm.showIcon) ? _vm._h('i', {
+		  }, [(_vm.showIcon) ? _h('i', {
 		    staticClass: "el-alert__icon",
 		    class: [_vm.iconClass, _vm.isBigIcon]
-		  }) : _vm._e(), _vm._h('div', {
+		  }) : _vm._e(), _h('div', {
 		    staticClass: "el-alert__content"
-		  }, [(_vm.title) ? _vm._h('span', {
+		  }, [(_vm.title) ? _h('span', {
 		    staticClass: "el-alert__title",
 		    class: [_vm.isBoldTitle]
-		  }, [_vm._s(_vm.title)]) : _vm._e(), _vm._h('desc-content'), _vm._h('i', {
+		  }, [_vm._s(_vm.title)]) : _vm._e(), _h('desc-content'), _h('i', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -32262,7 +34445,7 @@
 
 		exports.__esModule = true;
 
-		var _vue = __webpack_require__(119);
+		var _vue = __webpack_require__(120);
 
 		var _vue2 = _interopRequireDefault(_vue);
 
@@ -32295,7 +34478,8 @@
 		  instance.dom = instance.vm.$el;
 		  instance.dom.style.zIndex = _vuePopup.PopupManager.nextZIndex();
 
-		  var topDist = 0;
+		  var offset = options.offset || 0;
+		  var topDist = offset;
 		  for (var i = 0, len = instances.length; i < len; i++) {
 		    topDist += instances[i].$el.offsetHeight + 16;
 		  }
@@ -32390,6 +34574,16 @@
 		//
 		//
 		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
 
 		var typeMap = {
 		  success: 'circle-check',
@@ -32406,6 +34600,8 @@
 		      message: '',
 		      duration: 4500,
 		      type: '',
+		      customClass: '',
+		      iconClass: '',
 		      onClose: null,
 		      closed: false,
 		      top: null,
@@ -32474,12 +34670,12 @@
 	/* 234 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('transition', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('transition', {
 		    attrs: {
 		      "name": "el-notification-fade"
 		    }
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -32487,6 +34683,7 @@
 		      expression: "visible"
 		    }],
 		    staticClass: "el-notification",
+		    class: _vm.customClass,
 		    style: ({
 		      top: _vm.top ? _vm.top + 'px' : 'auto'
 		    }),
@@ -32498,15 +34695,15 @@
 		        _vm.startTimer()
 		      }
 		    }
-		  }, [(_vm.type) ? _vm._h('i', {
+		  }, [(_vm.type || _vm.iconClass) ? _h('i', {
 		    staticClass: "el-notification__icon",
-		    class: [_vm.typeClass]
-		  }) : _vm._e(), _vm._h('div', {
+		    class: [_vm.typeClass, _vm.iconClass]
+		  }) : _vm._e(), _h('div', {
 		    staticClass: "el-notification__group",
-		    style: ({
-		      'margin-left': _vm.typeClass ? '55px' : '0'
-		    })
-		  }, [_vm._h('span', [_vm._s(_vm.title)]), _vm._h('p', [_vm._s(_vm.message)]), _vm._h('div', {
+		    class: {
+		      'is-with-icon': _vm.typeClass || _vm.iconClass
+		    }
+		  }, [_h('span', [_vm._s(_vm.title)]), _h('p', [_vm._s(_vm.message)]), _h('div', {
 		    staticClass: "el-notification__closeBtn el-icon-close",
 		    on: {
 		      "click": _vm.close
@@ -32629,7 +34826,7 @@
 
 		  data: function data() {
 		    return {
-		      precision: null,
+		      precision: 0,
 		      inputValue: null,
 		      timeout: null,
 		      hovering: false,
@@ -32680,25 +34877,27 @@
 		      this.$refs.tooltip.updatePopper();
 		    },
 		    setPosition: function setPosition(newPos) {
-		      if (newPos >= 0 && newPos <= 100) {
-		        var lengthPerStep = 100 / ((this.max - this.min) / this.step);
-		        var steps = Math.round(newPos / lengthPerStep);
-		        var value = steps * lengthPerStep * (this.max - this.min) * 0.01 + this.min;
-		        if (this.precision) {
-		          value = parseFloat(value.toFixed(this.precision));
-		        }
-		        this.$emit('input', value);
-		        this.currentPosition = (this.value - this.min) / (this.max - this.min) * 100 + '%';
-		        if (!this.dragging) {
-		          if (this.value !== this.oldValue) {
-		            this.$emit('change', this.value);
-		            this.oldValue = this.value;
-		          }
+		      if (newPos < 0) {
+		        newPos = 0;
+		      } else if (newPos > 100) {
+		        newPos = 100;
+		      }
+
+		      var lengthPerStep = 100 / ((this.max - this.min) / this.step);
+		      var steps = Math.round(newPos / lengthPerStep);
+		      var value = steps * lengthPerStep * (this.max - this.min) * 0.01 + this.min;
+		      value = parseFloat(value.toFixed(this.precision));
+		      this.$emit('input', value);
+		      this.currentPosition = (this.value - this.min) / (this.max - this.min) * 100 + '%';
+		      if (!this.dragging) {
+		        if (this.value !== this.oldValue) {
+		          this.$emit('change', this.value);
+		          this.oldValue = this.value;
 		        }
 		      }
 		    },
 		    onSliderClick: function onSliderClick(event) {
-		      if (this.disabled) return;
+		      if (this.disabled || this.dragging) return;
 		      var sliderOffsetLeft = this.$refs.slider.getBoundingClientRect().left;
 		      this.setPosition((event.clientX - sliderOffsetLeft) / this.$sliderWidth * 100);
 		    },
@@ -32725,12 +34924,21 @@
 		      }
 		    },
 		    onDragEnd: function onDragEnd() {
+		      var _this2 = this;
+
 		      if (this.dragging) {
-		        this.dragging = false;
-		        this.$refs.tooltip.showPopper = false;
-		        this.setPosition(this.newPos);
+		        /*
+		         * 防止在 mouseup 后立即触发 click，导致滑块有几率产生一小段位移
+		         * 不使用 preventDefault 是因为 mouseup 和 click 没有注册在同一个 DOM 上
+		         */
+		        setTimeout(function () {
+		          _this2.dragging = false;
+		          _this2.$refs.tooltip.showPopper = false;
+		          _this2.setPosition(_this2.newPos);
+		        }, 0);
 		        window.removeEventListener('mousemove', this.onDragging);
 		        window.removeEventListener('mouseup', this.onDragEnd);
+		        window.removeEventListener('contextmenu', this.onDragEnd);
 		      }
 		    },
 		    onButtonDown: function onButtonDown(event) {
@@ -32738,6 +34946,7 @@
 		      this.onDragStart(event);
 		      window.addEventListener('mousemove', this.onDragging);
 		      window.addEventListener('mouseup', this.onDragEnd);
+		      window.addEventListener('contextmenu', this.onDragEnd);
 		    }
 		  },
 
@@ -32763,9 +34972,11 @@
 		    } else if (this.value > this.max) {
 		      this.$emit('input', this.max);
 		    }
-		    if (this.step && this.step < 1) {
-		      this.precision = this.step.toPrecision(1).split('.')[1].length;
-		    }
+		    var precisions = [this.min, this.max, this.step].map(function (item) {
+		      var decimal = ('' + item).split('.')[1];
+		      return decimal ? decimal.length : 0;
+		    });
+		    this.precision = Math.max.apply(null, precisions);
 		    this.inputValue = this.inputValue || this.value;
 		  }
 		}; //
@@ -32809,28 +35020,28 @@
 	/* 238 */
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(93);
+		module.exports = __webpack_require__(123);
 
 	/***/ },
 	/* 239 */
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(94);
+		module.exports = __webpack_require__(124);
 
 	/***/ },
 	/* 240 */
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(95);
+		module.exports = __webpack_require__(125);
 
 	/***/ },
 	/* 241 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    staticClass: "el-slider"
-		  }, [(_vm.showInput) ? _vm._h('el-input-number', {
+		  }, [(_vm.showInput) ? _h('el-input-number', {
 		    directives: [{
 		      name: "model",
 		      rawName: "v-model",
@@ -32859,7 +35070,7 @@
 		        _vm.onInputChange($event)
 		      }
 		    }
-		  }) : _vm._e(), _vm._h('div', {
+		  }) : _vm._e(), _h('div', {
 		    ref: "slider",
 		    staticClass: "el-slider__runway",
 		    class: {
@@ -32868,12 +35079,12 @@
 		    on: {
 		      "click": _vm.onSliderClick
 		    }
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    staticClass: "el-slider__bar",
 		    style: ({
 		      width: _vm.currentPosition
 		    })
-		  }), _vm._h('div', {
+		  }), _h('div', {
 		    ref: "button",
 		    staticClass: "el-slider__button-wrapper",
 		    class: {
@@ -32887,20 +35098,20 @@
 		      "mouseleave": _vm.handleMouseLeave,
 		      "mousedown": _vm.onButtonDown
 		    }
-		  }, [_vm._h('el-tooltip', {
+		  }, [_h('el-tooltip', {
 		    ref: "tooltip",
 		    attrs: {
 		      "placement": "top"
 		    }
-		  }, [_vm._h('span', {
+		  }, [_h('span', {
 		    slot: "content"
-		  }, [_vm._s(_vm.value)]), _vm._h('div', {
+		  }, [_vm._s(_vm.value)]), _h('div', {
 		    staticClass: "el-slider__button",
 		    class: {
 		      'hover': _vm.hovering, 'dragging': _vm.dragging
 		    }
 		  })])]), _vm._l((_vm.stops), function(item) {
-		    return (_vm.showStops) ? _vm._h('div', {
+		    return (_vm.showStops) ? _h('div', {
 		      staticClass: "el-slider__stop",
 		      style: ({
 		        'left': item + '%'
@@ -32943,11 +35154,11 @@
 
 		'use strict';
 
-		var _vue = __webpack_require__(119);
+		var _vue = __webpack_require__(120);
 
 		var _vue2 = _interopRequireDefault(_vue);
 
-		var _class = __webpack_require__(94);
+		var _class = __webpack_require__(97);
 
 		function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -33115,20 +35326,20 @@
 	/* 246 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    staticClass: "el-loading-mask",
 		    class: [_vm.customClass, {
 		      'is-fullscreen': _vm.fullscreen
 		    }]
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    staticClass: "el-loading-spinner"
-		  }, [_vm._h('svg', {
+		  }, [_h('svg', {
 		    staticClass: "circular",
 		    attrs: {
 		      "viewBox": "25 25 50 50"
 		    }
-		  }, [_vm._h('circle', {
+		  }, [_h('circle', {
 		    staticClass: "path",
 		    attrs: {
 		      "cx": "50",
@@ -33136,7 +35347,7 @@
 		      "r": "20",
 		      "fill": "none"
 		    }
-		  })]), (_vm.text) ? _vm._h('p', {
+		  })]), (_vm.text) ? _h('p', {
 		    staticClass: "el-loading-text"
 		  }, [_vm._s(_vm.text)]) : _vm._e()])])
 		},staticRenderFns: []}
@@ -33149,7 +35360,7 @@
 
 		exports.__esModule = true;
 
-		var _vue = __webpack_require__(119);
+		var _vue = __webpack_require__(120);
 
 		var _vue2 = _interopRequireDefault(_vue);
 
@@ -33173,29 +35384,34 @@
 		  customClass: ''
 		};
 
-		var originalPosition = void 0,
-		    originalOverflow = void 0;
+		var fullscreenLoading = void 0;
+
+		LoadingConstructor.prototype.originalPosition = '';
+		LoadingConstructor.prototype.originalOverflow = '';
 
 		LoadingConstructor.prototype.close = function () {
-		  if (this.fullscreen && originalOverflow !== 'hidden') {
-		    document.body.style.overflow = originalOverflow;
+		  if (this.fullscreen && this.originalOverflow !== 'hidden') {
+		    document.body.style.overflow = this.originalOverflow;
 		  }
 		  if (this.fullscreen || this.body) {
-		    document.body.style.position = originalPosition;
+		    document.body.style.position = this.originalPosition;
 		  } else {
-		    this.target.style.position = originalPosition;
+		    this.target.style.position = this.originalPosition;
+		  }
+		  if (this.fullscreen) {
+		    fullscreenLoading = undefined;
 		  }
 		  this.$el && this.$el.parentNode && this.$el.parentNode.removeChild(this.$el);
 		  this.$destroy();
 		};
 
-		var addStyle = function addStyle(options, parent, element) {
+		var addStyle = function addStyle(options, parent, instance) {
 		  var maskStyle = {};
 		  if (options.fullscreen) {
-		    originalPosition = document.body.style.position;
-		    originalOverflow = document.body.style.overflow;
+		    instance.originalPosition = document.body.style.position;
+		    instance.originalOverflow = document.body.style.overflow;
 		  } else if (options.body) {
-		    originalPosition = document.body.style.position;
+		    instance.originalPosition = document.body.style.position;
 		    ['top', 'left'].forEach(function (property) {
 		      var scroll = property === 'top' ? 'scrollTop' : 'scrollLeft';
 		      maskStyle[property] = options.target.getBoundingClientRect()[property] + document.body[scroll] + document.documentElement[scroll] + 'px';
@@ -33204,10 +35420,10 @@
 		      maskStyle[property] = options.target.getBoundingClientRect()[property] + 'px';
 		    });
 		  } else {
-		    originalPosition = parent.style.position;
+		    instance.originalPosition = parent.style.position;
 		  }
 		  Object.keys(maskStyle).forEach(function (property) {
-		    element.style[property] = maskStyle[property];
+		    instance.$el.style[property] = maskStyle[property];
 		  });
 		};
 
@@ -33224,6 +35440,9 @@
 		  } else {
 		    options.body = true;
 		  }
+		  if (options.fullscreen && fullscreenLoading) {
+		    return fullscreenLoading;
+		  }
 
 		  var parent = options.body ? document.body : options.target;
 		  var instance = new LoadingConstructor({
@@ -33231,14 +35450,17 @@
 		    data: options
 		  });
 
-		  addStyle(options, parent, instance.$el);
-		  if (originalPosition !== 'absolute') {
+		  addStyle(options, parent, instance);
+		  if (instance.originalPosition !== 'absolute') {
 		    parent.style.position = 'relative';
 		  }
 		  if (options.fullscreen && options.lock) {
 		    parent.style.overflow = 'hidden';
 		  }
 		  parent.appendChild(instance.$el);
+		  if (options.fullscreen) {
+		    fullscreenLoading = instance;
+		  }
 		  return instance;
 		};
 
@@ -33318,8 +35540,8 @@
 	/* 251 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('i', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('i', {
 		    class: 'el-icon-' + _vm.name
 		  })
 		},staticRenderFns: []}
@@ -33431,8 +35653,8 @@
 	/* 255 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    staticClass: "el-row",
 		    class: [
 		      _vm.justify !== 'start' ? 'is-justify-' + _vm.justify : '',
@@ -33671,6 +35893,10 @@
 		      type: Function,
 		      default: noop
 		    },
+		    onProgress: {
+		      type: Function,
+		      default: noop
+		    },
 		    onError: {
 		      type: Function,
 		      default: noop
@@ -33693,6 +35919,22 @@
 		  },
 
 
+		  watch: {
+		    defaultFileList: {
+		      immediate: true,
+		      handler: function handler(fileList) {
+		        var _this = this;
+
+		        this.fileList = fileList.map(function (item) {
+		          item.status = 'finished';
+		          item.percentage = 100;
+		          item.uid = Date.now() + _this.tempIndex++;
+		          return item;
+		        });
+		      }
+		    }
+		  },
+
 		  methods: {
 		    handleStart: function handleStart(file) {
 		      file.uid = Date.now() + this.tempIndex++;
@@ -33705,19 +35947,18 @@
 		        showProgress: true
 		      };
 
-		      if (this.thumbnailMode) {
-		        try {
-		          _file.url = URL.createObjectURL(file);
-		        } catch (err) {
-		          console.log(err);
-		          return;
-		        }
+		      try {
+		        _file.url = URL.createObjectURL(file);
+		      } catch (err) {
+		        console.error(err);
+		        return;
 		      }
 
 		      this.fileList.push(_file);
 		    },
 		    handleProgress: function handleProgress(ev, file) {
 		      var _file = this.getFile(file);
+		      this.onProgress(ev, _file, this.fileList);
 		      _file.percentage = ev.percent || 0;
 		    },
 		    handleSuccess: function handleSuccess(res, file) {
@@ -33768,22 +36009,6 @@
 		    }
 		  },
 
-		  watch: {
-		    defaultFileList: {
-		      immediate: true,
-		      handler: function handler(fileList) {
-		        var _this = this;
-
-		        this.fileList = fileList.map(function (item) {
-		          item.status = 'finished';
-		          item.percentage = 100;
-		          item.uid = Date.now() + _this.tempIndex++;
-		          return item;
-		        });
-		      }
-		    }
-		  },
-
 		  render: function render(h) {
 		    var uploadList;
 
@@ -33795,8 +36020,8 @@
 		            files: this.fileList
 		          },
 		          on: {
-		            remove: this.handleRemove,
-		            preview: this.handlePreview
+		            'remove': this.handleRemove,
+		            'preview': this.handlePreview
 		          }
 		        },
 		        []
@@ -33813,7 +36038,7 @@
 		        headers: this.headers,
 		        name: this.name,
 		        data: this.data,
-		        accept: this.thumbnailMode ? 'image/*' : this.accept,
+		        accept: this.thumbnailMode ? 'image/gif, image/png, image/jpeg, image/bmp, image/webp' : this.accept,
 		        'on-start': this.handleStart,
 		        'on-progress': this.handleProgress,
 		        'on-success': this.handleSuccess,
@@ -33948,21 +36173,21 @@
 	/* 263 */
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(96);
+		module.exports = __webpack_require__(126);
 
 	/***/ },
 	/* 264 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('transition-group', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('transition-group', {
 		    staticClass: "el-upload__files",
 		    attrs: {
 		      "tag": "ul",
 		      "name": "list"
 		    }
 		  }, [_vm._l((_vm.files), function(file) {
-		    return _vm._h('li', {
+		    return _h('li', {
 		      key: file,
 		      staticClass: "el-upload__file",
 		      class: {
@@ -33973,16 +36198,14 @@
 		          _vm.$emit('clickFile', file)
 		        }
 		      }
-		    }, [_vm._h('a', {
+		    }, [_h('a', {
 		      staticClass: "el-upload__file__name",
 		      on: {
 		        "click": function($event) {
 		          _vm.$emit('preview', file)
 		        }
 		      }
-		    }, [_vm._h('i', {
-		      staticClass: "el-icon-document"
-		    }), _vm._s(file.name) + "\n    "]), _vm._h('span', {
+		    }, [_vm._m(0, true), _vm._s(file.name) + "\n    "]), _h('span', {
 		      directives: [{
 		        name: "show",
 		        rawName: "v-show",
@@ -33995,7 +36218,7 @@
 		          _vm.$emit('remove', file)
 		        }
 		      }
-		    }, [_vm._s(_vm.t('el.upload.delete'))]), (file.showProgress) ? _vm._h('el-progress', {
+		    }, [_vm._s(_vm.t('el.upload.delete'))]), (file.showProgress) ? _h('el-progress', {
 		      attrs: {
 		        "stroke-width": 2,
 		        "percentage": _vm.parsePercentage(file.percentage),
@@ -34003,7 +36226,11 @@
 		      }
 		    }) : _vm._e()])
 		  })])
-		},staticRenderFns: []}
+		},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('i', {
+		    staticClass: "el-icon-document"
+		  })
+		}]}
 
 	/***/ },
 	/* 265 */
@@ -34297,9 +36524,9 @@
 
 		  var headers = option.headers || {};
 
-		  if (headers['X-Requested-With'] !== null) {
-		    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-		  }
+		  // if (headers['X-Requested-With'] !== null) {
+		  //   xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+		  // }
 
 		  for (var item in headers) {
 		    if (headers.hasOwnProperty(item) && headers[item] !== null) {
@@ -34417,26 +36644,26 @@
 	/* 270 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return (_vm.image) ? _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return (_vm.image) ? _h('div', {
 		    staticClass: "el-dragger__cover",
 		    on: {
 		      "click": function($event) {
 		        $event.stopPropagation();
 		      }
 		    }
-		  }, [_vm._h('transition', {
+		  }, [_h('transition', {
 		    attrs: {
-		      "name": "fade-in"
+		      "name": "el-fade-in"
 		    }
-		  }, [(_vm.image.status === 'uploading') ? _vm._h('el-progress', {
+		  }, [(_vm.image.status === 'uploading') ? _h('el-progress', {
 		    staticClass: "el-dragger__cover__progress",
 		    attrs: {
 		      "percentage": _vm.image.percentage,
 		      "show-text": false,
 		      "status": _vm.image.status === 'finished' ? 'success' : ''
 		    }
-		  }) : _vm._e()]), (_vm.image.status === 'finished') ? _vm._h('div', {
+		  }) : _vm._e()]), (_vm.image.status === 'finished') ? _h('div', {
 		    staticClass: "el-dragger__cover__content",
 		    on: {
 		      "mouseenter": function($event) {
@@ -34446,15 +36673,15 @@
 		        _vm.mouseover = false
 		      }
 		    }
-		  }, [_vm._h('img', {
+		  }, [_h('img', {
 		    attrs: {
 		      "src": _vm.image.url
 		    }
-		  }), _vm._h('transition', {
+		  }), _h('transition', {
 		    attrs: {
-		      "name": "fade-in"
+		      "name": "el-fade-in"
 		    }
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -34462,40 +36689,34 @@
 		      expression: "mouseover"
 		    }],
 		    staticClass: "el-dragger__cover__interact"
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    staticClass: "el-draggeer__cover__btns"
-		  }, [_vm._h('span', {
+		  }, [_h('span', {
 		    staticClass: "btn",
 		    on: {
 		      "click": function($event) {
 		        _vm.$parent.handleClick()
 		      }
 		    }
-		  }, [_vm._h('i', {
-		    staticClass: "el-icon-upload2"
-		  }), _vm._h('span', [_vm._s(_vm.t('el.upload.continue'))])]), _vm._h('span', {
+		  }, [_vm._m(0), _h('span', [_vm._s(_vm.t('el.upload.continue'))])]), _h('span', {
 		    staticClass: "btn",
 		    on: {
 		      "click": function($event) {
 		        _vm.onPreview(_vm.image)
 		      }
 		    }
-		  }, [_vm._h('i', {
-		    staticClass: "el-icon-view"
-		  }), _vm._h('span', [_vm._s(_vm.t('el.upload.preview'))])]), _vm._h('span', {
+		  }, [_vm._m(1), _h('span', [_vm._s(_vm.t('el.upload.preview'))])]), _h('span', {
 		    staticClass: "btn",
 		    on: {
 		      "click": function($event) {
 		        _vm.onRemove(_vm.image)
 		      }
 		    }
-		  }, [_vm._h('i', {
-		    staticClass: "el-icon-delete2"
-		  }), _vm._h('span', [_vm._s(_vm.t('el.upload.delete'))])])])])]), _vm._h('transition', {
+		  }, [_vm._m(2), _h('span', [_vm._s(_vm.t('el.upload.delete'))])])])])]), _h('transition', {
 		    attrs: {
-		      "name": "md-fade-top"
+		      "name": "el-zoom-in-bottom"
 		    }
-		  }, [_vm._h('h4', {
+		  }, [_h('h4', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -34504,14 +36725,26 @@
 		    }],
 		    staticClass: "el-dragger__cover__title"
 		  }, [_vm._s(_vm.image.name)])])]) : _vm._e()]) : _vm._e()
-		},staticRenderFns: []}
+		},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('i', {
+		    staticClass: "el-icon-upload2"
+		  })
+		},function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('i', {
+		    staticClass: "el-icon-view"
+		  })
+		},function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('i', {
+		    staticClass: "el-icon-delete2"
+		  })
+		}]}
 
 	/***/ },
 	/* 271 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    staticClass: "el-upload__inner",
 		    class: {
 		      'el-dragger': _vm.type === 'drag',
@@ -34533,13 +36766,13 @@
 		        _vm.dragOver = false
 		      }
 		    }
-		  }, [(!_vm.showCover) ? _vm._t("default") : _vm._h('cover', {
+		  }, [(!_vm.showCover) ? _vm._t("default") : _h('cover', {
 		    attrs: {
 		      "image": _vm.lastestFile,
 		      "on-preview": _vm.onPreview,
 		      "on-remove": _vm.onRemove
 		    }
-		  }), _vm._h('input', {
+		  }), _h('input', {
 		    ref: "input",
 		    staticClass: "el-upload__input",
 		    attrs: {
@@ -34723,7 +36956,11 @@
 		    var cover = h(
 		      'cover',
 		      {
-		        attrs: { image: this.lastestFile, onPreview: this.onPreview, onRemove: this.onRemove }
+		        attrs: { image: this.lastestFile },
+		        on: {
+		          'preview': this.onPreview,
+		          'remove': this.onRemove
+		        }
 		      },
 		      []
 		    );
@@ -34738,19 +36975,19 @@
 		          'is-showCover': this.showCover
 		        },
 		        on: {
-		          click: this.handleClick
+		          'click': this.handleClick
 		        },
 		        nativeOn: {
-		          drop: this.onDrop,
-		          dragover: this.handleDragover,
-		          dragleave: this.handleDragleave
+		          'drop': this.onDrop,
+		          'dragover': this.handleDragover,
+		          'dragleave': this.handleDragleave
 		        }
 		      },
 		      [h(
 		        'iframe',
 		        {
 		          on: {
-		            load: this.onload
+		            'load': this.onload
 		          },
 
 		          ref: 'iframe',
@@ -34772,7 +37009,7 @@
 
 		              accept: this.accept },
 		            ref: 'input', on: {
-		              change: this.handleChange
+		              'change': this.handleChange
 		            }
 		          },
 		          []
@@ -34980,8 +37217,8 @@
 	/* 277 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    staticClass: "el-progress",
 		    class: [
 		      'el-progress--' + _vm.type,
@@ -34990,29 +37227,29 @@
 		        'el-progress--text-inside': _vm.textInside,
 		      }
 		    ]
-		  }, [(_vm.type === 'line') ? _vm._h('div', {
+		  }, [(_vm.type === 'line') ? _h('div', {
 		    staticClass: "el-progress-bar"
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    staticClass: "el-progress-bar__outer",
 		    style: ({
 		      height: _vm.strokeWidth + 'px'
 		    })
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    staticClass: "el-progress-bar__inner",
 		    style: (_vm.barStyle)
-		  }, [(_vm.showText && _vm.textInside) ? _vm._h('div', {
+		  }, [(_vm.showText && _vm.textInside) ? _h('div', {
 		    staticClass: "el-progress-bar__innerText"
-		  }, [_vm._s(_vm.percentage) + "%"]) : _vm._e()])])]) : _vm._h('div', {
+		  }, [_vm._s(_vm.percentage) + "%"]) : _vm._e()])])]) : _h('div', {
 		    staticClass: "el-progress-circle",
 		    style: ({
 		      height: _vm.width + 'px',
 		      width: _vm.width + 'px'
 		    })
-		  }, [_vm._h('svg', {
+		  }, [_h('svg', {
 		    attrs: {
 		      "viewBox": "0 0 100 100"
 		    }
-		  }, [_vm._h('path', {
+		  }, [_h('path', {
 		    staticClass: "el-progress-circle__track",
 		    attrs: {
 		      "d": _vm.trackPath,
@@ -35020,7 +37257,7 @@
 		      "stroke-width": _vm.relativeStrokeWidth,
 		      "fill": "none"
 		    }
-		  }), _vm._h('path', {
+		  }), _h('path', {
 		    staticClass: "el-progress-circle__path",
 		    style: (_vm.circlePathStyle),
 		    attrs: {
@@ -35030,12 +37267,12 @@
 		      "stroke-width": _vm.relativeStrokeWidth,
 		      "fill": "none"
 		    }
-		  })])]), (_vm.showText && !_vm.textInside) ? _vm._h('div', {
+		  })])]), (_vm.showText && !_vm.textInside) ? _h('div', {
 		    staticClass: "el-progress__text",
 		    style: ({
 		      fontSize: _vm.progressTextSize + 'px'
 		    })
-		  }, [(!_vm.status) ? [_vm._s(_vm.percentage) + "%"] : _vm._h('i', {
+		  }, [(!_vm.status) ? [_vm._s(_vm.percentage) + "%"] : _h('i', {
 		    class: _vm.iconClass
 		  })]) : _vm._e()])
 		},staticRenderFns: []}
@@ -35128,10 +37365,10 @@
 	/* 281 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('span', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('span', {
 		    staticClass: "el-spinner"
-		  }, [_vm._h('svg', {
+		  }, [_h('svg', {
 		    staticClass: "el-spinner-inner",
 		    style: ({
 		      width: _vm.radius / 2 + 'px',
@@ -35140,7 +37377,7 @@
 		    attrs: {
 		      "viewBox": "0 0 50 50"
 		    }
-		  }, [_vm._h('circle', {
+		  }, [_h('circle', {
 		    staticClass: "path",
 		    attrs: {
 		      "cx": "25",
@@ -35177,7 +37414,7 @@
 
 		exports.__esModule = true;
 
-		var _vue = __webpack_require__(119);
+		var _vue = __webpack_require__(120);
 
 		var _vue2 = _interopRequireDefault(_vue);
 
@@ -35292,6 +37529,12 @@
 		//
 		//
 		//
+		//
+		//
+		//
+		//
+		//
+		//
 
 		exports.default = {
 		  data: function data() {
@@ -35300,6 +37543,8 @@
 		      message: '',
 		      duration: 3000,
 		      type: 'info',
+		      iconClass: '',
+		      customClass: '',
 		      onClose: null,
 		      showClose: false,
 		      closed: false,
@@ -35408,12 +37653,12 @@
 	/* 291 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('transition', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('transition', {
 		    attrs: {
 		      "name": "el-message-fade"
 		    }
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -35421,19 +37666,26 @@
 		      expression: "visible"
 		    }],
 		    staticClass: "el-message",
+		    class: _vm.customClass,
 		    on: {
 		      "mouseenter": _vm.clearTimer,
 		      "mouseleave": _vm.startTimer
 		    }
-		  }, [_vm._h('img', {
-		    staticClass: "el-message__icon",
+		  }, [(!_vm.iconClass) ? _h('img', {
+		    staticClass: "el-message__img",
 		    attrs: {
 		      "src": _vm.typeImg,
 		      "alt": ""
 		    }
-		  }), _vm._h('div', {
-		    staticClass: "el-message__group"
-		  }, [_vm._h('p', [_vm._s(_vm.message)]), (_vm.showClose) ? _vm._h('div', {
+		  }) : _vm._e(), _h('div', {
+		    staticClass: "el-message__group",
+		    class: {
+		      'is-with-icon': _vm.iconClass
+		    }
+		  }, [(_vm.iconClass) ? _h('i', {
+		    staticClass: "el-message__icon",
+		    class: _vm.iconClass
+		  }) : _vm._e(), _h('p', [_vm._s(_vm.message)]), (_vm.showClose) ? _h('div', {
 		    staticClass: "el-message__closeBtn el-icon-close",
 		    on: {
 		      "click": _vm.close
@@ -35539,10 +37791,10 @@
 	/* 295 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    staticClass: "el-badge"
-		  }, [_vm._t("default"), _vm._h('sup', {
+		  }, [_vm._t("default"), _h('sup', {
 		    staticClass: "el-badge__content",
 		    class: {
 		      'is-fixed': _vm.$slots.default, 'is-dot': _vm.isDot
@@ -35632,12 +37884,12 @@
 	/* 299 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    staticClass: "el-card"
-		  }, [(_vm.$slots.header || _vm.header) ? _vm._h('div', {
+		  }, [(_vm.$slots.header || _vm.header) ? _h('div', {
 		    staticClass: "el-card__header"
-		  }, [_vm._t("header", [_vm._s(_vm.header)])]) : _vm._e(), _vm._h('div', {
+		  }, [_vm._t("header", [_vm._s(_vm.header)])]) : _vm._e(), _h('div', {
 		    staticClass: "el-card__body",
 		    style: (_vm.bodyStyle)
 		  }, [_vm._t("default")])])
@@ -35701,7 +37953,7 @@
 
 		exports.__esModule = true;
 
-		var _class = __webpack_require__(94);
+		var _class = __webpack_require__(97);
 
 		exports.default = {
 		  name: 'el-rate',
@@ -35968,11 +38220,11 @@
 	/* 303 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    staticClass: "el-rate"
 		  }, [_vm._l((_vm.max), function(item) {
-		    return _vm._h('span', {
+		    return _h('span', {
 		      staticClass: "el-rate__item",
 		      style: ({
 		        cursor: _vm.disabled ? 'auto' : 'pointer'
@@ -35986,18 +38238,18 @@
 		          _vm.selectValue(item)
 		        }
 		      }
-		    }, [_vm._h('i', {
+		    }, [_h('i', {
 		      staticClass: "el-rate__icon",
 		      class: [_vm.classes[item - 1], {
 		        'hover': _vm.hoverIndex === item
 		      }],
 		      style: (_vm.getIconStyle(item))
-		    }, [(_vm.showDecimalIcon(item)) ? _vm._h('i', {
+		    }, [(_vm.showDecimalIcon(item)) ? _h('i', {
 		      staticClass: "el-rate__decimal",
 		      class: _vm.decimalIconClass,
 		      style: (_vm.decimalStyle)
 		    }) : _vm._e()])])
-		  }), (_vm.showText) ? _vm._h('span', {
+		  }), (_vm.showText) ? _h('span', {
 		    staticClass: "el-rate__text",
 		    style: ({
 		      color: _vm.textColor
@@ -36112,8 +38364,8 @@
 	/* 307 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    staticClass: "el-steps",
 		    class: ['is-' + _vm.direction]
 		  }, [_vm._t("default")])
@@ -36309,40 +38561,40 @@
 	/* 311 */
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    staticClass: "el-step",
 		    class: ['is-' + _vm.$parent.direction],
 		    style: (_vm.style)
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    staticClass: "el-step__head",
 		    class: ['is-' + _vm.currentStatus, {
 		      'is-text': !_vm.icon
 		    }]
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    staticClass: "el-step__line",
 		    class: ['is-' + _vm.$parent.direction, {
 		      'is-icon': _vm.icon
 		    }]
-		  }, [_vm._h('i', {
+		  }, [_h('i', {
 		    staticClass: "el-step__line-inner",
 		    style: (_vm.lineStyle)
-		  })]), _vm._h('span', {
+		  })]), _h('span', {
 		    staticClass: "el-step__icon"
-		  }, [(_vm.currentStatus !== 'success' && _vm.currentStatus !== 'error') ? _vm._t("icon", [(_vm.icon) ? _vm._h('i', {
+		  }, [(_vm.currentStatus !== 'success' && _vm.currentStatus !== 'error') ? _vm._t("icon", [(_vm.icon) ? _h('i', {
 		    class: ['el-icon-' + _vm.icon]
-		  }) : _vm._h('div', [_vm._s(_vm.index + 1)])]) : _vm._h('i', {
+		  }) : _h('div', [_vm._s(_vm.index + 1)])]) : _h('i', {
 		    class: ['el-icon-' + (_vm.currentStatus === 'success' ? 'check' : 'close')]
-		  })])]), _vm._h('div', {
+		  })])]), _h('div', {
 		    staticClass: "el-step__main",
 		    style: ({
 		      marginLeft: _vm.mainOffset
 		    })
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    ref: "title",
 		    staticClass: "el-step__title",
 		    class: ['is-' + _vm.currentStatus]
-		  }, [_vm._t("title", [_vm._s(_vm.title)])]), _vm._h('div', {
+		  }, [_vm._t("title", [_vm._s(_vm.title)])]), _h('div', {
 		    staticClass: "el-step__description",
 		    class: ['is-' + _vm.currentStatus]
 		  }, [_vm._t("description", [_vm._s(_vm.description)])])])])
@@ -36352,7 +38604,7 @@
 	/******/ ]);
 
 /***/ },
-/* 43 */
+/* 73 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports =
@@ -36411,49 +38663,265 @@
 	/***/ 8:
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(44);
+		module.exports = __webpack_require__(74);
 
 	/***/ },
 
 	/***/ 9:
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(46);
+		module.exports = __webpack_require__(76);
 
 	/***/ },
 
 	/***/ 38:
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(45);
+		module.exports = __webpack_require__(75);
 
 	/***/ },
 
 	/***/ 53:
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(48);
+		module.exports = __webpack_require__(78);
 
 	/***/ },
 
 	/***/ 57:
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(51);
+		module.exports = __webpack_require__(81);
 
 	/***/ },
 
 	/***/ 66:
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(56);
+		module.exports = __webpack_require__(86);
 
 	/***/ },
 
 	/***/ 152:
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(52);
+		module.exports = __webpack_require__(82);
+
+	/***/ },
+
+	/***/ 160:
+	/***/ function(module, exports, __webpack_require__) {
+
+		var __vue_exports__, __vue_options__
+		var __vue_styles__ = {}
+
+		/* script */
+		__vue_exports__ = __webpack_require__(161)
+
+		/* template */
+		var __vue_template__ = __webpack_require__(162)
+		__vue_options__ = __vue_exports__ = __vue_exports__ || {}
+		if (
+		  typeof __vue_exports__.default === "object" ||
+		  typeof __vue_exports__.default === "function"
+		) {
+		__vue_options__ = __vue_exports__ = __vue_exports__.default
+		}
+		if (typeof __vue_options__ === "function") {
+		  __vue_options__ = __vue_options__.options
+		}
+
+		__vue_options__.render = __vue_template__.render
+		__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
+
+		module.exports = __vue_exports__
+
+
+	/***/ },
+
+	/***/ 161:
+	/***/ function(module, exports, __webpack_require__) {
+
+		'use strict';
+
+		exports.__esModule = true;
+
+		var _emitter = __webpack_require__(38);
+
+		var _emitter2 = _interopRequireDefault(_emitter);
+
+		function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+		exports.default = {
+		  mixins: [_emitter2.default],
+
+		  name: 'el-option',
+
+		  componentName: 'ElOption',
+
+		  props: {
+		    value: {
+		      required: true
+		    },
+		    label: [String, Number],
+		    selected: {
+		      type: Boolean,
+		      default: false
+		    },
+		    created: Boolean,
+		    disabled: {
+		      type: Boolean,
+		      default: false
+		    }
+		  },
+
+		  data: function data() {
+		    return {
+		      index: -1,
+		      groupDisabled: false,
+		      visible: true,
+		      hitState: false
+		    };
+		  },
+
+
+		  computed: {
+		    currentLabel: function currentLabel() {
+		      return this.label || (typeof this.value === 'string' || typeof this.value === 'number' ? this.value : '');
+		    },
+		    currentValue: function currentValue() {
+		      return this.value || this.label || '';
+		    },
+		    parent: function parent() {
+		      var result = this.$parent;
+		      while (!result.isSelect) {
+		        result = result.$parent;
+		      }
+		      return result;
+		    },
+		    itemSelected: function itemSelected() {
+		      if (!this.parent.multiple) {
+		        return this.value === this.parent.value;
+		      } else {
+		        return this.parent.value.indexOf(this.value) > -1;
+		      }
+		    },
+		    limitReached: function limitReached() {
+		      if (this.parent.multiple) {
+		        return !this.itemSelected && this.parent.value.length >= this.parent.multipleLimit && this.parent.multipleLimit > 0;
+		      } else {
+		        return false;
+		      }
+		    }
+		  },
+
+		  watch: {
+		    currentLabel: function currentLabel() {
+		      this.dispatch('ElSelect', 'setSelected');
+		    },
+		    value: function value() {
+		      this.dispatch('ElSelect', 'setSelected');
+		    },
+		    visible: function visible() {
+		      var _this = this;
+
+		      this.$nextTick(function () {
+		        _this.dispatch('ElSelectDropdown', 'updatePopper');
+		      });
+		    }
+		  },
+
+		  methods: {
+		    handleGroupDisabled: function handleGroupDisabled(val) {
+		      this.groupDisabled = val;
+		    },
+		    hoverItem: function hoverItem() {
+		      if (!this.disabled && !this.groupDisabled) {
+		        this.parent.hoverIndex = this.parent.options.indexOf(this);
+		      }
+		    },
+		    selectOptionClick: function selectOptionClick() {
+		      if (this.disabled !== true && this.groupDisabled !== true) {
+		        this.dispatch('ElSelect', 'handleOptionClick', this);
+		      }
+		    },
+		    queryChange: function queryChange(query) {
+		      // query 里如果有正则中的特殊字符，需要先将这些字符转义
+		      var parsedQuery = query.replace(/(\^|\(|\)|\[|\]|\$|\*|\+|\.|\?|\\|\{|\}|\|)/g, '\\$1');
+		      this.visible = new RegExp(parsedQuery, 'i').test(this.currentLabel) || this.created;
+		      if (!this.visible) {
+		        this.parent.filteredOptionsCount--;
+		      }
+		    },
+		    resetIndex: function resetIndex() {
+		      var _this2 = this;
+
+		      this.$nextTick(function () {
+		        _this2.index = _this2.parent.options.indexOf(_this2);
+		      });
+		    }
+		  },
+
+		  created: function created() {
+		    this.parent.options.push(this);
+		    this.parent.cachedOptions.push(this);
+		    this.parent.optionsCount++;
+		    this.parent.filteredOptionsCount++;
+		    this.index = this.parent.options.indexOf(this);
+
+		    this.$on('queryChange', this.queryChange);
+		    this.$on('handleGroupDisabled', this.handleGroupDisabled);
+		    this.$on('resetIndex', this.resetIndex);
+		  },
+		  beforeDestroy: function beforeDestroy() {
+		    this.dispatch('ElSelect', 'onOptionDestroy', this);
+		  }
+		}; //
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+
+	/***/ },
+
+	/***/ 162:
+	/***/ function(module, exports) {
+
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('li', {
+		    directives: [{
+		      name: "show",
+		      rawName: "v-show",
+		      value: (_vm.visible),
+		      expression: "visible"
+		    }],
+		    staticClass: "el-select-dropdown__item",
+		    class: {
+		      'selected': _vm.itemSelected,
+		      'is-disabled': _vm.disabled || _vm.groupDisabled || _vm.limitReached,
+		        'hover': _vm.parent.hoverIndex === _vm.index
+		    },
+		    on: {
+		      "mouseenter": _vm.hoverItem,
+		      "click": function($event) {
+		        $event.stopPropagation();
+		        _vm.selectOptionClick($event)
+		      }
+		    }
+		  }, [_vm._t("default", [_h('span', [_vm._s(_vm.currentLabel)])])])
+		},staticRenderFns: []}
 
 	/***/ },
 
@@ -36532,6 +39000,10 @@
 
 		var _selectDropdown2 = _interopRequireDefault(_selectDropdown);
 
+		var _option = __webpack_require__(160);
+
+		var _option2 = _interopRequireDefault(_option);
+
 		var _tag = __webpack_require__(210);
 
 		var _tag2 = _interopRequireDefault(_tag);
@@ -36552,6 +39024,27 @@
 
 		function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+		var sizeMap = {
+		  'large': 42,
+		  'small': 30,
+		  'mini': 22
+		}; //
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
 		//
 		//
 		//
@@ -36629,54 +39122,42 @@
 
 		  computed: {
 		    iconClass: function iconClass() {
-		      return this.showCloseIcon ? 'circle-close' : this.remote && this.filterable ? '' : 'caret-top';
+		      var criteria = this.clearable && !this.disabled && this.inputHovering && !this.multiple && this.value !== undefined && this.value !== '';
+		      return criteria ? 'circle-close is-show-close' : this.remote && this.filterable ? '' : 'caret-top';
 		    },
 		    debounce: function debounce() {
 		      return this.remote ? 300 : 0;
 		    },
-		    showCloseIcon: function showCloseIcon() {
-		      var _this = this;
-
-		      var criteria = this.clearable && this.inputHovering && !this.multiple && this.options.indexOf(this.selected) > -1;
-		      if (!this.$el) return false;
-
-		      this.$nextTick(function () {
-		        var icon = _this.$el.querySelector('.el-input__icon');
-		        if (icon) {
-		          if (criteria) {
-		            icon.addEventListener('click', _this.deleteSelected);
-		            (0, _class.addClass)(icon, 'is-show-close');
-		          } else {
-		            icon.removeEventListener('click', _this.deleteSelected);
-		            (0, _class.removeClass)(icon, 'is-show-close');
-		          }
-		        }
-		      });
-
-		      return criteria;
-		    },
 		    emptyText: function emptyText() {
 		      if (this.loading) {
-		        return this.t('el.select.loading');
+		        return this.loadingText || this.t('el.select.loading');
 		      } else {
-		        if (this.voidRemoteQuery) {
-		          this.voidRemoteQuery = false;
-		          return false;
-		        }
-		        if (this.filterable && this.filteredOptionsCount === 0) {
-		          return this.t('el.select.noMatch');
+		        if (this.remote && this.query === '' && this.options.length === 0) return false;
+		        if (this.filterable && this.options.length > 0 && this.filteredOptionsCount === 0) {
+		          return this.noMatchText || this.t('el.select.noMatch');
 		        }
 		        if (this.options.length === 0) {
-		          return this.t('el.select.noData');
+		          return this.noDataText || this.t('el.select.noData');
 		        }
 		      }
 		      return null;
+		    },
+		    showNewOption: function showNewOption() {
+		      var _this = this;
+
+		      var hasExistingOption = this.options.filter(function (option) {
+		        return !option.created;
+		      }).some(function (option) {
+		        return option.currentLabel === _this.query;
+		      });
+		      return this.filterable && this.allowCreate && this.query !== '' && !hasExistingOption;
 		    }
 		  },
 
 		  components: {
 		    ElInput: _input2.default,
 		    ElSelectMenu: _selectDropdown2.default,
+		    ElOption: _option2.default,
 		    ElTag: _tag2.default
 		  },
 
@@ -36689,11 +39170,20 @@
 		    disabled: Boolean,
 		    clearable: Boolean,
 		    filterable: Boolean,
+		    allowCreate: Boolean,
 		    loading: Boolean,
+		    popperClass: String,
 		    remote: Boolean,
+		    loadingText: String,
+		    noMatchText: String,
+		    noDataText: String,
 		    remoteMethod: Function,
 		    filterMethod: Function,
 		    multiple: Boolean,
+		    multipleLimit: {
+		      type: Number,
+		      default: 0
+		    },
 		    placeholder: {
 		      type: String,
 		      default: function _default() {
@@ -36705,22 +39195,21 @@
 		  data: function data() {
 		    return {
 		      options: [],
-		      selected: {},
+		      cachedOptions: [],
+		      selected: this.multiple ? [] : {},
 		      isSelect: true,
 		      inputLength: 20,
 		      inputWidth: 0,
-		      valueChangeBySelected: false,
 		      cachedPlaceHolder: '',
 		      optionsCount: 0,
 		      filteredOptionsCount: 0,
 		      dropdownUl: null,
 		      visible: false,
 		      selectedLabel: '',
-		      selectInit: false,
 		      hoverIndex: -1,
 		      query: '',
-		      voidRemoteQuery: false,
 		      bottomOverflowBeforeHidden: 0,
+		      topOverflowBeforeHidden: 0,
 		      optionsAllDisabled: false,
 		      inputHovering: false,
 		      currentPlaceholder: ''
@@ -36733,134 +39222,76 @@
 		      this.currentPlaceholder = val;
 		    },
 		    value: function value(val) {
-		      var _this2 = this;
-
-		      if (this.valueChangeBySelected) {
-		        this.valueChangeBySelected = false;
-		        return;
-		      }
-		      this.$nextTick(function () {
-		        if (_this2.multiple && Array.isArray(val)) {
-		          _this2.$nextTick(function () {
-		            _this2.resetInputHeight();
-		          });
-		          _this2.selectedInit = true;
-		          _this2.selected = [];
-		          _this2.currentPlaceholder = _this2.cachedPlaceHolder;
-		          val.forEach(function (item) {
-		            var option = _this2.options.filter(function (option) {
-		              return option.value === item;
-		            })[0];
-		            if (option) {
-		              _this2.$emit('addOptionToValue', option);
-		            }
-		          });
-		        }
-		        if (!_this2.multiple) {
-		          var option = _this2.options.filter(function (option) {
-		            return option.value === val;
-		          })[0];
-		          if (option) {
-		            _this2.$emit('addOptionToValue', option);
-		          } else {
-		            _this2.selected = {};
-		            _this2.selectedLabel = '';
-		          }
-		        }
-		        _this2.resetHoverIndex();
-		      });
-		    },
-		    selected: function selected(val, oldVal) {
-		      var _this3 = this;
-
 		      if (this.multiple) {
-		        if (this.selected.length > 0) {
+		        this.resetInputHeight();
+		        if (val.length > 0 || this.$refs.input && this.query !== '') {
 		          this.currentPlaceholder = '';
 		        } else {
 		          this.currentPlaceholder = this.cachedPlaceHolder;
 		        }
-		        this.$nextTick(function () {
-		          _this3.resetInputHeight();
-		        });
-		        if (this.selectedInit) {
-		          this.selectedInit = false;
-		          return;
-		        }
-		        this.valueChangeBySelected = true;
-		        var result = val.map(function (item) {
-		          return item.value;
-		        });
-
-		        this.$emit('input', result);
-		        this.$emit('change', result);
 		        this.dispatch('ElFormItem', 'el.form.change', val);
-		        if (this.filterable) {
-		          this.query = '';
-		          this.hoverIndex = -1;
-		          this.$refs.input.focus();
-		          this.inputLength = 20;
-		        }
-		      } else {
-		        if (this.selectedInit) {
-		          this.selectedInit = false;
-		          return;
-		        }
-		        if (val.value === oldVal.value) return;
-		        this.$emit('input', val.value);
-		        this.$emit('change', val.value);
 		      }
+		      this.setSelected();
+		      if (this.filterable && !this.multiple) {
+		        this.inputLength = 20;
+		      }
+		      this.$emit('change', val);
 		    },
 		    query: function query(val) {
-		      var _this4 = this;
-
-		      this.$nextTick(function () {
-		        _this4.broadcast('ElSelectDropdown', 'updatePopper');
-		      });
+		      this.broadcast('ElSelectDropdown', 'updatePopper');
+		      this.hoverIndex = -1;
 		      if (this.multiple && this.filterable) {
 		        this.resetInputHeight();
 		      }
 		      if (this.remote && typeof this.remoteMethod === 'function') {
 		        this.hoverIndex = -1;
 		        this.remoteMethod(val);
-		        this.voidRemoteQuery = val === '';
 		        this.broadcast('ElOption', 'resetIndex');
 		      } else if (typeof this.filterMethod === 'function') {
 		        this.filterMethod(val);
+		        this.broadcast('ElOptionGroup', 'queryChange');
 		      } else {
 		        this.filteredOptionsCount = this.optionsCount;
 		        this.broadcast('ElOption', 'queryChange', val);
+		        this.broadcast('ElOptionGroup', 'queryChange');
 		      }
 		    },
 		    visible: function visible(val) {
+		      var _this2 = this;
+
 		      if (!val) {
 		        this.$refs.reference.$el.querySelector('input').blur();
-		        if (this.$el.querySelector('.el-input__icon')) {
-		          (0, _class.removeClass)(this.$el.querySelector('.el-input__icon'), 'is-reverse');
-		        }
+		        this.handleIconHide();
 		        this.broadcast('ElSelectDropdown', 'destroyPopper');
 		        if (this.$refs.input) {
 		          this.$refs.input.blur();
 		        }
+		        this.query = '';
+		        this.selectedLabel = '';
 		        this.resetHoverIndex();
-		        if (!this.multiple) {
-		          if (this.dropdownUl && this.selected.$el) {
-		            this.bottomOverflowBeforeHidden = this.selected.$el.getBoundingClientRect().bottom - this.$refs.popper.$el.getBoundingClientRect().bottom;
+		        this.$nextTick(function () {
+		          if (_this2.$refs.input && _this2.$refs.input.value === '' && _this2.selected.length === 0) {
+		            _this2.currentPlaceholder = _this2.cachedPlaceHolder;
 		          }
-		          if (this.selected && this.selected.value) {
+		        });
+		        if (!this.multiple) {
+		          this.getOverflows();
+		          if (this.selected) {
 		            this.selectedLabel = this.selected.currentLabel;
+		            if (this.filterable) this.query = this.selectedLabel;
 		          }
 		        }
 		      } else {
-		        var icon = this.$el.querySelector('.el-input__icon');
-		        if (icon && !(0, _class.hasClass)(icon, 'el-icon-circle-close')) {
-		          (0, _class.addClass)(this.$el.querySelector('.el-input__icon'), 'is-reverse');
-		        }
+		        this.handleIconShow();
 		        this.broadcast('ElSelectDropdown', 'updatePopper');
 		        if (this.filterable) {
 		          this.query = this.selectedLabel;
 		          if (this.multiple) {
 		            this.$refs.input.focus();
 		          } else {
+		            if (!this.remote) {
+		              this.broadcast('ElOption', 'queryChange', '');
+		            }
 		            this.broadcast('ElInput', 'inputSelect');
 		          }
 		        }
@@ -36871,20 +39302,98 @@
 		          })[0];
 		        }
 		        if (!this.multiple && this.dropdownUl) {
-		          if (this.bottomOverflowBeforeHidden > 0) {
-		            this.dropdownUl.scrollTop += this.bottomOverflowBeforeHidden;
-		          }
+		          this.setOverflow();
 		        }
 		      }
+		      this.$emit('visible-change', val);
 		    },
 		    options: function options(val) {
 		      this.optionsAllDisabled = val.length === val.filter(function (item) {
 		        return item.disabled === true;
 		      }).length;
+		      if (this.multiple) {
+		        this.resetInputHeight();
+		      }
+		      var inputs = this.$el.querySelectorAll('input');
+		      if ([].indexOf.call(inputs, document.activeElement) === -1) {
+		        this.setSelected();
+		      }
 		    }
 		  },
 
 		  methods: {
+		    handleIconHide: function handleIconHide() {
+		      var icon = this.$el.querySelector('.el-input__icon');
+		      if (icon) {
+		        (0, _class.removeClass)(icon, 'is-reverse');
+		      }
+		    },
+		    handleIconShow: function handleIconShow() {
+		      var icon = this.$el.querySelector('.el-input__icon');
+		      if (icon && !(0, _class.hasClass)(icon, 'el-icon-circle-close')) {
+		        (0, _class.addClass)(icon, 'is-reverse');
+		      }
+		    },
+		    getOverflows: function getOverflows() {
+		      if (this.dropdownUl && this.selected && this.selected.$el) {
+		        var selectedRect = this.selected.$el.getBoundingClientRect();
+		        var popperRect = this.$refs.popper.$el.getBoundingClientRect();
+		        this.bottomOverflowBeforeHidden = selectedRect.bottom - popperRect.bottom;
+		        this.topOverflowBeforeHidden = selectedRect.top - popperRect.top;
+		      }
+		    },
+		    setOverflow: function setOverflow() {
+		      var _this3 = this;
+
+		      if (this.bottomOverflowBeforeHidden > 0) {
+		        this.$nextTick(function () {
+		          _this3.dropdownUl.scrollTop += _this3.bottomOverflowBeforeHidden;
+		        });
+		      } else if (this.topOverflowBeforeHidden < 0) {
+		        this.$nextTick(function () {
+		          _this3.dropdownUl.scrollTop += _this3.topOverflowBeforeHidden;
+		        });
+		      }
+		    },
+		    getOption: function getOption(value) {
+		      var option = this.cachedOptions.filter(function (option) {
+		        return option.value === value;
+		      })[0];
+		      if (option) return option;
+		      var label = typeof value === 'string' || typeof value === 'number' ? value : '';
+		      var newOption = {
+		        value: value,
+		        currentLabel: label
+		      };
+		      if (this.multiple) {
+		        newOption.hitState = false;
+		      }
+		      return newOption;
+		    },
+		    setSelected: function setSelected() {
+		      var _this4 = this;
+
+		      if (!this.multiple) {
+		        var option = this.getOption(this.value);
+		        this.selectedLabel = option.currentLabel;
+		        this.selected = option;
+		        return;
+		      }
+		      var result = [];
+		      if (Array.isArray(this.value)) {
+		        this.value.forEach(function (value) {
+		          result.push(_this4.getOption(value));
+		        });
+		      }
+		      this.selected = result;
+		    },
+		    handleIconClick: function handleIconClick(event) {
+		      if (this.iconClass.indexOf('circle-close') > -1) {
+		        this.deleteSelected(event);
+		      } else {
+		        this.toggleMenu();
+		      }
+		    },
 		    handleMouseDown: function handleMouseDown(event) {
 		      if (event.target.tagName !== 'INPUT') return;
 		      if (this.visible) {
@@ -36913,21 +39422,7 @@
 		    },
 		    deletePrevTag: function deletePrevTag(e) {
 		      if (e.target.value.length <= 0 && !this.toggleLastOptionHitState()) {
-		        this.selected.pop();
-		      }
-		    },
-		    addOptionToValue: function addOptionToValue(option, init) {
-		      if (this.multiple) {
-		        if (this.selected.indexOf(option) === -1 && (this.remote ? this.value.indexOf(option.value) === -1 : true)) {
-		          this.selectedInit = !!init;
-		          this.selected.push(option);
-		          this.resetHoverIndex();
-		        }
-		      } else {
-		        this.selectedInit = !!init;
-		        this.selected = option;
-		        this.selectedLabel = option.currentLabel;
-		        this.hoverIndex = option.index;
+		        this.value.pop();
 		      }
 		    },
 		    managePlaceholder: function managePlaceholder() {
@@ -36938,6 +39433,7 @@
 		    resetInputState: function resetInputState(e) {
 		      if (e.keyCode !== 8) this.toggleLastOptionHitState(false);
 		      this.inputLength = this.$refs.input.value.length * 15 + 20;
+		      this.resetInputHeight();
 		    },
 		    resetInputHeight: function resetInputHeight() {
 		      var _this5 = this;
@@ -36947,8 +39443,10 @@
 		        var input = [].filter.call(inputChildNodes, function (item) {
 		          return item.tagName === 'INPUT';
 		        })[0];
-		        input.style.height = Math.max(_this5.$refs.tags.clientHeight + 6, _this5.size === 'small' ? 28 : 36) + 'px';
-		        _this5.broadcast('ElSelectDropdown', 'updatePopper');
+		        input.style.height = Math.max(_this5.$refs.tags.clientHeight + 6, sizeMap[_this5.size] || 36) + 'px';
+		        if (_this5.visible && _this5.emptyText !== false) {
+		          _this5.broadcast('ElSelectDropdown', 'updatePopper');
+		        }
 		      });
 		    },
 		    resetHoverIndex: function resetHoverIndex() {
@@ -36970,20 +39468,24 @@
 		    },
 		    handleOptionSelect: function handleOptionSelect(option) {
 		      if (!this.multiple) {
-		        this.selected = option;
-		        this.selectedLabel = option.currentLabel;
+		        this.$emit('input', option.value);
 		        this.visible = false;
 		      } else {
 		        var optionIndex = -1;
-		        this.selected.forEach(function (item, index) {
-		          if (item === option || item.currentValue === option.currentValue) {
+		        this.value.forEach(function (item, index) {
+		          if (item === option.value) {
 		            optionIndex = index;
 		          }
 		        });
 		        if (optionIndex > -1) {
-		          this.selected.splice(optionIndex, 1);
-		        } else {
-		          this.selected.push(option);
+		          this.value.splice(optionIndex, 1);
+		        } else if (this.multipleLimit <= 0 || this.value.length < this.multipleLimit) {
+		          this.value.push(option.value);
+		        }
+		        if (option.created) {
+		          this.query = '';
+		          this.inputLength = 20;
+		          this.$refs.input.focus();
 		        }
 		      }
 		    },
@@ -37000,6 +39502,7 @@
 		        this.visible = true;
 		        return;
 		      }
+		      if (this.options.length === 0 || this.filteredOptionsCount === 0) return;
 		      if (!this.optionsAllDisabled) {
 		        if (direction === 'next') {
 		          this.hoverIndex++;
@@ -37040,21 +39543,18 @@
 		    },
 		    deleteSelected: function deleteSelected(event) {
 		      event.stopPropagation();
-		      this.selected = {};
-		      this.selectedLabel = '';
 		      this.$emit('input', '');
-		      this.$emit('change', '');
 		      this.visible = false;
 		    },
 		    deleteTag: function deleteTag(event, tag) {
 		      var index = this.selected.indexOf(tag);
 		      if (index > -1) {
-		        this.selected.splice(index, 1);
+		        this.value.splice(index, 1);
 		      }
 		      event.stopPropagation();
 		    },
 		    onInputChange: function onInputChange() {
-		      if (this.filterable && this.selectedLabel !== this.value) {
+		      if (this.filterable) {
 		        this.query = this.selectedLabel;
 		      }
 		    },
@@ -37076,33 +39576,31 @@
 		    var _this7 = this;
 
 		    this.cachedPlaceHolder = this.currentPlaceholder = this.placeholder;
-		    if (this.multiple) {
-		      this.selectedInit = true;
-		      this.selected = [];
+		    if (this.multiple && !Array.isArray(this.value)) {
+		      this.$emit('input', []);
 		    }
-		    if (this.remote) {
-		      this.voidRemoteQuery = true;
+		    if (!this.multiple && Array.isArray(this.value)) {
+		      this.$emit('input', '');
 		    }
+		    this.setSelected();
 
 		    this.debouncedOnInputChange = (0, _debounce2.default)(this.debounce, function () {
 		      _this7.onInputChange();
 		    });
 
-		    this.$on('addOptionToValue', this.addOptionToValue);
 		    this.$on('handleOptionClick', this.handleOptionSelect);
 		    this.$on('onOptionDestroy', this.onOptionDestroy);
+		    this.$on('setSelected', this.setSelected);
 		  },
 		  mounted: function mounted() {
 		    var _this8 = this;
 
+		    if (this.multiple && Array.isArray(this.value) && this.value.length > 0) {
+		      this.currentPlaceholder = '';
+		    }
 		    (0, _resizeEvent.addResizeListener)(this.$el, this.resetInputWidth);
-		    if (this.remote && this.multiple && Array.isArray(this.value)) {
-		      this.selected = this.options.reduce(function (prev, curr) {
-		        return _this8.value.indexOf(curr.value) > -1 ? prev.concat(curr) : prev;
-		      }, []);
-		      this.$nextTick(function () {
-		        _this8.resetInputHeight();
-		      });
+		    if (this.remote && this.multiple) {
+		      this.resetInputHeight();
 		    }
 		    this.$nextTick(function () {
 		      if (_this8.$refs.reference.$el) {
@@ -37193,6 +39691,12 @@
 		  },
 
 
+		  computed: {
+		    popperClass: function popperClass() {
+		      return this.$parent.popperClass;
+		    }
+		  },
+
 		  watch: {
 		    '$parent.inputWidth': function $parentInputWidth() {
 		      this.minWidth = this.$parent.$el.getBoundingClientRect().width + 'px';
@@ -37220,12 +39724,12 @@
 	/***/ 209:
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    staticClass: "el-select-dropdown",
-		    class: {
+		    class: [{
 		      'is-multiple': _vm.$parent.multiple
-		    },
+		    }, _vm.popperClass],
 		    style: ({
 		      minWidth: _vm.minWidth
 		    })
@@ -37237,40 +39741,37 @@
 	/***/ 210:
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(57);
+		module.exports = __webpack_require__(87);
 
 	/***/ },
 
 	/***/ 211:
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(58);
+		module.exports = __webpack_require__(88);
 
 	/***/ },
 
 	/***/ 212:
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(60);
+		module.exports = __webpack_require__(90);
 
 	/***/ },
 
 	/***/ 213:
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    directives: [{
 		      name: "clickoutside",
 		      rawName: "v-clickoutside",
 		      value: (_vm.handleClose),
 		      expression: "handleClose"
 		    }],
-		    staticClass: "el-select",
-		    class: {
-		      'is-multiple': _vm.multiple, 'is-small': _vm.size === 'small'
-		    }
-		  }, [(_vm.multiple) ? _vm._h('div', {
+		    staticClass: "el-select"
+		  }, [(_vm.multiple) ? _h('div', {
 		    ref: "tags",
 		    staticClass: "el-select__tags",
 		    style: ({
@@ -37282,13 +39783,13 @@
 		        _vm.toggleMenu($event)
 		      }
 		    }
-		  }, [_vm._h('transition-group', {
+		  }, [_h('transition-group', {
 		    on: {
 		      "after-leave": _vm.resetInputHeight
 		    }
 		  }, [_vm._l((_vm.selected), function(item) {
-		    return _vm._h('el-tag', {
-		      key: item,
+		    return _h('el-tag', {
+		      key: item.value,
 		      attrs: {
 		        "closable": "",
 		        "hit": item.hitState,
@@ -37300,8 +39801,8 @@
 		          _vm.deleteTag($event, item)
 		        }
 		      }
-		    }, [_vm._s(item.currentLabel)])
-		  })]), (_vm.filterable) ? _vm._h('input', {
+		    }, ["\n        " + _vm._s(item.currentLabel) + "\n      "])
+		  })]), (_vm.filterable) ? _h('input', {
 		    directives: [{
 		      name: "model",
 		      rawName: "v-model",
@@ -37310,6 +39811,7 @@
 		    }],
 		    ref: "input",
 		    staticClass: "el-select__input",
+		    class: ("is-" + _vm.size),
 		    style: ({
 		      width: _vm.inputLength + 'px',
 		      'max-width': _vm.inputWidth - 42 + 'px'
@@ -37351,7 +39853,7 @@
 		        _vm.query = $event.target.value
 		      }
 		    }
-		  }) : _vm._e()]) : _vm._e(), _vm._h('el-input', {
+		  }) : _vm._e()]) : _vm._e(), _h('el-input', {
 		    directives: [{
 		      name: "model",
 		      rawName: "v-model",
@@ -37363,6 +39865,7 @@
 		      "type": "text",
 		      "placeholder": _vm.currentPlaceholder,
 		      "name": _vm.name,
+		      "size": _vm.size,
 		      "disabled": _vm.disabled,
 		      "readonly": !_vm.filterable || _vm.multiple,
 		      "icon": _vm.iconClass
@@ -37372,7 +39875,7 @@
 		    },
 		    on: {
 		      "focus": _vm.toggleMenu,
-		      "click": _vm.toggleMenu,
+		      "click": _vm.handleIconClick,
 		      "input": function($event) {
 		        _vm.selectedLabel = $event
 		      }
@@ -37411,14 +39914,14 @@
 		        _vm.inputHovering = false
 		      }
 		    }
-		  }), _vm._h('transition', {
+		  }), _h('transition', {
 		    attrs: {
-		      "name": "md-fade-bottom"
+		      "name": "el-zoom-in-top"
 		    },
 		    on: {
 		      "after-leave": _vm.doDestroy
 		    }
-		  }, [_vm._h('el-select-menu', {
+		  }, [_h('el-select-menu', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -37426,15 +39929,25 @@
 		      expression: "visible && emptyText !== false"
 		    }],
 		    ref: "popper"
-		  }, [_vm._h('ul', {
+		  }, [_h('ul', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
-		      value: (_vm.options.length > 0 && _vm.filteredOptionsCount > 0 && !_vm.loading),
-		      expression: "options.length > 0 && filteredOptionsCount > 0 && !loading"
+		      value: (_vm.options.length > 0 && !_vm.loading),
+		      expression: "options.length > 0 && !loading"
 		    }],
-		    staticClass: "el-select-dropdown__list"
-		  }, [_vm._t("default")]), (_vm.emptyText) ? _vm._h('p', {
+		    staticClass: "el-select-dropdown__list",
+		    class: {
+		      'is-empty': !_vm.allowCreate && _vm.filteredOptionsCount === 0
+		    }
+		  }, [(_vm.showNewOption) ? _h('el-option', {
+		    attrs: {
+		      "created": ""
+		    },
+		    domProps: {
+		      "value": _vm.query
+		    }
+		  }) : _vm._e(), _vm._t("default")]), (_vm.emptyText && !_vm.allowCreate) ? _h('p', {
 		    staticClass: "el-select-dropdown__empty"
 		  }, [_vm._s(_vm.emptyText)]) : _vm._e()])])])
 		},staticRenderFns: []}
@@ -37444,7 +39957,7 @@
 	/******/ });
 
 /***/ },
-/* 44 */
+/* 74 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports =
@@ -37503,7 +40016,7 @@
 	/***/ 38:
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(45);
+		module.exports = __webpack_require__(75);
 
 	/***/ },
 
@@ -37639,6 +40152,10 @@
 		//
 		//
 		//
+		//
+		//
+		//
+		//
 
 		exports.default = {
 		  name: 'ElInput',
@@ -37688,8 +40205,8 @@
 		      this.$refs.input.select();
 		    },
 		    resizeTextarea: function resizeTextarea() {
-		      var autosize = this.autosize;
-		      var type = this.type;
+		      var autosize = this.autosize,
+		          type = this.type;
 
 		      if (!autosize || type !== 'textarea') {
 		        return;
@@ -37787,13 +40304,11 @@
 		    document.body.appendChild(hiddenTextarea);
 		  }
 
-		  var _calculateNodeStyling = calculateNodeStyling(targetNode);
-
-		  var paddingSize = _calculateNodeStyling.paddingSize;
-		  var borderSize = _calculateNodeStyling.borderSize;
-		  var boxSizing = _calculateNodeStyling.boxSizing;
-		  var contextStyle = _calculateNodeStyling.contextStyle;
-
+		  var _calculateNodeStyling = calculateNodeStyling(targetNode),
+		      paddingSize = _calculateNodeStyling.paddingSize,
+		      borderSize = _calculateNodeStyling.borderSize,
+		      boxSizing = _calculateNodeStyling.boxSizing,
+		      contextStyle = _calculateNodeStyling.contextStyle;
 
 		  hiddenTextarea.setAttribute('style', contextStyle + ';' + HIDDEN_STYLE);
 		  hiddenTextarea.value = targetNode.value || targetNode.placeholder || '';
@@ -37832,24 +40347,26 @@
 	/***/ 111:
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    class: [
 		      _vm.type === 'textarea' ? 'el-textarea' : 'el-input',
 		      _vm.size ? 'el-input--' + _vm.size : '', {
 		        'is-disabled': _vm.disabled,
-		        'el-input-group': _vm.$slots.prepend || _vm.$slots.append
+		        'el-input-group': _vm.$slots.prepend || _vm.$slots.append,
+		        'el-input-group--append': _vm.$slots.append,
+		        'el-input-group--prepend': _vm.$slots.prepend
 		      }
 		    ]
-		  }, [(_vm.type !== 'textarea') ? [(_vm.$slots.prepend) ? _vm._h('div', {
+		  }, [(_vm.type !== 'textarea') ? [(_vm.$slots.prepend) ? _h('div', {
 		    staticClass: "el-input-group__prepend"
-		  }, [_vm._t("prepend")]) : _vm._e(), (_vm.icon) ? _vm._h('i', {
+		  }, [_vm._t("prepend")]) : _vm._e(), _vm._t("icon", [(_vm.icon) ? _h('i', {
 		    staticClass: "el-input__icon",
-		    class: [_vm.icon ? 'el-icon-' + _vm.icon : ''],
+		    class: 'el-icon-' + _vm.icon,
 		    on: {
 		      "click": _vm.handleIconClick
 		    }
-		  }) : _vm._e(), (_vm.type !== 'textarea') ? _vm._h('input', {
+		  }) : _vm._e()]), (_vm.type !== 'textarea') ? _h('input', {
 		    ref: "input",
 		    staticClass: "el-input__inner",
 		    attrs: {
@@ -37874,11 +40391,11 @@
 		      "focus": _vm.handleFocus,
 		      "blur": _vm.handleBlur
 		    }
-		  }) : _vm._e(), (_vm.validating) ? _vm._h('i', {
+		  }) : _vm._e(), (_vm.validating) ? _h('i', {
 		    staticClass: "el-input__icon el-icon-loading"
-		  }) : _vm._e(), (_vm.$slots.append) ? _vm._h('div', {
+		  }) : _vm._e(), (_vm.$slots.append) ? _h('div', {
 		    staticClass: "el-input-group__append"
-		  }, [_vm._t("append")]) : _vm._e()] : _vm._h('textarea', {
+		  }, [_vm._t("append")]) : _vm._e()] : _h('textarea', {
 		    directives: [{
 		      name: "model",
 		      rawName: "v-model",
@@ -37918,7 +40435,7 @@
 	/******/ });
 
 /***/ },
-/* 45 */
+/* 75 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -37959,14 +40476,14 @@
 	};
 
 /***/ },
-/* 46 */
+/* 76 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _event = __webpack_require__(47);
+	var _event = __webpack_require__(77);
 
 	var nodeList = [];
 	var ctx = '@@clickoutsideContext';
@@ -37990,8 +40507,8 @@
 	    var documentHandler = function documentHandler(e) {
 	      if (!vnode.context || el.contains(e.target) || vnode.context.popperElm && vnode.context.popperElm.contains(e.target)) return;
 
-	      if (binding.expression) {
-	        el[ctx].methodName && vnode.context[el[ctx].methodName] && vnode.context[el[ctx].methodName]();
+	      if (binding.expression && el[ctx].methodName && vnode.context[el[ctx].methodName]) {
+	        vnode.context[el[ctx].methodName]();
 	      } else {
 	        el[ctx].bindingFn && el[ctx].bindingFn();
 	      }
@@ -38020,7 +40537,7 @@
 	};
 
 /***/ },
-/* 47 */
+/* 77 */
 /***/ function(module, exports) {
 
 	var bindEvent = (function() {
@@ -38072,20 +40589,24 @@
 	};
 
 /***/ },
-/* 48 */
+/* 78 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _popper = __webpack_require__(49);
+	var _popper = __webpack_require__(79);
 
 	var _popper2 = _interopRequireDefault(_popper);
 
-	var _vuePopup = __webpack_require__(50);
+	var _vuePopup = __webpack_require__(80);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var stop = function stop(e) {
+	  return e.stopPropagation();
+	};
 
 	/**
 	 * @param {HTMLElement} [reference=$refs.reference] - The reference element used to position the popper.
@@ -38180,6 +40701,7 @@
 	        _this.$nextTick(_this.updatePopper);
 	      });
 	      this.popperJS._popper.style.zIndex = _vuePopup.PopupManager.nextZIndex();
+	      this.popperElm.addEventListener('click', stop);
 	    },
 	    updatePopper: function updatePopper() {
 	      this.popperJS ? this.popperJS.update() : this.createPopper();
@@ -38229,7 +40751,10 @@
 
 	  beforeDestroy: function beforeDestroy() {
 	    this.doDestroy();
-	    this.popperElm && this.popperElm.parentNode === document.body && document.body.removeChild(this.popperElm);
+	    if (this.popperElm && this.popperElm.parentNode === document.body) {
+	      this.popperElm.removeEventListener('click', stop);
+	      document.body.removeChild(this.popperElm);
+	    }
 	  },
 
 
@@ -38240,7 +40765,7 @@
 	};
 
 /***/ },
-/* 49 */
+/* 79 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
@@ -39495,20 +42020,20 @@
 	});
 
 /***/ },
-/* 50 */
+/* 80 */
 /***/ function(module, exports, __webpack_require__) {
 
-	!function(e,t){ true?module.exports=t(__webpack_require__(1)):"function"==typeof define&&define.amd?define("VuePopup",["vue"],t):"object"==typeof exports?exports.VuePopup=t(require("vue")):e.VuePopup=t(e.vue)}(this,function(e){return function(e){function t(n){if(o[n])return o[n].exports;var i=o[n]={i:n,l:!1,exports:{}};return e[n].call(i.exports,i,i.exports,t),i.l=!0,i.exports}var o={};return t.m=e,t.c=o,t.i=function(e){return e},t.d=function(e,t,o){Object.defineProperty(e,t,{configurable:!1,enumerable:!0,get:o})},t.n=function(e){var o=e&&e.__esModule?function(){return e["default"]}:function(){return e};return t.d(o,"a",o),o},t.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},t.p="/lib/",t(t.s=6)}([function(e,t,o){"use strict";function n(e){return e&&e.__esModule?e:{"default":e}}t.__esModule=!0,t.PopupManager=void 0;var i=o(5),l=n(i),s=o(3),d=o(2),a=n(d);o(4);var r=1,u=[],c=function(e){if(u.indexOf(e)===-1){var t=function(e){var t=e.__vue__;if(!t){var o=e.previousSibling;o.__vue__&&(t=o.__vue__)}return t};l["default"].transition(e,{afterEnter:function(e){var o=t(e);o&&o.doAfterOpen&&o.doAfterOpen()},afterLeave:function(e){var o=t(e);o&&o.doAfterClose&&o.doAfterClose()}})}},f=void 0,p=function(){if(void 0!==f)return f;var e=document.createElement("div");e.style.visibility="hidden",e.style.width="100px",e.style.position="absolute",e.style.top="-9999px",document.body.appendChild(e);var t=e.offsetWidth;e.style.overflow="scroll";var o=document.createElement("div");o.style.width="100%",e.appendChild(o);var n=o.offsetWidth;return e.parentNode.removeChild(e),t-n},h=function m(e){return 3===e.nodeType&&(e=e.nextElementSibling||e.nextSibling,m(e)),e};t["default"]={props:{value:{type:Boolean,"default":!1},transition:{type:String,"default":""},openDelay:{},closeDelay:{},zIndex:{},modal:{type:Boolean,"default":!1},modalFade:{type:Boolean,"default":!0},modalClass:{},lockScroll:{type:Boolean,"default":!0},closeOnPressEscape:{type:Boolean,"default":!1},closeOnClickModal:{type:Boolean,"default":!1}},created:function(){this.transition&&c(this.transition)},beforeMount:function(){this._popupId="popup-"+r++,a["default"].register(this._popupId,this)},beforeDestroy:function(){a["default"].deregister(this._popupId),a["default"].closeModal(this._popupId),this.modal&&null!==this.bodyOverflow&&"hidden"!==this.bodyOverflow&&(document.body.style.overflow=this.bodyOverflow,document.body.style.paddingRight=this.bodyPaddingRight),this.bodyOverflow=null,this.bodyPaddingRight=null},data:function(){return{opened:!1,bodyOverflow:null,bodyPaddingRight:null,rendered:!1}},watch:{value:function(e){var t=this;if(e){if(this._opening)return;this.rendered?this.open():(this.rendered=!0,l["default"].nextTick(function(){t.open()}))}else this.close()}},methods:{open:function(e){var t=this;this.rendered||(this.rendered=!0,this.$emit("input",!0));var o=(0,s.merge)({},this,e);this._closeTimer&&(clearTimeout(this._closeTimer),this._closeTimer=null),clearTimeout(this._openTimer);var n=Number(o.openDelay);n>0?this._openTimer=setTimeout(function(){t._openTimer=null,t.doOpen(o)},n):this.doOpen(o)},doOpen:function(e){if((!this.willOpen||this.willOpen())&&!this.opened){this._opening=!0,this.visible=!0,this.$emit("input",!0);var t=h(this.$el),o=e.modal,n=e.zIndex;if(n&&(a["default"].zIndex=n),o&&(this._closing&&(a["default"].closeModal(this._popupId),this._closing=!1),a["default"].openModal(this._popupId,a["default"].nextZIndex(),t,e.modalClass,e.modalFade),e.lockScroll)){this.bodyOverflow||(this.bodyPaddingRight=document.body.style.paddingRight,this.bodyOverflow=document.body.style.overflow),f=p();var i=document.documentElement.clientHeight<document.body.scrollHeight;f>0&&i&&(document.body.style.paddingRight=f+"px"),document.body.style.overflow="hidden"}"static"===getComputedStyle(t).position&&(t.style.position="absolute"),o?t.style.zIndex=a["default"].nextZIndex():n&&(t.style.zIndex=n),this.opened=!0,this.onOpen&&this.onOpen(),this.transition||this.doAfterOpen()}},doAfterOpen:function(){this._opening=!1},close:function(){var e=this;if(!this.willClose||this.willClose()){null!==this._openTimer&&(clearTimeout(this._openTimer),this._openTimer=null),clearTimeout(this._closeTimer);var t=Number(this.closeDelay);t>0?this._closeTimer=setTimeout(function(){e._closeTimer=null,e.doClose()},t):this.doClose()}},doClose:function(){var e=this;this.visible=!1,this.$emit("input",!1),this._closing=!0,this.onClose&&this.onClose(),this.lockScroll&&setTimeout(function(){e.modal&&"hidden"!==e.bodyOverflow&&(document.body.style.overflow=e.bodyOverflow,document.body.style.paddingRight=e.bodyPaddingRight),e.bodyOverflow=null,e.bodyPaddingRight=null},200),this.opened=!1,this.transition||this.doAfterClose()},doAfterClose:function(){a["default"].closeModal(this._popupId),this._closing=!1}}},t.PopupManager=a["default"]},function(e,t){var o=function(e){return(e||"").replace(/^[\s\uFEFF]+|[\s\uFEFF]+$/g,"")},n=function(e,t){if(!e||!t)return!1;if(t.indexOf(" ")!=-1)throw new Error("className should not contain space.");return e.classList?e.classList.contains(t):(" "+e.className+" ").indexOf(" "+t+" ")>-1},i=function(e,t){if(e){for(var o=e.className,i=(t||"").split(" "),l=0,s=i.length;l<s;l++){var d=i[l];d&&(e.classList?e.classList.add(d):n(e,d)||(o+=" "+d))}e.classList||(e.className=o)}},l=function(e,t){if(e&&t){for(var i=t.split(" "),l=" "+e.className+" ",s=0,d=i.length;s<d;s++){var a=i[s];a&&(e.classList?e.classList.remove(a):n(e,a)&&(l=l.replace(" "+a+" "," ")))}e.classList||(e.className=o(l))}};e.exports={hasClass:n,addClass:i,removeClass:l}},function(e,t,o){"use strict";t.__esModule=!0;var n=o(1),i=!1,l=function(){var e=d.modalDom;return e?i=!0:(i=!1,e=document.createElement("div"),d.modalDom=e,e.addEventListener("touchmove",function(e){e.preventDefault(),e.stopPropagation()}),e.addEventListener("click",function(){d.doOnModalClick&&d.doOnModalClick()})),e},s={},d={zIndex:2e3,modalFade:!0,getInstance:function(e){return s[e]},register:function(e,t){e&&t&&(s[e]=t)},deregister:function(e){e&&(s[e]=null,delete s[e])},nextZIndex:function(){return d.zIndex++},modalStack:[],doOnModalClick:function(){var e=d.modalStack[d.modalStack.length-1];if(e){var t=d.getInstance(e.id);t&&t.closeOnClickModal&&t.close()}},openModal:function(e,t,o,s,d){if(e&&void 0!==t){this.modalFade=d;for(var a=this.modalStack,r=0,u=a.length;r<u;r++){var c=a[r];if(c.id===e)return}var f=l();if((0,n.addClass)(f,"v-modal"),this.modalFade&&!i&&(0,n.addClass)(f,"v-modal-enter"),s){var p=s.trim().split(/\s+/);p.forEach(function(e){return(0,n.addClass)(f,e)})}setTimeout(function(){(0,n.removeClass)(f,"v-modal-enter")},200),o&&o.parentNode&&11!==o.parentNode.nodeType?o.parentNode.appendChild(f):document.body.appendChild(f),t&&(f.style.zIndex=t),f.style.display="",this.modalStack.push({id:e,zIndex:t,modalClass:s})}},closeModal:function(e){var t=this.modalStack,o=l();if(t.length>0){var i=t[t.length-1];if(i.id===e){if(i.modalClass){var s=i.modalClass.trim().split(/\s+/);s.forEach(function(e){return(0,n.removeClass)(o,e)})}t.pop(),t.length>0&&(o.style.zIndex=t[t.length-1].zIndex)}else for(var a=t.length-1;a>=0;a--)if(t[a].id===e){t.splice(a,1);break}}0===t.length&&(this.modalFade&&(0,n.addClass)(o,"v-modal-leave"),setTimeout(function(){0===t.length&&(o.parentNode&&o.parentNode.removeChild(o),o.style.display="none",d.modalDom=void 0),(0,n.removeClass)(o,"v-modal-leave")},200))}};window.addEventListener("keydown",function(e){if(27===e.keyCode&&d.modalStack.length>0){var t=d.modalStack[d.modalStack.length-1];if(!t)return;var o=d.getInstance(t.id);o.closeOnPressEscape&&o.close()}}),t["default"]=d},function(e,t){"use strict";function o(e){for(var t=1,o=arguments.length;t<o;t++){var n=arguments[t];for(var i in n)if(n.hasOwnProperty(i)){var l=n[i];void 0!==l&&(e[i]=l)}}return e}t.__esModule=!0,t.merge=o},function(e,t){},function(t,o){t.exports=e},function(e,t,o){e.exports=o(0)}])});
+	!function(e,t){ true?module.exports=t(__webpack_require__(1)):"function"==typeof define&&define.amd?define("VuePopup",["vue"],t):"object"==typeof exports?exports.VuePopup=t(require("vue")):e.VuePopup=t(e.vue)}(this,function(e){return function(e){function t(n){if(o[n])return o[n].exports;var i=o[n]={i:n,l:!1,exports:{}};return e[n].call(i.exports,i,i.exports,t),i.l=!0,i.exports}var o={};return t.m=e,t.c=o,t.i=function(e){return e},t.d=function(e,t,o){Object.defineProperty(e,t,{configurable:!1,enumerable:!0,get:o})},t.n=function(e){var o=e&&e.__esModule?function(){return e.default}:function(){return e};return t.d(o,"a",o),o},t.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},t.p="/lib/",t(t.s=6)}([function(t,o){t.exports=e},function(e,t,o){"use strict";function n(e){return e&&e.__esModule?e:{default:e}}t.__esModule=!0,t.PopupManager=void 0;var i=o(0),l=n(i),s=o(4),d=o(3),r=n(d);o(5);var a=1,u=[],c=function(e){if(u.indexOf(e)===-1){var t=function(e){var t=e.__vue__;if(!t){var o=e.previousSibling;o.__vue__&&(t=o.__vue__)}return t};l.default.transition(e,{afterEnter:function(e){var o=t(e);o&&o.doAfterOpen&&o.doAfterOpen()},afterLeave:function(e){var o=t(e);o&&o.doAfterClose&&o.doAfterClose()}})}},f=void 0,p=function(){if(!l.default.prototype.$isServer){if(void 0!==f)return f;var e=document.createElement("div");e.style.visibility="hidden",e.style.width="100px",e.style.position="absolute",e.style.top="-9999px",document.body.appendChild(e);var t=e.offsetWidth;e.style.overflow="scroll";var o=document.createElement("div");o.style.width="100%",e.appendChild(o);var n=o.offsetWidth;return e.parentNode.removeChild(e),t-n}},h=function e(t){return 3===t.nodeType&&(t=t.nextElementSibling||t.nextSibling,e(t)),t};t.default={props:{value:{type:Boolean,default:!1},transition:{type:String,default:""},openDelay:{},closeDelay:{},zIndex:{},modal:{type:Boolean,default:!1},modalFade:{type:Boolean,default:!0},modalClass:{},lockScroll:{type:Boolean,default:!0},closeOnPressEscape:{type:Boolean,default:!1},closeOnClickModal:{type:Boolean,default:!1}},created:function(){this.transition&&c(this.transition)},beforeMount:function(){this._popupId="popup-"+a++,r.default.register(this._popupId,this)},beforeDestroy:function(){r.default.deregister(this._popupId),r.default.closeModal(this._popupId),this.modal&&null!==this.bodyOverflow&&"hidden"!==this.bodyOverflow&&(document.body.style.overflow=this.bodyOverflow,document.body.style.paddingRight=this.bodyPaddingRight),this.bodyOverflow=null,this.bodyPaddingRight=null},data:function(){return{opened:!1,bodyOverflow:null,bodyPaddingRight:null,rendered:!1}},watch:{value:function(e){var t=this;if(e){if(this._opening)return;this.rendered?this.open():(this.rendered=!0,l.default.nextTick(function(){t.open()}))}else this.close()}},methods:{open:function(e){var t=this;this.rendered||(this.rendered=!0,this.$emit("input",!0));var o=(0,s.merge)({},this,e);this._closeTimer&&(clearTimeout(this._closeTimer),this._closeTimer=null),clearTimeout(this._openTimer);var n=Number(o.openDelay);n>0?this._openTimer=setTimeout(function(){t._openTimer=null,t.doOpen(o)},n):this.doOpen(o)},doOpen:function(e){if(!this.$isServer&&(!this.willOpen||this.willOpen())&&!this.opened){this._opening=!0,this.visible=!0,this.$emit("input",!0);var t=h(this.$el),o=e.modal,n=e.zIndex;if(n&&(r.default.zIndex=n),o&&(this._closing&&(r.default.closeModal(this._popupId),this._closing=!1),r.default.openModal(this._popupId,r.default.nextZIndex(),t,e.modalClass,e.modalFade),e.lockScroll)){this.bodyOverflow||(this.bodyPaddingRight=document.body.style.paddingRight,this.bodyOverflow=document.body.style.overflow),f=p();var i=document.documentElement.clientHeight<document.body.scrollHeight;f>0&&i&&(document.body.style.paddingRight=f+"px"),document.body.style.overflow="hidden"}"static"===getComputedStyle(t).position&&(t.style.position="absolute"),t.style.zIndex=r.default.nextZIndex(),this.opened=!0,this.onOpen&&this.onOpen(),this.transition||this.doAfterOpen()}},doAfterOpen:function(){this._opening=!1},close:function(){var e=this;if(!this.willClose||this.willClose()){null!==this._openTimer&&(clearTimeout(this._openTimer),this._openTimer=null),clearTimeout(this._closeTimer);var t=Number(this.closeDelay);t>0?this._closeTimer=setTimeout(function(){e._closeTimer=null,e.doClose()},t):this.doClose()}},doClose:function(){var e=this;this.visible=!1,this.$emit("input",!1),this._closing=!0,this.onClose&&this.onClose(),this.lockScroll&&setTimeout(function(){e.modal&&"hidden"!==e.bodyOverflow&&(document.body.style.overflow=e.bodyOverflow,document.body.style.paddingRight=e.bodyPaddingRight),e.bodyOverflow=null,e.bodyPaddingRight=null},200),this.opened=!1,this.transition||this.doAfterClose()},doAfterClose:function(){r.default.closeModal(this._popupId),this._closing=!1}}},t.PopupManager=r.default},function(e,t){var o=function(e){return(e||"").replace(/^[\s\uFEFF]+|[\s\uFEFF]+$/g,"")},n=function(e,t){if(!e||!t)return!1;if(t.indexOf(" ")!=-1)throw new Error("className should not contain space.");return e.classList?e.classList.contains(t):(" "+e.className+" ").indexOf(" "+t+" ")>-1},i=function(e,t){if(e){for(var o=e.className,i=(t||"").split(" "),l=0,s=i.length;l<s;l++){var d=i[l];d&&(e.classList?e.classList.add(d):n(e,d)||(o+=" "+d))}e.classList||(e.className=o)}},l=function(e,t){if(e&&t){for(var i=t.split(" "),l=" "+e.className+" ",s=0,d=i.length;s<d;s++){var r=i[s];r&&(e.classList?e.classList.remove(r):n(e,r)&&(l=l.replace(" "+r+" "," ")))}e.classList||(e.className=o(l))}};e.exports={hasClass:n,addClass:i,removeClass:l}},function(e,t,o){"use strict";function n(e){return e&&e.__esModule?e:{default:e}}t.__esModule=!0;var i=o(0),l=n(i),s=o(2),d=!1,r=function(){if(!l.default.prototype.$isServer){var e=u.modalDom;return e?d=!0:(d=!1,e=document.createElement("div"),u.modalDom=e,e.addEventListener("touchmove",function(e){e.preventDefault(),e.stopPropagation()}),e.addEventListener("click",function(){u.doOnModalClick&&u.doOnModalClick()})),e}},a={},u={zIndex:2e3,modalFade:!0,getInstance:function(e){return a[e]},register:function(e,t){e&&t&&(a[e]=t)},deregister:function(e){e&&(a[e]=null,delete a[e])},nextZIndex:function(){return u.zIndex++},modalStack:[],doOnModalClick:function(){var e=u.modalStack[u.modalStack.length-1];if(e){var t=u.getInstance(e.id);t&&t.closeOnClickModal&&t.close()}},openModal:function(e,t,o,n,i){if(!l.default.prototype.$isServer&&e&&void 0!==t){this.modalFade=i;for(var a=this.modalStack,u=0,c=a.length;u<c;u++){var f=a[u];if(f.id===e)return}var p=r();if((0,s.addClass)(p,"v-modal"),this.modalFade&&!d&&(0,s.addClass)(p,"v-modal-enter"),n){var h=n.trim().split(/\s+/);h.forEach(function(e){return(0,s.addClass)(p,e)})}setTimeout(function(){(0,s.removeClass)(p,"v-modal-enter")},200),o&&o.parentNode&&11!==o.parentNode.nodeType?o.parentNode.appendChild(p):document.body.appendChild(p),t&&(p.style.zIndex=t),p.style.display="",this.modalStack.push({id:e,zIndex:t,modalClass:n})}},closeModal:function(e){var t=this.modalStack,o=r();if(t.length>0){var n=t[t.length-1];if(n.id===e){if(n.modalClass){var i=n.modalClass.trim().split(/\s+/);i.forEach(function(e){return(0,s.removeClass)(o,e)})}t.pop(),t.length>0&&(o.style.zIndex=t[t.length-1].zIndex)}else for(var l=t.length-1;l>=0;l--)if(t[l].id===e){t.splice(l,1);break}}0===t.length&&(this.modalFade&&(0,s.addClass)(o,"v-modal-leave"),setTimeout(function(){0===t.length&&(o.parentNode&&o.parentNode.removeChild(o),o.style.display="none",u.modalDom=void 0),(0,s.removeClass)(o,"v-modal-leave")},200))}};!l.default.prototype.$isServer&&window.addEventListener("keydown",function(e){if(27===e.keyCode&&u.modalStack.length>0){var t=u.modalStack[u.modalStack.length-1];if(!t)return;var o=u.getInstance(t.id);o.closeOnPressEscape&&o.close()}}),t.default=u},function(e,t){"use strict";function o(e){for(var t=1,o=arguments.length;t<o;t++){var n=arguments[t];for(var i in n)if(n.hasOwnProperty(i)){var l=n[i];void 0!==l&&(e[i]=l)}}return e}t.__esModule=!0,t.merge=o},function(e,t){},function(e,t,o){e.exports=o(1)}])});
 
 /***/ },
-/* 51 */
+/* 81 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _locale = __webpack_require__(52);
+	var _locale = __webpack_require__(82);
 
 	exports.default = {
 	  methods: {
@@ -39523,7 +42048,7 @@
 	};
 
 /***/ },
-/* 52 */
+/* 82 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -39531,7 +42056,7 @@
 	exports.__esModule = true;
 	exports.use = exports.t = undefined;
 
-	var _zhCN = __webpack_require__(53);
+	var _zhCN = __webpack_require__(83);
 
 	var _zhCN2 = _interopRequireDefault(_zhCN);
 
@@ -39539,11 +42064,11 @@
 
 	var _vue2 = _interopRequireDefault(_vue);
 
-	var _deepmerge = __webpack_require__(54);
+	var _deepmerge = __webpack_require__(84);
 
 	var _deepmerge2 = _interopRequireDefault(_deepmerge);
 
-	var _format = __webpack_require__(55);
+	var _format = __webpack_require__(85);
 
 	var _format2 = _interopRequireDefault(_format);
 
@@ -39581,7 +42106,7 @@
 	exports.default = { use: use, t: t };
 
 /***/ },
-/* 53 */
+/* 83 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -39675,7 +42200,7 @@
 	};
 
 /***/ },
-/* 54 */
+/* 84 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (root, factory) {
@@ -39765,7 +42290,7 @@
 
 
 /***/ },
-/* 55 */
+/* 85 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -39826,7 +42351,7 @@
 	var RE_NARGS = /(%|)\{([0-9a-zA-Z_]+)\}/g;
 
 /***/ },
-/* 56 */
+/* 86 */
 /***/ function(module, exports) {
 
 	var trim = function (string) {
@@ -39894,7 +42419,7 @@
 	};
 
 /***/ },
-/* 57 */
+/* 87 */
 /***/ function(module, exports) {
 
 	module.exports =
@@ -40020,6 +42545,7 @@
 		//
 		//
 		//
+		//
 
 		exports.default = {
 		  name: 'ElTag',
@@ -40028,7 +42554,8 @@
 		    closable: Boolean,
 		    type: String,
 		    hit: Boolean,
-		    closeTransition: Boolean
+		    closeTransition: Boolean,
+		    color: String
 		  },
 		  methods: {
 		    handleClose: function handleClose(event) {
@@ -40042,17 +42569,20 @@
 	/***/ 269:
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('transition', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('transition', {
 		    attrs: {
-		      "name": _vm.closeTransition ? '' : 'md-fade-center'
+		      "name": _vm.closeTransition ? '' : 'el-zoom-in-center'
 		    }
-		  }, [_vm._h('span', {
+		  }, [_h('span', {
 		    staticClass: "el-tag",
 		    class: [_vm.type ? 'el-tag--' + _vm.type : '', {
 		      'is-hit': _vm.hit
-		    }]
-		  }, [_vm._t("default"), (_vm.closable) ? _vm._h('i', {
+		    }],
+		    style: ({
+		      backgroundColor: _vm.color
+		    })
+		  }, [_vm._t("default"), (_vm.closable) ? _h('i', {
 		    staticClass: "el-tag__close el-icon-close",
 		    on: {
 		      "click": _vm.handleClose
@@ -40065,12 +42595,12 @@
 	/******/ });
 
 /***/ },
-/* 58 */
+/* 88 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* eslint-disable no-undefined */
 
-	var throttle = __webpack_require__(59);
+	var throttle = __webpack_require__(89);
 
 	/**
 	 * Debounce execution of a function. Debouncing, unlike throttling,
@@ -40092,7 +42622,7 @@
 
 
 /***/ },
-/* 59 */
+/* 89 */
 /***/ function(module, exports) {
 
 	/* eslint-disable no-undefined,no-param-reassign,no-shadow */
@@ -40189,7 +42719,7 @@
 
 
 /***/ },
-/* 60 */
+/* 90 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -40359,7 +42889,7 @@
 	};
 
 /***/ },
-/* 61 */
+/* 91 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports =
@@ -40418,7 +42948,7 @@
 	/***/ 38:
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(45);
+		module.exports = __webpack_require__(75);
 
 	/***/ },
 
@@ -40503,6 +43033,7 @@
 		      type: Boolean,
 		      default: false
 		    },
+		    created: Boolean,
 		    disabled: {
 		      type: Boolean,
 		      default: false
@@ -40534,22 +43065,34 @@
 		      return result;
 		    },
 		    itemSelected: function itemSelected() {
-		      if (Object.prototype.toString.call(this.parent.selected) === '[object Object]') {
-		        return this === this.parent.selected;
-		      } else if (Array.isArray(this.parent.selected)) {
+		      if (!this.parent.multiple) {
+		        return this.value === this.parent.value;
+		      } else {
 		        return this.parent.value.indexOf(this.value) > -1;
 		      }
 		    },
-		    currentSelected: function currentSelected() {
-		      return this.selected || (this.parent.multiple ? this.parent.value.indexOf(this.value) > -1 : this.parent.value === this.value);
+		    limitReached: function limitReached() {
+		      if (this.parent.multiple) {
+		        return !this.itemSelected && this.parent.value.length >= this.parent.multipleLimit && this.parent.multipleLimit > 0;
+		      } else {
+		        return false;
+		      }
 		    }
 		  },
 
 		  watch: {
-		    currentSelected: function currentSelected(val) {
-		      if (val === true) {
-		        this.dispatch('ElSelect', 'addOptionToValue', this);
-		      }
+		    currentLabel: function currentLabel() {
+		      this.dispatch('ElSelect', 'setSelected');
+		    },
+		    value: function value() {
+		      this.dispatch('ElSelect', 'setSelected');
+		    },
+		    visible: function visible() {
+		      var _this = this;
+
+		      this.$nextTick(function () {
+		        _this.dispatch('ElSelectDropdown', 'updatePopper');
+		      });
 		    }
 		  },
 
@@ -40570,29 +43113,26 @@
 		    queryChange: function queryChange(query) {
 		      // query 里如果有正则中的特殊字符，需要先将这些字符转义
 		      var parsedQuery = query.replace(/(\^|\(|\)|\[|\]|\$|\*|\+|\.|\?|\\|\{|\}|\|)/g, '\\$1');
-		      this.visible = new RegExp(parsedQuery, 'i').test(this.currentLabel);
+		      this.visible = new RegExp(parsedQuery, 'i').test(this.currentLabel) || this.created;
 		      if (!this.visible) {
 		        this.parent.filteredOptionsCount--;
 		      }
 		    },
 		    resetIndex: function resetIndex() {
-		      var _this = this;
+		      var _this2 = this;
 
 		      this.$nextTick(function () {
-		        _this.index = _this.parent.options.indexOf(_this);
+		        _this2.index = _this2.parent.options.indexOf(_this2);
 		      });
 		    }
 		  },
 
 		  created: function created() {
 		    this.parent.options.push(this);
+		    this.parent.cachedOptions.push(this);
 		    this.parent.optionsCount++;
 		    this.parent.filteredOptionsCount++;
 		    this.index = this.parent.options.indexOf(this);
-
-		    if (this.currentSelected === true) {
-		      this.dispatch('ElSelect', 'addOptionToValue', [this, true]);
-		    }
 
 		    this.$on('queryChange', this.queryChange);
 		    this.$on('handleGroupDisabled', this.handleGroupDisabled);
@@ -40614,14 +43154,18 @@
 		//
 		//
 		//
+		//
+		//
+		//
+		//
 
 	/***/ },
 
 	/***/ 162:
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('li', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('li', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -40630,7 +43174,9 @@
 		    }],
 		    staticClass: "el-select-dropdown__item",
 		    class: {
-		      'selected': _vm.itemSelected, 'is-disabled': _vm.disabled || _vm.groupDisabled, 'hover': _vm.parent.hoverIndex === _vm.index
+		      'selected': _vm.itemSelected,
+		      'is-disabled': _vm.disabled || _vm.groupDisabled || _vm.limitReached,
+		        'hover': _vm.parent.hoverIndex === _vm.index
 		    },
 		    on: {
 		      "mouseenter": _vm.hoverItem,
@@ -40639,7 +43185,7 @@
 		        _vm.selectOptionClick($event)
 		      }
 		    }
-		  }, [_vm._t("default", [_vm._h('span', [_vm._s(_vm.currentLabel)])])])
+		  }, [_vm._t("default", [_h('span', [_vm._s(_vm.currentLabel)])])])
 		},staticRenderFns: []}
 
 	/***/ }
@@ -40647,7 +43193,7 @@
 	/******/ });
 
 /***/ },
-/* 62 */
+/* 92 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -40679,13 +43225,13 @@
 	    if (process.env.NODE_ENV === 'production') return;
 	    if (!this.$vnode) return;
 
-	    var _getMigratingConfig = this.getMigratingConfig();
+	    var _getMigratingConfig = this.getMigratingConfig(),
+	        props = _getMigratingConfig.props,
+	        events = _getMigratingConfig.events;
 
-	    var props = _getMigratingConfig.props;
-	    var events = _getMigratingConfig.events;
-	    var _$vnode = this.$vnode;
-	    var data = _$vnode.data;
-	    var componentOptions = _$vnode.componentOptions;
+	    var _$vnode = this.$vnode,
+	        data = _$vnode.data,
+	        componentOptions = _$vnode.componentOptions;
 
 	    var definedProps = data.attrs || {};
 	    var definedEvents = componentOptions.listeners || {};
@@ -40715,7 +43261,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 63 */
+/* 93 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports =
@@ -40843,16 +43389,25 @@
 
 		  componentName: 'ElCheckbox',
 
+		  data: function data() {
+		    return {
+		      selfModel: false
+		    };
+		  },
+
+
 		  computed: {
 		    model: {
 		      get: function get() {
-		        return this.isGroup ? this.store : this.value;
+		        return this.isGroup ? this.store : this.value !== undefined ? this.value : this.selfModel;
 		      },
 		      set: function set(val) {
 		        if (this.isGroup) {
 		          this.dispatch('ElCheckboxGroup', 'input', [val]);
-		        } else {
+		        } else if (this.value !== undefined) {
 		          this.$emit('input', val);
+		        } else {
+		          this.selfModel = val;
 		        }
 		      }
 		    },
@@ -40865,6 +43420,21 @@
 		      } else if (this.model !== null && this.model !== undefined) {
 		        return this.model === this.trueLabel;
 		      }
+		    },
+		    isGroup: function isGroup() {
+		      var parent = this.$parent;
+		      while (parent) {
+		        if (parent.$options.componentName !== 'ElCheckboxGroup') {
+		          parent = parent.$parent;
+		        } else {
+		          this._checkboxGroup = parent;
+		          return true;
+		        }
+		      }
+		      return false;
+		    },
+		    store: function store() {
+		      return this._checkboxGroup ? this._checkboxGroup.value : this.value;
 		    }
 		  },
 
@@ -40879,18 +43449,10 @@
 		    falseLabel: [String, Number]
 		  },
 
-		  data: function data() {
-		    return {
-		      store: [],
-		      isGroup: false
-		    };
-		  },
-
-
 		  methods: {
 		    addToStore: function addToStore() {
-		      if (Array.isArray(this.model)) {
-		        this.model.indexOf(this.label) === -1 && this.model.push(this.label);
+		      if (Array.isArray(this.model) && this.model.indexOf(this.label) === -1) {
+		        this.model.push(this.label);
 		      } else {
 		        this.model = this.trueLabel || true;
 		      }
@@ -40898,14 +43460,7 @@
 		  },
 
 		  created: function created() {
-		    var _this = this;
-
 		    this.checked && this.addToStore();
-		    this.$on('initData', function (data) {
-		      _this.store = data;
-		      _this.isGroup = true;
-		      _this.checked && _this.addToStore();
-		    });
 		  }
 		}; //
 		//
@@ -40954,19 +43509,19 @@
 	/***/ 38:
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(45);
+		module.exports = __webpack_require__(75);
 
 	/***/ },
 
 	/***/ 39:
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('label', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('label', {
 		    staticClass: "el-checkbox"
-		  }, [_vm._h('span', {
+		  }, [_h('span', {
 		    staticClass: "el-checkbox__input"
-		  }, [_vm._h('span', {
+		  }, [_h('span', {
 		    staticClass: "el-checkbox__inner",
 		    class: {
 		      'is-disabled': _vm.disabled,
@@ -40974,7 +43529,7 @@
 		      'is-indeterminate': _vm.indeterminate,
 		      'is-focus': _vm.focus
 		    }
-		  }), (_vm.trueLabel || _vm.falseLabel) ? _vm._h('input', {
+		  }), (_vm.trueLabel || _vm.falseLabel) ? _h('input', {
 		    directives: [{
 		      name: "model",
 		      rawName: "v-model",
@@ -41018,7 +43573,7 @@
 		        _vm.focus = false
 		      }
 		    }
-		  }) : _vm._h('input', {
+		  }) : _h('input', {
 		    directives: [{
 		      name: "model",
 		      rawName: "v-model",
@@ -41061,7 +43616,7 @@
 		        _vm.focus = false
 		      }
 		    }
-		  })]), (_vm.$slots.default || _vm.label) ? _vm._h('span', {
+		  })]), (_vm.$slots.default || _vm.label) ? _h('span', {
 		    staticClass: "el-checkbox__label"
 		  }, [_vm._t("default"), (!_vm.$slots.default) ? [_vm._s(_vm.label)] : _vm._e()]) : _vm._e()])
 		},staticRenderFns: []}
@@ -41071,7 +43626,7 @@
 	/******/ });
 
 /***/ },
-/* 64 */
+/* 94 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports =
@@ -41130,7 +43685,7 @@
 	/***/ 38:
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(45);
+		module.exports = __webpack_require__(75);
 
 	/***/ },
 
@@ -41214,12 +43769,7 @@
 		    value: function value(_value) {
 		      this.$emit('change', _value);
 		      this.dispatch('ElFormItem', 'el.form.change', [_value]);
-		      this.broadcast('ElCheckbox', 'initData', [_value]);
 		    }
-		  },
-
-		  mounted: function mounted() {
-		    this.broadcast('ElCheckbox', 'initData', [this.value]);
 		  }
 		};
 
@@ -41228,8 +43778,8 @@
 	/***/ 43:
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    staticClass: "el-checkbox-group"
 		  }, [_vm._t("default")])
 		},staticRenderFns: []}
@@ -41239,7 +43789,7 @@
 	/******/ });
 
 /***/ },
-/* 65 */
+/* 95 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -41265,7 +43815,7 @@
 	;
 
 /***/ },
-/* 66 */
+/* 96 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
@@ -41590,7 +44140,7 @@
 	})(undefined);
 
 /***/ },
-/* 67 */
+/* 97 */
 /***/ function(module, exports) {
 
 	module.exports =
@@ -41760,8 +44310,8 @@
 	/***/ 26:
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('button', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('button', {
 		    staticClass: "el-button",
 		    class: [
 		      _vm.type ? 'el-button--' + _vm.type : '',
@@ -41779,11 +44329,11 @@
 		    on: {
 		      "click": _vm.handleClick
 		    }
-		  }, [(_vm.loading) ? _vm._h('i', {
+		  }, [(_vm.loading) ? _h('i', {
 		    staticClass: "el-icon-loading"
-		  }) : _vm._e(), (_vm.icon && !_vm.loading) ? _vm._h('i', {
+		  }) : _vm._e(), (_vm.icon && !_vm.loading) ? _h('i', {
 		    class: 'el-icon-' + _vm.icon
-		  }) : _vm._e(), (_vm.$slots.default) ? _vm._h('span', [_vm._t("default")]) : _vm._e()])
+		  }) : _vm._e(), (_vm.$slots.default) ? _h('span', [_vm._t("default")]) : _vm._e()])
 		},staticRenderFns: []}
 
 	/***/ }
@@ -41791,7 +44341,7 @@
 	/******/ });
 
 /***/ },
-/* 68 */
+/* 98 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -41802,17 +44352,17 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-	var _util = __webpack_require__(69);
+	var _util = __webpack_require__(99);
 
-	var _validator = __webpack_require__(70);
+	var _validator = __webpack_require__(100);
 
 	var _validator2 = _interopRequireDefault(_validator);
 
-	var _messages2 = __webpack_require__(92);
+	var _messages2 = __webpack_require__(122);
 
-	var _rule = __webpack_require__(72);
+	var _rule = __webpack_require__(102);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -41855,7 +44405,7 @@
 	  validate: function validate(source_) {
 	    var _this = this;
 
-	    var o = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+	    var o = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	    var oc = arguments[2];
 
 	    var source = source_;
@@ -41964,7 +44514,7 @@
 	      }
 
 	      function cb() {
-	        var e = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+	        var e = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 
 	        var errors = e;
 	        if (!Array.isArray(errors)) {
@@ -42044,6 +44594,10 @@
 	      return rule.validator;
 	    }
 	    var keys = Object.keys(rule);
+	    var messageIndex = keys.indexOf('message');
+	    if (messageIndex !== -1) {
+	      keys.splice(messageIndex, 1);
+	    }
 	    if (keys.length === 1 && keys[0] === 'required') {
 	      return _validator2["default"].required;
 	    }
@@ -42064,7 +44618,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 69 */
+/* 99 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -42075,7 +44629,7 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	exports.warning = warning;
 	exports.format = format;
@@ -42277,32 +44831,32 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 70 */
+/* 100 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	module.exports = {
-	  string: __webpack_require__(71),
-	  method: __webpack_require__(79),
-	  number: __webpack_require__(80),
-	  "boolean": __webpack_require__(81),
-	  regexp: __webpack_require__(82),
-	  integer: __webpack_require__(83),
-	  "float": __webpack_require__(84),
-	  array: __webpack_require__(85),
-	  object: __webpack_require__(86),
-	  "enum": __webpack_require__(87),
-	  pattern: __webpack_require__(88),
-	  email: __webpack_require__(89),
-	  url: __webpack_require__(89),
-	  date: __webpack_require__(90),
-	  hex: __webpack_require__(89),
-	  required: __webpack_require__(91)
+	  string: __webpack_require__(101),
+	  method: __webpack_require__(109),
+	  number: __webpack_require__(110),
+	  "boolean": __webpack_require__(111),
+	  regexp: __webpack_require__(112),
+	  integer: __webpack_require__(113),
+	  "float": __webpack_require__(114),
+	  array: __webpack_require__(115),
+	  object: __webpack_require__(116),
+	  "enum": __webpack_require__(117),
+	  pattern: __webpack_require__(118),
+	  email: __webpack_require__(119),
+	  url: __webpack_require__(119),
+	  date: __webpack_require__(120),
+	  hex: __webpack_require__(119),
+	  required: __webpack_require__(121)
 	};
 
 /***/ },
-/* 71 */
+/* 101 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42311,11 +44865,11 @@
 	  value: true
 	});
 
-	var _rule = __webpack_require__(72);
+	var _rule = __webpack_require__(102);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
-	var _util = __webpack_require__(69);
+	var _util = __webpack_require__(99);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -42353,7 +44907,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 72 */
+/* 102 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42362,17 +44916,17 @@
 	  value: true
 	});
 	exports["default"] = {
-	  required: __webpack_require__(73),
-	  whitespace: __webpack_require__(74),
-	  type: __webpack_require__(75),
-	  range: __webpack_require__(76),
-	  "enum": __webpack_require__(77),
-	  pattern: __webpack_require__(78)
+	  required: __webpack_require__(103),
+	  whitespace: __webpack_require__(104),
+	  type: __webpack_require__(105),
+	  range: __webpack_require__(106),
+	  "enum": __webpack_require__(107),
+	  pattern: __webpack_require__(108)
 	};
 	module.exports = exports['default'];
 
 /***/ },
-/* 73 */
+/* 103 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42381,7 +44935,7 @@
 	  value: true
 	});
 
-	var _util = __webpack_require__(69);
+	var _util = __webpack_require__(99);
 
 	var util = _interopRequireWildcard(_util);
 
@@ -42408,7 +44962,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 74 */
+/* 104 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42417,7 +44971,7 @@
 	  value: true
 	});
 
-	var _util = __webpack_require__(69);
+	var _util = __webpack_require__(99);
 
 	var util = _interopRequireWildcard(_util);
 
@@ -42444,7 +44998,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 75 */
+/* 105 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42453,13 +45007,13 @@
 	  value: true
 	});
 
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-	var _util = __webpack_require__(69);
+	var _util = __webpack_require__(99);
 
 	var util = _interopRequireWildcard(_util);
 
-	var _required = __webpack_require__(73);
+	var _required = __webpack_require__(103);
 
 	var _required2 = _interopRequireDefault(_required);
 
@@ -42545,15 +45099,15 @@
 	    }
 	    // straight typeof check
 	  } else if (ruleType && (typeof value === 'undefined' ? 'undefined' : _typeof(value)) !== rule.type) {
-	      errors.push(util.format(options.messages.types[ruleType], rule.fullField, rule.type));
-	    }
+	    errors.push(util.format(options.messages.types[ruleType], rule.fullField, rule.type));
+	  }
 	}
 
 	exports["default"] = type;
 	module.exports = exports['default'];
 
 /***/ },
-/* 76 */
+/* 106 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42562,7 +45116,7 @@
 	  value: true
 	});
 
-	var _util = __webpack_require__(69);
+	var _util = __webpack_require__(99);
 
 	var util = _interopRequireWildcard(_util);
 
@@ -42621,7 +45175,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 77 */
+/* 107 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42630,7 +45184,7 @@
 	  value: true
 	});
 
-	var _util = __webpack_require__(69);
+	var _util = __webpack_require__(99);
 
 	var util = _interopRequireWildcard(_util);
 
@@ -42660,7 +45214,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 78 */
+/* 108 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42669,7 +45223,7 @@
 	  value: true
 	});
 
-	var _util = __webpack_require__(69);
+	var _util = __webpack_require__(99);
 
 	var util = _interopRequireWildcard(_util);
 
@@ -42698,7 +45252,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 79 */
+/* 109 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42707,11 +45261,11 @@
 	  value: true
 	});
 
-	var _rule = __webpack_require__(72);
+	var _rule = __webpack_require__(102);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
-	var _util = __webpack_require__(69);
+	var _util = __webpack_require__(99);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -42744,7 +45298,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 80 */
+/* 110 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42753,11 +45307,11 @@
 	  value: true
 	});
 
-	var _rule = __webpack_require__(72);
+	var _rule = __webpack_require__(102);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
-	var _util = __webpack_require__(69);
+	var _util = __webpack_require__(99);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -42791,7 +45345,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 81 */
+/* 111 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42800,9 +45354,9 @@
 	  value: true
 	});
 
-	var _util = __webpack_require__(69);
+	var _util = __webpack_require__(99);
 
-	var _rule = __webpack_require__(72);
+	var _rule = __webpack_require__(102);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
@@ -42837,7 +45391,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 82 */
+/* 112 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42846,11 +45400,11 @@
 	  value: true
 	});
 
-	var _rule = __webpack_require__(72);
+	var _rule = __webpack_require__(102);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
-	var _util = __webpack_require__(69);
+	var _util = __webpack_require__(99);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -42883,7 +45437,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 83 */
+/* 113 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42892,11 +45446,11 @@
 	  value: true
 	});
 
-	var _rule = __webpack_require__(72);
+	var _rule = __webpack_require__(102);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
-	var _util = __webpack_require__(69);
+	var _util = __webpack_require__(99);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -42930,7 +45484,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 84 */
+/* 114 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42939,11 +45493,11 @@
 	  value: true
 	});
 
-	var _rule = __webpack_require__(72);
+	var _rule = __webpack_require__(102);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
-	var _util = __webpack_require__(69);
+	var _util = __webpack_require__(99);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -42977,7 +45531,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 85 */
+/* 115 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42986,11 +45540,11 @@
 	  value: true
 	});
 
-	var _rule = __webpack_require__(72);
+	var _rule = __webpack_require__(102);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
-	var _util = __webpack_require__(69);
+	var _util = __webpack_require__(99);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -43024,7 +45578,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 86 */
+/* 116 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -43033,11 +45587,11 @@
 	  value: true
 	});
 
-	var _rule = __webpack_require__(72);
+	var _rule = __webpack_require__(102);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
-	var _util = __webpack_require__(69);
+	var _util = __webpack_require__(99);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -43070,7 +45624,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 87 */
+/* 117 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -43079,11 +45633,11 @@
 	  value: true
 	});
 
-	var _rule = __webpack_require__(72);
+	var _rule = __webpack_require__(102);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
-	var _util = __webpack_require__(69);
+	var _util = __webpack_require__(99);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -43118,7 +45672,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 88 */
+/* 118 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -43127,11 +45681,11 @@
 	  value: true
 	});
 
-	var _rule = __webpack_require__(72);
+	var _rule = __webpack_require__(102);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
-	var _util = __webpack_require__(69);
+	var _util = __webpack_require__(99);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -43167,7 +45721,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 89 */
+/* 119 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -43176,11 +45730,11 @@
 	  value: true
 	});
 
-	var _rule = __webpack_require__(72);
+	var _rule = __webpack_require__(102);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
-	var _util = __webpack_require__(69);
+	var _util = __webpack_require__(99);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -43204,7 +45758,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 90 */
+/* 120 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -43213,11 +45767,11 @@
 	  value: true
 	});
 
-	var _rule = __webpack_require__(72);
+	var _rule = __webpack_require__(102);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
-	var _util = __webpack_require__(69);
+	var _util = __webpack_require__(99);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -43245,7 +45799,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 91 */
+/* 121 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -43254,9 +45808,9 @@
 	  value: true
 	});
 
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-	var _rule = __webpack_require__(72);
+	var _rule = __webpack_require__(102);
 
 	var _rule2 = _interopRequireDefault(_rule);
 
@@ -43273,7 +45827,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 92 */
+/* 122 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -43340,7 +45894,7 @@
 	var messages = exports.messages = newMessages();
 
 /***/ },
-/* 93 */
+/* 123 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports =
@@ -43399,7 +45953,7 @@
 	/***/ 8:
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(44);
+		module.exports = __webpack_require__(74);
 
 	/***/ },
 
@@ -43507,6 +46061,15 @@
 		//
 		//
 		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
 
 		exports.default = {
 		  name: 'ElInputNumber',
@@ -43527,7 +46090,11 @@
 		      default: 0
 		    },
 		    disabled: Boolean,
-		    size: String
+		    size: String,
+		    controls: {
+		      type: Boolean,
+		      default: true
+		    }
 		  },
 		  directives: {
 		    repeatClick: {
@@ -43584,7 +46151,7 @@
 		    currentValue: function currentValue(newVal, oldVal) {
 		      var value = Number(newVal);
 		      if (value <= this.max && value >= this.min) {
-		        this.$emit('change', value);
+		        this.$emit('change', value, oldVal);
 		        this.$emit('input', value);
 		      }
 		    }
@@ -43688,22 +46255,24 @@
 	/***/ 115:
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(47);
+		module.exports = __webpack_require__(77);
 
 	/***/ },
 
 	/***/ 116:
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    staticClass: "el-input-number",
 		    class: [
 		      _vm.size ? 'el-input-number--' + _vm.size : '', {
 		        'is-disabled': _vm.disabled
+		      }, {
+		        'is-without-controls': !_vm.controls
 		      }
 		    ]
-		  }, [_vm._h('el-input', {
+		  }, [_h('el-input', {
 		    class: {
 		      'is-active': _vm.inputActive
 		    },
@@ -43727,7 +46296,11 @@
 		        _vm.decrease($event)
 		      }]
 		    }
-		  }), _vm._h('span', {
+		  }, [(_vm.$slots.prepend) ? _h('template', {
+		    slot: "prepend"
+		  }, [_vm._t("prepend")]) : _vm._e(), (_vm.$slots.append) ? _h('template', {
+		    slot: "append"
+		  }, [_vm._t("append")]) : _vm._e()]), (_vm.controls) ? _h('span', {
 		    directives: [{
 		      name: "repeat-click",
 		      rawName: "v-repeat-click",
@@ -43746,7 +46319,7 @@
 		        _vm.inactiveInput(_vm.minDisabled)
 		      }
 		    }
-		  }), _vm._h('span', {
+		  }) : _vm._e(), (_vm.controls) ? _h('span', {
 		    directives: [{
 		      name: "repeat-click",
 		      rawName: "v-repeat-click",
@@ -43765,7 +46338,7 @@
 		        _vm.inactiveInput(_vm.maxDisabled)
 		      }
 		    }
-		  })])
+		  }) : _vm._e()])
 		},staticRenderFns: []}
 
 	/***/ }
@@ -43773,7 +46346,7 @@
 	/******/ });
 
 /***/ },
-/* 94 */
+/* 124 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports =
@@ -43832,7 +46405,7 @@
 	/***/ 53:
 	/***/ function(module, exports) {
 
-		module.exports = __webpack_require__(48);
+		module.exports = __webpack_require__(78);
 
 	/***/ },
 
@@ -43917,6 +46490,7 @@
 		      type: String,
 		      default: 'dark'
 		    },
+		    popperClass: String,
 		    content: String,
 		    visibleArrow: {
 		      default: true
@@ -43977,24 +46551,24 @@
 	/***/ 283:
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    staticClass: "el-tooltip",
 		    on: {
 		      "mouseenter": _vm.handleShowPopper,
 		      "mouseleave": _vm.handleClosePopper
 		    }
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    ref: "reference",
 		    staticClass: "el-tooltip__rel"
-		  }, [_vm._t("default")]), _vm._h('transition', {
+		  }, [_vm._t("default")]), _h('transition', {
 		    attrs: {
 		      "name": _vm.transition
 		    },
 		    on: {
 		      "after-leave": _vm.doDestroy
 		    }
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    directives: [{
 		      name: "show",
 		      rawName: "v-show",
@@ -44003,8 +46577,8 @@
 		    }],
 		    ref: "popper",
 		    staticClass: "el-tooltip__popper",
-		    class: ['is-' + _vm.effect]
-		  }, [_vm._t("content", [_vm._h('div', {
+		    class: ['is-' + _vm.effect, _vm.popperClass]
+		  }, [_vm._t("content", [_h('div', {
 		    domProps: {
 		      "textContent": _vm._s(_vm.content)
 		    }
@@ -44016,7 +46590,7 @@
 	/******/ });
 
 /***/ },
-/* 95 */
+/* 125 */
 /***/ function(module, exports) {
 
 	var SPECIAL_CHARS_REGEXP = /([\:\-\_]+(.))/g;
@@ -44092,7 +46666,7 @@
 	};
 
 /***/ },
-/* 96 */
+/* 126 */
 /***/ function(module, exports) {
 
 	module.exports =
@@ -44338,8 +46912,8 @@
 	/***/ 183:
 	/***/ function(module, exports) {
 
-		module.exports={render:function (){var _vm=this;
-		  return _vm._h('div', {
+		module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+		  return _h('div', {
 		    staticClass: "el-progress",
 		    class: [
 		      'el-progress--' + _vm.type,
@@ -44348,29 +46922,29 @@
 		        'el-progress--text-inside': _vm.textInside,
 		      }
 		    ]
-		  }, [(_vm.type === 'line') ? _vm._h('div', {
+		  }, [(_vm.type === 'line') ? _h('div', {
 		    staticClass: "el-progress-bar"
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    staticClass: "el-progress-bar__outer",
 		    style: ({
 		      height: _vm.strokeWidth + 'px'
 		    })
-		  }, [_vm._h('div', {
+		  }, [_h('div', {
 		    staticClass: "el-progress-bar__inner",
 		    style: (_vm.barStyle)
-		  }, [(_vm.showText && _vm.textInside) ? _vm._h('div', {
+		  }, [(_vm.showText && _vm.textInside) ? _h('div', {
 		    staticClass: "el-progress-bar__innerText"
-		  }, [_vm._s(_vm.percentage) + "%"]) : _vm._e()])])]) : _vm._h('div', {
+		  }, [_vm._s(_vm.percentage) + "%"]) : _vm._e()])])]) : _h('div', {
 		    staticClass: "el-progress-circle",
 		    style: ({
 		      height: _vm.width + 'px',
 		      width: _vm.width + 'px'
 		    })
-		  }, [_vm._h('svg', {
+		  }, [_h('svg', {
 		    attrs: {
 		      "viewBox": "0 0 100 100"
 		    }
-		  }, [_vm._h('path', {
+		  }, [_h('path', {
 		    staticClass: "el-progress-circle__track",
 		    attrs: {
 		      "d": _vm.trackPath,
@@ -44378,7 +46952,7 @@
 		      "stroke-width": _vm.relativeStrokeWidth,
 		      "fill": "none"
 		    }
-		  }), _vm._h('path', {
+		  }), _h('path', {
 		    staticClass: "el-progress-circle__path",
 		    style: (_vm.circlePathStyle),
 		    attrs: {
@@ -44388,12 +46962,12 @@
 		      "stroke-width": _vm.relativeStrokeWidth,
 		      "fill": "none"
 		    }
-		  })])]), (_vm.showText && !_vm.textInside) ? _vm._h('div', {
+		  })])]), (_vm.showText && !_vm.textInside) ? _h('div', {
 		    staticClass: "el-progress__text",
 		    style: ({
 		      fontSize: _vm.progressTextSize + 'px'
 		    })
-		  }, [(!_vm.status) ? [_vm._s(_vm.percentage) + "%"] : _vm._h('i', {
+		  }, [(!_vm.status) ? [_vm._s(_vm.percentage) + "%"] : _h('i', {
 		    class: _vm.iconClass
 		  })]) : _vm._e()])
 		},staticRenderFns: []}
@@ -44403,23 +46977,23 @@
 	/******/ });
 
 /***/ },
-/* 97 */
+/* 127 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(98);
+	var content = __webpack_require__(128);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(103)(content, {});
+	var update = __webpack_require__(133)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../.0.26.0@css-loader/index.js!./index.css", function() {
-				var newContent = require("!!./../../../.0.26.0@css-loader/index.js!./index.css");
+			module.hot.accept("!!./../../../css-loader/index.js!./index.css", function() {
+				var newContent = require("!!./../../../css-loader/index.js!./index.css");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -44429,7 +47003,7 @@
 	}
 
 /***/ },
-/* 98 */
+/* 128 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(19)();
@@ -44437,37 +47011,37 @@
 
 
 	// module
-	exports.push([module.id, "@charset \"UTF-8\";.el-breadcrumb:after,.el-breadcrumb:before,.el-form-item:after,.el-form-item:before,.el-form-item__content:after,.el-form-item__content:before{display:table;content:\"\"}.el-radio,.el-radio-button__inner,.el-switch__label{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none}.el-alert,.el-dialog,.el-notification,.el-radio__inner,.el-switch__core{box-sizing:border-box}.el-radio,.el-radio__input,.el-table .el-tooltip__rel .cell,.el-table th,.el-table th>div{white-space:nowrap}.el-pagination--small .arrow.disabled,.el-table td.is-hidden>*,.el-table th.is-hidden>*{visibility:hidden}.el-breadcrumb:after,.el-button-group:after,.el-form-item:after,.el-form-item__content:after,.el-menu:after,.el-row:after,.el-slider:after,.el-tabs__header:after{clear:both}.el-autocomplete__suggestions.is-loading li:after{display:inline-block;content:\"\";height:100%;vertical-align:middle}.el-button-group:after,.el-button-group:before{display:table;content:\"\"}@font-face{font-family:element-icons;src:url(" + __webpack_require__(99) + ");src:url(" + __webpack_require__(100) + ") format('woff'),url(" + __webpack_require__(101) + ") format('truetype'),url(" + __webpack_require__(102) + "#el-icon) format('svg');font-weight:400;font-style:normal}[class*=\" el-icon-\"],[class^=el-icon-]{font-family:element-icons!important;speak:none;font-style:normal;font-weight:400;font-variant:normal;text-transform:none;line-height:1;vertical-align:baseline;display:inline-block;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.el-alert__icon,.el-radio-button__inner,.el-radio__input,.el-slider__button-wrapper .el-tooltip__rel,.el-slider__runway,.el-switch__core,.el-table td,.el-table th{vertical-align:middle}.el-icon-arrow-down:before{content:\"\\E600\"}.el-icon-arrow-left:before{content:\"\\E601\"}.el-icon-arrow-right:before{content:\"\\E602\"}.el-icon-arrow-up:before{content:\"\\E603\"}.el-icon-caret-bottom:before{content:\"\\E604\"}.el-icon-caret-left:before{content:\"\\E605\"}.el-icon-caret-right:before{content:\"\\E606\"}.el-icon-caret-top:before{content:\"\\E607\"}.el-icon-check:before{content:\"\\E608\"}.el-icon-circle-check:before{content:\"\\E609\"}.el-icon-circle-close:before{content:\"\\E60A\"}.el-icon-circle-cross:before{content:\"\\E60B\"}.el-icon-close:before{content:\"\\E60C\"}.el-icon-upload:before{content:\"\\E60D\"}.el-icon-d-arrow-left:before{content:\"\\E60E\"}.el-icon-d-arrow-right:before{content:\"\\E60F\"}.el-icon-d-caret:before{content:\"\\E610\"}.el-icon-date:before{content:\"\\E611\"}.el-icon-delete:before{content:\"\\E612\"}.el-icon-document:before{content:\"\\E613\"}.el-icon-edit:before{content:\"\\E614\"}.el-icon-information:before{content:\"\\E615\"}.el-icon-loading:before{content:\"\\E616\"}.el-icon-menu:before{content:\"\\E617\"}.el-icon-message:before{content:\"\\E618\"}.el-icon-minus:before{content:\"\\E619\"}.el-icon-more:before{content:\"\\E61A\"}.el-icon-picture:before{content:\"\\E61B\"}.el-icon-plus:before{content:\"\\E61C\"}.el-icon-search:before{content:\"\\E61D\"}.el-icon-setting:before{content:\"\\E61E\"}.el-icon-share:before{content:\"\\E61F\"}.el-icon-star-off:before{content:\"\\E620\"}.el-icon-star-on:before{content:\"\\E621\"}.el-icon-time:before{content:\"\\E622\"}.el-icon-warning:before{content:\"\\E623\"}.el-icon-delete2:before{content:\"\\E624\"}.el-icon-upload2:before{content:\"\\E627\"}.el-icon-view:before{content:\"\\E626\"}.el-icon-loading{animation:rotating 1s linear infinite}.el-icon--right{margin-left:5px}.el-icon--left{margin-right:5px}@keyframes rotating{0%{transform:rotateZ(0)}100%{transform:rotateZ(360deg)}}.el-alert{width:100%;padding:8px 16px;margin:0;border-radius:4px;position:relative;background-color:#fff;overflow:hidden;color:#fff;opacity:1;display:table;transition:opacity .2s}.el-alert .el-alert__description{color:#fff;font-size:12px;margin:5px 0 0}.el-alert--success{background-color:#13ce66}.el-alert--info{background-color:#50BFFF}.el-alert--warning{background-color:#f7ba2a}.el-alert--error{background-color:#ff4949}.el-alert__content{display:table-cell;padding-left:8px}.el-alert__icon{font-size:16px;width:16px;display:table-cell;color:#fff}.el-alert__icon.is-big{font-size:28px;width:28px}.el-alert__title{font-size:13px;line-height:18px}.el-alert__title.is-bold{font-weight:700}.el-alert__closebtn{font-size:12px;color:#fff;opacity:1;top:12px;right:15px;position:absolute;cursor:pointer}.el-alert-fade-enter,.el-alert-fade-leave-active,.el-notification-fade-leave-active,.el-radio__original,.el-switch .label-fade-enter,.el-switch .label-fade-leave-active{opacity:0}.el-alert__closebtn.is-customed{font-style:normal;font-size:13px;top:9px}.el-notification{width:330px;padding:20px;border-radius:2px;position:fixed;right:16px;background-color:#fff;box-shadow:0 2px 4px rgba(0,0,0,.12),0 0 6px rgba(0,0,0,.04);transition:opacity .3s,transform .3s,right .3s,top .4s;overflow:hidden}.el-notification .el-icon-circle-check{color:#13ce66}.el-notification .el-icon-circle-cross{color:#ff4949}.el-notification .el-icon-information{color:#50BFFF}.el-notification .el-icon-warning{color:#f7ba2a}.el-notification__group span{font-size:16px;color:#1f2d3d}.el-notification__group p{font-size:14px;line-height:21px;margin:10px 0 0;color:#8492a6;text-align:justify}.el-notification__icon{width:40px;height:40px;font-size:40px;float:left;position:relative;top:3px}.el-dialog__headerbtn,.el-pagination__rightwrapper{float:right}.el-notification__closeBtn{top:20px;right:20px;position:absolute;cursor:pointer;color:#C0CCDA;font-size:14px}.el-notification__closeBtn:hover{color:#99A9BF}.el-notification-fade-enter{-ms-transform:translateX(100%);transform:translateX(100%);right:0}.el-slider:after,.el-slider:before{display:table;content:\"\"}.el-slider__runway{width:100%;height:4px;margin:16px 0;background-color:#e5e9f2;border-radius:3px;position:relative;cursor:pointer}.el-slider__runway.show-input{margin-right:160px;width:auto}.el-slider__runway.disabled{cursor:default}.el-slider__runway.disabled .el-slider__bar,.el-slider__runway.disabled .el-slider__button{background-color:#C0CCDA}.el-slider__runway.disabled .el-slider__button-wrapper.dragging,.el-slider__runway.disabled .el-slider__button-wrapper.hover,.el-slider__runway.disabled .el-slider__button-wrapper:hover{cursor:not-allowed}.el-slider__runway.disabled .el-slider__button.dragging,.el-slider__runway.disabled .el-slider__button.hover,.el-slider__runway.disabled .el-slider__button:hover{-ms-transform:scale(1);transform:scale(1);cursor:not-allowed}.el-slider__input{float:right;margin-top:3px}.el-slider__bar{height:4px;background-color:#20a0ff;border-top-left-radius:3px;border-bottom-left-radius:3px;position:absolute}.el-slider__button-wrapper{width:36px;height:36px;position:absolute;z-index:1001;top:-16px;-ms-transform:translateX(-50%);transform:translateX(-50%);background-color:transparent;text-align:center}.el-slider__button-wrapper .el-tooltip{line-height:1;height:100%;display:block}.el-slider__button-wrapper .el-tooltip::after{content:'';width:0;height:100%;display:inline-block;vertical-align:middle}.el-slider__button-wrapper.hover,.el-slider__button-wrapper:hover{cursor:-webkit-grab;cursor:grab}.el-slider__button-wrapper.dragging{cursor:-webkit-grabbing;cursor:grabbing}.el-slider__button{width:12px;height:12px;background-color:#20a0ff;border-radius:50%;transition:.2s}.el-slider__button.dragging,.el-slider__button.hover,.el-slider__button:hover{-ms-transform:scale(1.5);transform:scale(1.5);background-color:#1d8ce0}.el-slider__button.hover,.el-slider__button:hover{cursor:-webkit-grab;cursor:grab}.el-slider__button.dragging{cursor:-webkit-grabbing;cursor:grabbing}.el-slider__stop{position:absolute;width:4px;height:4px;border-radius:100%;background-color:#C0CCDA;-ms-transform:translateX(-50%);transform:translateX(-50%)}.el-radio,.el-radio__inner,.el-radio__input{position:relative;cursor:pointer;display:inline-block}.el-radio{color:#1f2d3d}.el-radio+.el-radio{margin-left:15px}.el-radio__input{outline:0;line-height:1}.el-radio__inner{border:1px solid #C0CCDA;width:18px;height:18px;border-radius:50%;background-color:#fff}.el-radio__inner:not(.is-disabled):hover{border-color:#20a0ff}.el-radio__inner::after{width:6px;height:6px;border-radius:50%;background-color:#fff;content:\"\";position:absolute;left:50%;top:50%;-ms-transform:translate(-50%,-50%) scale(0);transform:translate(-50%,-50%) scale(0);transition:transform .15s cubic-bezier(.71,-.46,.88,.6)}.el-switch__core,.el-switch__label{width:46px;height:22px;cursor:pointer}.el-radio__inner.is-disabled.is-checked{background-color:#D3DCE6;border-color:#D3DCE6}.el-radio__inner.is-disabled.is-checked::after{background-color:#fff}.el-radio__inner.is-focus{border-color:#20a0ff}.el-radio__inner.is-checked{border-color:#20a0ff;background:#20a0ff}.el-radio__inner.is-disabled,.el-radio__inner.is-disabled::after{background-color:#EFF2F7;cursor:not-allowed}.el-radio__inner.is-checked::after{-ms-transform:translate(-50%,-50%) scale(1);transform:translate(-50%,-50%) scale(1)}.el-radio__inner.is-disabled{border-color:#D3DCE6}.el-radio__inner.is-disabled+.el-radio__label{cursor:not-allowed}.el-radio__original{outline:0;position:absolute;z-index:-1;top:0;left:0;right:0;bottom:0;margin:0}.el-button-group .el-button:not(:last-child),.el-radio-button:not(:last-child){margin-right:-1px}.el-radio__label{font-size:14px;padding-left:5px}.el-radio-group{display:inline-block;font-size:0;line-height:1}.el-radio-group .el-radio{font-size:14px}.el-radio-button{position:relative;overflow:hidden;display:inline-block}.el-radio-button:first-child .el-radio-button__inner{border-radius:4px 0 0 4px}.el-radio-button:last-child .el-radio-button__inner{border-radius:0 4px 4px 0}.el-radio-button__inner{display:inline-block;line-height:1;white-space:nowrap;background:#fff;border:1px solid #C0CCDA;color:#1F2D3D;-webkit-appearance:none;text-align:center;box-sizing:border-box;outline:0;margin:0;position:relative;cursor:pointer;transition:all .3s cubic-bezier(.645,.045,.355,1);padding:10px 15px;font-size:14px;border-radius:0}.el-radio-button__inner:hover{color:#20a0ff}.el-radio-button__inner [class*=el-icon-]{line-height:.9}.el-radio-button__inner [class*=el-icon-]+span{margin-left:5px}.el-radio-button__orig-radio{opacity:0;outline:0;position:absolute;z-index:-1;left:-999px}.el-radio-button__orig-radio:disabled+.el-radio-button__inner{color:#C0CCDA;cursor:not-allowed;background-image:none;background-color:#EFF2F7;border-color:#D3DCE6}.el-radio-button--large .el-radio-button__inner{padding:11px 19px;font-size:16px;border-radius:0}.el-radio-button--small .el-radio-button__inner{padding:7px 9px;font-size:12px;border-radius:0}.el-radio-button--mini .el-radio-button__inner{padding:4px;font-size:12px;border-radius:0}.el-switch{display:inline-block;position:relative;font-size:14px;line-height:22px}.el-switch__label,.el-switch__label *{position:absolute;display:inline-block;font-size:14px}.el-switch.is-disabled .el-switch__core{border-color:#E5E9F3;background:#E5E9F3}.el-switch.is-disabled .el-switch__core span{background-color:#F9FAFC}.el-switch.is-disabled .el-switch__core~.el-switch__label *{color:#F9FAFC}.el-switch.is-disabled .el-switch__input:checked+.el-switch__core{border-color:#E5E9F3;background-color:#E5E9F3}.el-switch.is-disabled .el-switch__core,.el-switch.is-disabled .el-switch__label{cursor:not-allowed}.el-switch__label{transition:.2s;z-index:10;left:0;top:0;user-select:none}.el-checkbox,.el-pager{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none}.el-switch__label *{line-height:1;top:4px;color:#fff}.el-switch__label--left i{left:6px}.el-switch__label--right i{right:6px}.el-switch__input{display:none}.el-switch__input:checked+.el-switch__core{border-color:#20a0ff;background-color:#20a0ff}.el-switch__core{margin:0;display:inline-block;position:relative;border:1px solid #C0CCDA;outline:0;border-radius:12px;background:#C0CCDA;transition:border-color .3s,background-color .3s}.el-switch__core .el-switch__button{top:0;left:0;position:absolute;border-radius:100%;transition:transform .3s;width:16px;height:16px;z-index:20;background-color:#fff}.el-switch--wide .el-switch__label.el-switch__label--left span{left:10px}.el-switch--wide .el-switch__label.el-switch__label--right span{right:10px}.el-dropdown{display:inline-block;position:relative;color:#475669;font-size:14px}.el-dropdown .el-button-group,.el-table .el-tooltip,.el-table .el-tooltip__rel{display:block}.el-dropdown .el-dropdown__caret-button{padding-right:5px;padding-left:5px}.el-dropdown .el-dropdown__caret-button .el-dropdown__icon{padding-left:0}.el-dropdown__icon{font-size:12px;margin:0 3px}.el-dropdown-menu{margin:5px 0;background-color:#fff;border:1px solid #D3DCE6;box-shadow:0 2px 4px rgba(0,0,0,.12),0 0 6px rgba(0,0,0,.12);padding:6px 0;z-index:10;position:absolute;top:0;left:0;min-width:100px}.el-dropdown-menu__item{list-style:none;line-height:36px;padding:0 10px;margin:0;cursor:pointer}.el-dropdown-menu__item:not(.is-disabled):hover{background-color:#e5e9f2;color:#475669}.el-dropdown-menu__item.is-disabled{cursor:default;color:#c0ccda;pointer-events:none}.el-dropdown-menu__item--divided{position:relative;margin-top:6px;border-top:1px solid #D3DCE6}.el-dropdown-menu__item--divided:before{content:'';height:6px;display:block;margin:0 -10px;background-color:#fff}.el-loading-mask{position:absolute;z-index:10000;background-color:rgba(255,255,255,.9);margin:0;top:0;right:0;bottom:0;left:0}.el-loading-mask.is-fullscreen{position:fixed}.el-loading-mask.is-fullscreen .el-loading-spinner{margin-top:-25px}.el-loading-mask.is-fullscreen .el-loading-spinner .circular{width:50px}.el-loading-spinner{top:50%;margin-top:-21px;width:100%;text-align:center;position:absolute}.el-loading-spinner .el-loading-text{color:#20a0ff;margin:3px 0;font-size:14px}.el-loading-spinner .circular{width:42px;animation:rotate 2s linear infinite}.el-loading-spinner .path{animation:dash 1.5s ease-in-out infinite;stroke-dasharray:1,100;stroke-dashoffset:0;stroke-width:2;stroke:#20a0ff;stroke-linecap:round}.el-dialog,.el-message{-ms-transform:translateX(-50%)}@keyframes dash{0%{stroke-dasharray:1,100;stroke-dashoffset:0}50%{stroke-dasharray:45,100;stroke-dashoffset:-35px}100%{stroke-dasharray:45,100;stroke-dashoffset:-124px}}.el-dialog{position:absolute;left:50%;transform:translateX(-50%);background:#fff;border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,.3)}.el-dialog--tiny{width:30%}.el-dialog--small{width:50%}.el-dialog--large{width:90%}.el-dialog--full{width:100%;top:0;height:100%;overflow:auto}.el-dialog__wrapper{top:0;right:0;bottom:0;left:0;position:fixed;overflow:auto;margin:0}.el-table,.el-table td,.el-table th{box-sizing:border-box;position:relative}.el-dialog__header{padding:20px 20px 0}.el-dialog__close{cursor:pointer;color:#C0CCDA}.el-dialog__close:hover{color:#20a0ff}.el-dialog__title{line-height:1;font-size:16px;font-weight:700;color:#1f2d3d}.el-dialog__body{padding:30px 20px;color:#475669;font-size:14px}.el-dialog__footer{padding:10px 20px 15px;text-align:right;box-sizing:border-box}.dialog-fade-enter-active{animation:dialog-fade-in .3s}.dialog-fade-leave-active{animation:dialog-fade-out .3s}@keyframes dialog-fade-in{0%{transform:translate3d(0,-20px,0);opacity:0}100%{transform:translate3d(0,0,0);opacity:1}}@keyframes dialog-fade-out{0%{transform:translate3d(0,0,0);opacity:1}100%{transform:translate3d(0,-20px,0);opacity:0}}.el-table{overflow:hidden;width:100%;max-width:100%;background-color:#fff;border-collapse:collapse;border:1px solid #e0e6ed;font-size:14px;color:#1f2d3d}.el-table td,.el-table th{height:40px;min-width:0;text-overflow:ellipsis}.el-table::after,.el-table::before{content:'';position:absolute;background-color:#e0e6ed;z-index:1}.el-table td.is-right,.el-table th.is-right{text-align:right}.el-table td.is-left,.el-table th.is-left{text-align:left}.el-table td.is-center,.el-table th.is-center{text-align:center}.el-table td,.el-table th.is-leaf{border-bottom:1px solid #e0e6ed}.el-table td.gutter,.el-table th.gutter{width:15px;border-right-width:0;border-bottom-width:0;padding:0}.el-table .cell,.el-table th>div{padding-left:18px;padding-right:18px;box-sizing:border-box;text-overflow:ellipsis}.el-table::before{left:0;bottom:0;width:100%;height:1px}.el-table::after{top:0;right:0;width:1px;height:100%}.el-table .caret-wrapper,.el-table th>.cell{position:relative;display:inline-block;vertical-align:middle}.el-table th{overflow:hidden;background-color:#EFF2F7;text-align:left}.el-table th>div{display:inline-block;line-height:40px;overflow:hidden}.el-table td>div{box-sizing:border-box}.el-table th.required>div::before{display:inline-block;content:\"\";width:8px;height:8px;border-radius:50%;background:#ff4d51;margin-right:5px;vertical-align:middle}.el-table th>.cell{word-wrap:normal;text-overflow:ellipsis;line-height:20px;width:100%;box-sizing:border-box}.el-table th>.cell.highlight{color:#20a0ff}.el-table .caret-wrapper{cursor:pointer;margin-left:5px;margin-top:-2px;width:16px;height:34px;overflow:visible;overflow:initial}.el-table .cell,.el-table__header-wrapper{overflow:hidden}.el-table .sort-caret{display:inline-block;width:0;height:0;border:0;content:\"\";position:absolute;left:3px;z-index:2}.el-table .sort-caret.ascending,.el-table .sort-caret.descending{border-right:5px solid transparent;border-left:5px solid transparent}.el-table .sort-caret.ascending{top:11px;border-top:none;border-bottom:5px solid #99a9bf}.el-table .sort-caret.descending{bottom:11px;border-top:5px solid #99a9bf;border-bottom:none}.el-table .ascending .sort-caret.ascending{border-bottom-color:#475669}.el-table .descending .sort-caret.descending{border-top-color:#475669}.el-table td.gutter{width:0}.el-table .cell{white-space:normal;word-break:break-all;line-height:24px}.el-table tr input[type=checkbox]{margin:0}.el-table tr{background-color:#fff}.el-table .hidden-columns{visibility:hidden;position:absolute;z-index:-1}.el-table__empty-block{position:relative;min-height:60px;text-align:center;width:100%;height:100%}.el-table__empty-text{position:absolute;left:50%;top:50%;-ms-transform:translate(-50%,-50%);transform:translate(-50%,-50%);color:#5e6d82}.el-table--fit{border-right:0;border-bottom:0}.el-table--fit td.gutter,.el-table--fit th.gutter{border-right-width:1px}.el-table--border td,.el-table--border th{border-right:1px solid #e0e6ed}.el-table--border th{border-bottom:1px solid #e0e6ed}.el-table__fixed,.el-table__fixed-right{position:absolute;top:0;left:0;box-shadow:1px 0 8px #d3d4d6;overflow-x:hidden}.el-table__fixed-right::before,.el-table__fixed::before{content:'';position:absolute;left:0;bottom:0;width:100%;height:1px;background-color:#e0e6ed;z-index:4}.el-table__fixed-header-wrapper thead div,.el-table__header-wrapper thead div{background-color:#EFF2F7;color:#1f2d3d}.el-table__fixed-right{top:0;left:auto;right:0;box-shadow:-1px 0 8px #d3d4d6}.el-table__fixed-right .el-table__fixed-body-wrapper,.el-table__fixed-right .el-table__fixed-header-wrapper{left:auto;right:0}.el-table__fixed-header-wrapper{position:absolute;left:0;top:0;z-index:3}.el-table__fixed-body-wrapper{position:absolute;left:0;top:37px;overflow:hidden;z-index:3}.el-table__body-wrapper,.el-table__header-wrapper{width:100%}.el-table__body,.el-table__header{table-layout:fixed}.el-table__body-wrapper{overflow:auto;position:relative}.el-table--striped .el-table__body tr:nth-child(2n) td{background:#FAFAFA}.el-table--striped .el-table__body tr:nth-child(2n).current-row td{background:#EFF7FF}.el-table__body tr.hover-row>td{background-color:#eff2f7}.el-table__body tr.current-row>td{background:#eff7ff}.el-table__column-resize-proxy{position:absolute;left:200px;top:0;bottom:0;width:0;border-left:1px solid #e0e6ed;z-index:10}.el-checkbox,.el-checkbox__inner,.el-checkbox__input{position:relative;display:inline-block}.el-table__column-filter-trigger{display:inline-block;line-height:34px;margin-left:5px;cursor:pointer}.el-table__column-filter-trigger i{color:#99a9bf}.el-table--enable-row-transition .el-table__body td{transition:background-color .25s ease}.el-table--enable-row-hover tr:hover>td{background-color:#eff2f7}.el-checkbox{color:#1f2d3d;cursor:pointer;white-space:nowrap}.el-checkbox+.el-checkbox{margin-left:15px}.el-checkbox__input{white-space:nowrap;cursor:pointer;outline:0;line-height:1;vertical-align:middle}.el-checkbox__inner{border:1px solid #C0CCDA;border-radius:4px;box-sizing:border-box;width:18px;height:18px;background-color:#fff;z-index:1;transition:border-color .25s cubic-bezier(.71,-.46,.29,1.46),background-color .25s cubic-bezier(.71,-.46,.29,1.46)}.el-checkbox__inner:not(.is-disabled):hover{border-color:#20a0ff}.el-checkbox__inner::after{box-sizing:content-box;content:\"\";border:2px solid #fff;border-left:0;border-top:0;height:8px;left:5px;position:absolute;top:1px;-ms-transform:rotate(45deg) scaleY(0);transform:rotate(45deg) scaleY(0);width:4px;transition:transform .15s cubic-bezier(.71,-.46,.88,.6) .05s;-ms-transform-origin:center;transform-origin:center}.el-checkbox__inner.is-disabled.is-checked{background-color:#D3DCE6;border-color:#D3DCE6}.el-checkbox__inner.is-disabled.is-checked::after{border-color:#fff}.el-checkbox__inner.is-disabled.is-indeterminate{background-color:#D3DCE6;border-color:#D3DCE6}.el-checkbox__inner.is-disabled.is-indeterminate::before{border-color:#fff}.el-checkbox__inner.is-indeterminate{background-color:#20a0ff;border-color:#2e90fe}.el-checkbox__inner.is-indeterminate::before{content:'';position:absolute;display:block;border:1px solid #fff;margin-top:-1px;left:3px;right:3px;top:50%}.el-checkbox__inner.is-indeterminate::after{display:none}.el-checkbox__inner.is-focus{border-color:#20a0ff}.el-checkbox__inner.is-checked{background-color:#20a0ff;border-color:#2e90fe}.el-checkbox__inner.is-checked::after{-ms-transform:rotate(45deg) scaleY(1);transform:rotate(45deg) scaleY(1)}.el-checkbox__inner.is-disabled{background-color:#EFF2F7;border-color:#D3DCE6;cursor:not-allowed}.el-checkbox__inner.is-disabled::after{cursor:not-allowed;border-color:#EFF2F7}.el-checkbox__inner.is-disabled+.el-checkbox__label{cursor:not-allowed}.el-checkbox__original{opacity:0;outline:0;position:absolute;margin:0;left:-999px}.el-checkbox__label{font-size:14px;padding-left:5px}.el-table-filter{border:1px solid #d3dce6;border-radius:2px;background-color:#fff;box-shadow:0 2px 4px rgba(0,0,0,.12),0 0 6px rgba(0,0,0,.12);box-sizing:border-box;margin:2px 0}.el-table-filter__list{padding:5px 0;margin:0;list-style:none;min-width:100px}.el-table-filter__list-item{line-height:36px;padding:0 10px;cursor:pointer;font-size:14px}.el-table-filter__list-item:hover{background-color:#e5e9f2;color:#475669}.el-table-filter__list-item.is-active{background-color:#20a0ff;color:#fff}.el-table-filter__content{min-width:100px}.el-table-filter__bottom{border-top:1px solid #d3dce6;padding:8px}.el-table-filter__bottom button{background:0 0;border:none;color:#8492a6;cursor:pointer;font-size:14px;padding:0 3px}.el-table-filter__bottom button:hover{color:#20a0ff}.el-table-filter__bottom button:focus{outline:0}.el-table-filter__bottom button.is-disabled{color:#c0ccda;cursor:not-allowed}.el-table-filter__checkbox-group{padding:10px}.el-table-filter__checkbox-group .el-checkbox{display:block;margin-bottom:8px;margin-left:5px}.el-table-filter__checkbox-group .el-checkbox:last-child{margin-bottom:0}.el-select-dropdown{position:absolute;z-index:1001;border:1px solid #d3dce6;border-radius:2px;background-color:#fff;box-shadow:0 2px 4px rgba(0,0,0,.12),0 0 6px rgba(0,0,0,.04);box-sizing:border-box;margin:5px 0}.el-select-dropdown.is-multiple .el-select-dropdown__item.selected{color:#20a0ff;background-color:#fff}.el-select-dropdown.is-multiple .el-select-dropdown__item.selected.hover,.el-select-dropdown__item.hover{background-color:#e5e9f2}.el-select-dropdown.is-multiple .el-select-dropdown__item.selected::after{position:absolute;right:10px;font-family:element-icons;content:\"\\E608\";font-size:11px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.el-select-dropdown__empty{padding:10px 0;margin:0;text-align:center;color:#999;font-size:14px}.el-select-dropdown__list{list-style:none;padding:6px 0;margin:0;width:100%;max-height:274px;box-sizing:border-box;overflow-y:auto}.el-select-dropdown__item{font-size:14px;padding:8px 10px;position:relative;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#475669;height:36px;line-height:1.5;box-sizing:border-box;cursor:pointer}.el-select-dropdown__item.selected{color:#fff;background-color:#20a0ff}.el-select-dropdown__item.selected.hover{background-color:#1D8CE0}.el-select-dropdown__item span{line-height:1.5!important}.el-select-dropdown__item.is-disabled{color:#C0CCDA;cursor:not-allowed}.el-select-dropdown__item.is-disabled:hover{background-color:#fff}.el-select-group{margin:0;padding:0}.el-select-group .el-select-dropdown__item{padding-left:20px}.el-select-group__wrap{list-style:none;margin:0;padding:0}.el-select-group__title{padding-left:10px;font-size:12px;color:#999;height:30px;line-height:30px}.el-select{display:block;position:relative}.el-select:hover .el-input__inner{border-color:#8492a6}.el-select .el-input__inner{cursor:pointer}.el-select .el-input__inner:focus{border-color:#2ea0ff}.el-select .el-input .el-input__icon{color:#C0CCDA;font-size:12px;transition:transform .3s;-ms-transform:translateY(-50%) rotate(180deg);transform:translateY(-50%) rotateZ(180deg);line-height:16px;top:50%;cursor:pointer}.el-select .el-input .el-input__icon.is-show-close{transition:0s;width:16px;height:16px;font-size:14px;right:8px;text-align:center;-ms-transform:translateY(-50%) rotate(180deg);transform:translateY(-50%) rotateZ(180deg);border-radius:100%;color:#C0CCDA}.el-select .el-input .el-input__icon.is-show-close:hover{color:#99a9bf}.el-select .el-input .el-input__icon.is-reverse{-ms-transform:translateY(-50%);transform:translateY(-50%)}.el-select .el-input.is-disabled .el-input__inner{cursor:not-allowed}.el-select .el-input.is-disabled .el-input__inner:hover{border-color:#D3DCE6}.el-select .el-tag__close{margin-top:-2px}.el-select .el-tag{height:24px;line-height:24px;box-sizing:border-box;margin:6px 0 0 6px}.el-select.is-small input{border-radius:2px;height:28px}.el-select__input{border:none;outline:0;padding:0;margin:4px 0 -3px 10px;color:#666;font-size:14px;vertical-align:baseline;-webkit-appearance:none;-moz-appearance:none;appearance:none;height:28px;background-color:transparent}.el-button,.el-date-picker__editor,.el-date-range-picker__editor{-webkit-appearance:none;outline:0}.el-select__close{cursor:pointer;position:absolute;top:8px;z-index:1000;right:25px;color:#C0CCDA;line-height:18px;font-size:12px}.el-select__close:hover{color:#99a9bf}.el-select__tags{position:absolute;line-height:normal;white-space:normal;z-index:1000}.el-select__tag{display:inline-block;height:24px;line-height:24px;font-size:14px;border-radius:4px;color:#fff;background-color:#20a0ff}.el-select__tag .el-icon-close{font-size:12px}.el-pagination{white-space:nowrap;padding:2px 5px;color:#475669}.el-pagination button,.el-pagination span{display:inline-block;font-size:13px;min-width:28px;height:28px;line-height:28px;vertical-align:top;box-sizing:border-box}.el-pagination .el-select .el-input{width:110px}.el-pagination .el-select .el-input input{padding-right:25px}.el-pagination button{border:none;padding:0 6px;background:0 0}.el-pagination button:focus{outline:0}.el-pagination button:hover{color:#20a0ff}.el-pagination button.disabled{color:#e4e4e4;background-color:#fff;cursor:not-allowed}.el-pager li,.el-pager li.btn-quicknext:hover,.el-pager li.btn-quickprev:hover{cursor:pointer}.el-pagination .btn-next,.el-pagination .btn-prev{background:center center no-repeat #fff;background-size:16px;border:1px solid #D3DCE6;cursor:pointer;margin:0;color:#99a9bf}.el-pagination .btn-next .el-icon,.el-pagination .btn-prev .el-icon{display:block;font-size:12px}.el-pager,.el-pager li{vertical-align:top;display:inline-block}.el-pagination .btn-prev{border-radius:2px 0 0 2px;border-right:0}.el-pagination .btn-next{border-radius:0 2px 2px 0;border-left:0}.el-pagination--small .btn-next,.el-pagination--small .btn-prev,.el-pagination--small .el-pager li,.el-pagination--small .el-pager li:last-child{border-color:transparent;font-size:12px;line-height:22px;height:22px;min-width:22px}.el-pagination--small .el-pager li{border-radius:2px}.el-pagination__sizes{margin:0 10px 0 0}.el-pagination__sizes .el-input .el-input__inner{font-size:13px;border-color:#D3DCE6}.el-pagination__sizes .el-input .el-input__inner:hover{border-color:#20a0ff}.el-pagination__jump{margin-left:10px}.el-pagination__total{margin:0 10px}.el-pagination__editor{border:1px solid #D3DCE6;border-radius:2px;line-height:18px;padding:4px 2px;width:30px;text-align:center;margin:0 6px;box-sizing:border-box;transition:border .3s}.el-pagination__editor::-webkit-inner-spin-button,.el-pagination__editor::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}.el-pagination__editor:focus{outline:0;border-color:#20a0ff}.el-pager{user-select:none;list-style:none;font-size:0;padding:0}.el-button,.el-date-table{-moz-user-select:none;-ms-user-select:none}.el-button,.el-date-table,.el-message-box{-webkit-user-select:none}.el-pager li{padding:0 4px;border:1px solid #D3DCE6;border-right:0;background:#fff;font-size:13px;min-width:28px;height:28px;line-height:28px;box-sizing:border-box;text-align:center}.el-autocomplete__suggestions.is-loading .el-icon-loading,.el-button-group,.el-message-box,.el-message-box__wrapper::after{vertical-align:middle}.el-pager li:last-child{border-right:1px solid #D3DCE6}.el-pager li.btn-quicknext,.el-pager li.btn-quickprev{line-height:28px;color:#99a9bf}.el-pager li.active+li{border-left:0;padding-left:5px}.el-pager li:hover{color:#20a0ff}.el-pager li.active{border-color:#20a0ff;background-color:#20a0ff;color:#fff;cursor:default}.el-popover{position:absolute;background:#fff;min-width:150px;border-radius:2px;border:1px solid #d3dce6;padding:10px;z-index:2000;font-size:12px;box-shadow:0 2px 4px 0 rgba(0,0,0,.12),0 0 6px 0 rgba(0,0,0,.04)}.el-popover .popper__arrow,.el-tooltip__popper .popper__arrow{border-width:6px}.el-popover .popper__arrow,.el-popover .popper__arrow::after{position:absolute;display:block;width:0;height:0;border-color:transparent;border-style:solid}.el-tooltip,.el-tooltip__rel{display:inline-block}.el-popover .popper__arrow::after{content:\" \";border-width:6px}.el-popover[x-placement^=top]{margin-bottom:12px}.el-popover[x-placement^=top] .popper__arrow{bottom:-6px;left:50%;margin-right:3px;border-top-color:#d3dce6;border-bottom-width:0}.el-popover[x-placement^=top] .popper__arrow::after{bottom:1px;margin-left:-6px;border-top-color:#fff;border-bottom-width:0}.el-popover[x-placement^=bottom]{margin-top:12px}.el-popover[x-placement^=bottom] .popper__arrow{top:-6px;left:50%;margin-right:3px;border-top-width:0;border-bottom-color:#d3dce6}.el-popover[x-placement^=left],.el-tooltip__popper[x-placement^=left]{margin-right:12px}.el-popover[x-placement^=bottom] .popper__arrow::after{top:1px;margin-left:-6px;border-top-width:0;border-bottom-color:#fff}.el-popover[x-placement^=right]{margin-left:12px}.el-popover[x-placement^=right] .popper__arrow{top:50%;left:-6px;margin-bottom:3px;border-right-color:#d3dce6;border-left-width:0}.el-popover[x-placement^=right] .popper__arrow::after{bottom:-6px;left:1px;border-right-color:#fff;border-left-width:0}.el-popover[x-placement^=left] .popper__arrow{top:50%;right:-6px;margin-bottom:3px;border-right-width:0;border-left-color:#d3dce6}.el-popover[x-placement^=left] .popper__arrow::after{right:1px;bottom:-6px;margin-left:-6px;border-right-width:0;border-left-color:#fff}.el-popover__title{color:#1f2d3d;font-size:13px;line-height:1;margin-bottom:9px}.el-tooltip__rel{position:relative}.el-tooltip__popper{position:absolute;border-radius:4px;padding:10px;z-index:2000;font-size:12px;line-height:1.2}.el-tooltip__popper .popper__arrow,.el-tooltip__popper .popper__arrow::after{position:absolute;display:block;width:0;height:0;border-color:transparent;border-style:solid}.el-tooltip__popper .popper__arrow::after{content:\" \";border-width:5px}.el-tooltip__popper[x-placement^=top]{margin-bottom:12px}.el-tooltip__popper[x-placement^=top] .popper__arrow{bottom:-6px;border-top-color:#1f2d3d;border-bottom-width:0}.el-tooltip__popper[x-placement^=top] .popper__arrow::after{bottom:1px;margin-left:-5px;border-top-color:#1f2d3d;border-bottom-width:0}.el-tooltip__popper[x-placement^=bottom]{margin-top:12px}.el-tooltip__popper[x-placement^=bottom] .popper__arrow{top:-6px;border-top-width:0;border-bottom-color:#1f2d3d}.el-tooltip__popper[x-placement^=bottom] .popper__arrow::after{top:1px;margin-left:-5px;border-top-width:0;border-bottom-color:#1f2d3d}.el-tooltip__popper[x-placement^=right]{margin-left:12px}.el-tooltip__popper[x-placement^=right] .popper__arrow{left:-6px;border-right-color:#1f2d3d;border-left-width:0}.el-tooltip__popper[x-placement^=right] .popper__arrow::after{bottom:-5px;left:1px;border-right-color:#1f2d3d;border-left-width:0}.el-tooltip__popper[x-placement^=left] .popper__arrow{right:-6px;border-right-width:0;border-left-color:#1f2d3d}.el-tooltip__popper[x-placement^=left] .popper__arrow::after{right:1px;bottom:-5px;margin-left:-5px;border-right-width:0;border-left-color:#1f2d3d}.el-tooltip__popper.is-light{background:#fff;border:1px solid #1f2d3d}.el-tooltip__popper.is-light[x-placement^=top] .popper__arrow{border-top-color:#1f2d3d}.el-tooltip__popper.is-light[x-placement^=top] .popper__arrow::after{border-top-color:#fff}.el-tooltip__popper.is-light[x-placement^=bottom] .popper__arrow{border-bottom-color:#1f2d3d}.el-tooltip__popper.is-light[x-placement^=bottom] .popper__arrow::after{border-bottom-color:#fff}.el-tooltip__popper.is-light[x-placement^=left] .popper__arrow{border-left-color:#1f2d3d}.el-tooltip__popper.is-light[x-placement^=left] .popper__arrow::after{border-left-color:#fff}.el-tooltip__popper.is-light[x-placement^=right] .popper__arrow{border-right-color:#1f2d3d}.el-tooltip__popper.is-light[x-placement^=right] .popper__arrow::after{border-right-color:#fff}.el-tooltip__popper.is-dark{background:#1f2d3d;color:#fff}.el-autocomplete{position:relative}.el-autocomplete__suggestions{position:absolute;left:0;top:110%;margin:0;background-color:#fff;border:1px solid #D3DCE6;width:100%;padding:6px 0;z-index:10;border-radius:2px;max-height:280px;box-sizing:border-box;overflow:auto;box-shadow:0 0 6px 0 rgba(0,0,0,.04),0 2px 4px 0 rgba(0,0,0,.12)}.el-autocomplete__suggestions li{list-style:none;line-height:36px;padding:0 10px;margin:0;cursor:pointer;color:#475669;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.el-autocomplete__suggestions li:hover{background-color:#e5e9f2}.el-autocomplete__suggestions li.highlighted{background-color:#20a0ff;color:#fff}.el-autocomplete__suggestions li:active{background-color:#0082e6}.el-autocomplete__suggestions.is-loading li:hover,.el-message{background-color:#fff}.el-autocomplete__suggestions li.divider{margin-top:6px;border-top:1px solid #D3DCE6}.el-autocomplete__suggestions li.divider:last-child{margin-bottom:-6px}.el-autocomplete__suggestions.is-loading li{text-align:center;height:100px;line-height:100px;font-size:20px;color:#999}.el-message{box-shadow:0 2px 4px rgba(0,0,0,.12),0 0 6px rgba(0,0,0,.04);min-width:300px;padding:10px 12px;box-sizing:border-box;border-radius:2px;position:fixed;left:50%;top:20px;transform:translateX(-50%);transition:opacity .3s,transform .4s;overflow:hidden}.el-message .el-icon-circle-check{color:#13ce66}.el-message .el-icon-circle-cross{color:#ff4949}.el-message .el-icon-information{color:#50BFFF}.el-message .el-icon-warning{color:#f7ba2a}.el-message__group{margin-left:38px;position:relative}.el-message__group p{font-size:14px;line-height:20px;margin:0 34px 0 0;white-space:nowrap;color:#8492a6;text-align:justify}.el-message__icon{width:40px;height:40px;position:absolute;left:0;top:0}.el-message__closeBtn{top:3px;right:0;position:absolute;cursor:pointer;color:#C0CCDA;font-size:14px}.el-message__closeBtn:hover{color:#99A9BF}.el-message-fade-enter,.el-message-fade-leave-active{opacity:0;-ms-transform:translate(-50%,-100%);transform:translate(-50%,-100%)}.el-button{display:inline-block;line-height:1;white-space:nowrap;cursor:pointer;background:#fff;border:1px solid #C0CCDA;color:#1F2D3D;text-align:center;box-sizing:border-box;margin:0;padding:10px 15px;font-size:14px;border-radius:4px}.el-button+.el-button{margin-left:10px}.el-button:focus,.el-button:hover{color:#20a0ff;border-color:#20a0ff}.el-button:active{color:#1d90e6;border-color:#1d90e6;outline:0}.el-button::-moz-focus-inner{border:0}.el-button [class*=el-icon-]+span{margin-left:5px}.el-button.is-loading{position:relative;pointer-events:none}.el-button.is-loading:before{pointer-events:none;content:'';position:absolute;left:-1px;top:-1px;right:-1px;bottom:-1px;border-radius:inherit;background-color:rgba(255,255,255,.35)}.el-button.is-disabled,.el-button.is-disabled:focus,.el-button.is-disabled:hover{color:#C0CCDA;cursor:not-allowed;background-image:none;background-color:#EFF2F7;border-color:#D3DCE6}.el-button.is-disabled.el-button--text{background-color:transparent}.el-button.is-disabled.is-plain,.el-button.is-disabled.is-plain:focus,.el-button.is-disabled.is-plain:hover{background-color:#fff;border-color:#d3dce6;color:#C0CCDA}.el-button.is-active{color:#1d90e6;border-color:#1d90e6}.el-button.is-plain:focus,.el-button.is-plain:hover{background:#fff;border-color:#20a0ff;color:#20a0ff}.el-button.is-plain:active{background:#fff;border-color:#1d90e6;color:#1d90e6;outline:0}.el-button--primary{color:#fff;background-color:#20a0ff;border-color:#20a0ff}.el-button--primary:focus,.el-button--primary:hover{background:#4db3ff;border-color:#4db3ff;color:#fff}.el-button--primary.is-active,.el-button--primary:active{background:#1d90e6;border-color:#1d90e6;color:#fff}.el-button--primary:active{outline:0}.el-button--primary.is-plain{background:#fff;border:1px solid #C0CCDA;color:#1F2D3D}.el-button--primary.is-plain:focus,.el-button--primary.is-plain:hover{background:#fff;border-color:#20a0ff;color:#20a0ff}.el-button--primary.is-plain:active{background:#fff;border-color:#1d90e6;color:#1d90e6;outline:0}.el-button--success{color:#fff;background-color:#13ce66;border-color:#13ce66}.el-button--success:focus,.el-button--success:hover{background:#42d885;border-color:#42d885;color:#fff}.el-button--success.is-active,.el-button--success:active{background:#11b95c;border-color:#11b95c;color:#fff}.el-button--success:active{outline:0}.el-button--success.is-plain{background:#fff;border:1px solid #C0CCDA;color:#1F2D3D}.el-button--success.is-plain:focus,.el-button--success.is-plain:hover{background:#fff;border-color:#13ce66;color:#13ce66}.el-button--success.is-plain:active{background:#fff;border-color:#11b95c;color:#11b95c;outline:0}.el-button--warning{color:#fff;background-color:#f7ba2a;border-color:#f7ba2a}.el-button--warning:focus,.el-button--warning:hover{background:#f9c855;border-color:#f9c855;color:#fff}.el-button--warning.is-active,.el-button--warning:active{background:#dea726;border-color:#dea726;color:#fff}.el-button--warning:active{outline:0}.el-button--warning.is-plain{background:#fff;border:1px solid #C0CCDA;color:#1F2D3D}.el-button--warning.is-plain:focus,.el-button--warning.is-plain:hover{background:#fff;border-color:#f7ba2a;color:#f7ba2a}.el-button--warning.is-plain:active{background:#fff;border-color:#dea726;color:#dea726;outline:0}.el-button--danger{color:#fff;background-color:#ff4949;border-color:#ff4949}.el-button--danger:focus,.el-button--danger:hover{background:#ff6d6d;border-color:#ff6d6d;color:#fff}.el-button--danger.is-active,.el-button--danger:active{background:#e64242;border-color:#e64242;color:#fff}.el-button--danger:active{outline:0}.el-button--danger.is-plain{background:#fff;border:1px solid #C0CCDA;color:#1F2D3D}.el-button--danger.is-plain:focus,.el-button--danger.is-plain:hover{background:#fff;border-color:#ff4949;color:#ff4949}.el-button--danger.is-plain:active{background:#fff;border-color:#e64242;color:#e64242;outline:0}.el-button--info{color:#fff;background-color:#50BFFF;border-color:#50BFFF}.el-button--info:focus,.el-button--info:hover{background:#73ccff;border-color:#73ccff;color:#fff}.el-button--info.is-active,.el-button--info:active{background:#48ace6;border-color:#48ace6;color:#fff}.el-button--info:active{outline:0}.el-button--info.is-plain{background:#fff;border:1px solid #C0CCDA;color:#1F2D3D}.el-button--info.is-plain:focus,.el-button--info.is-plain:hover{background:#fff;border-color:#50BFFF;color:#50BFFF}.el-button--info.is-plain:active{background:#fff;border-color:#48ace6;color:#48ace6;outline:0}.el-button--large{padding:11px 19px;font-size:16px;border-radius:4px}.el-button--small{padding:7px 9px;font-size:12px;border-radius:4px}.el-button--mini{padding:4px;font-size:12px;border-radius:4px}.el-button--text{border:none;color:#20a0ff;background:0 0;padding-left:0;padding-right:0}.el-button--text:focus,.el-button--text:hover{color:#4db3ff}.el-button--text:active{color:#1d90e6}.el-button-group{display:inline-block}.el-button-group .el-button--primary:first-child{border-right-color:rgba(255,255,255,.5)}.el-button-group .el-button--primary:last-child{border-left-color:rgba(255,255,255,.5)}.el-button-group .el-button--primary:not(:first-child):not(:last-child){border-left-color:rgba(255,255,255,.5);border-right-color:rgba(255,255,255,.5)}.el-button-group .el-button--success:first-child{border-right-color:rgba(255,255,255,.5)}.el-button-group .el-button--success:last-child{border-left-color:rgba(255,255,255,.5)}.el-button-group .el-button--success:not(:first-child):not(:last-child){border-left-color:rgba(255,255,255,.5);border-right-color:rgba(255,255,255,.5)}.el-button-group .el-button--warning:first-child{border-right-color:rgba(255,255,255,.5)}.el-button-group .el-button--warning:last-child{border-left-color:rgba(255,255,255,.5)}.el-button-group .el-button--warning:not(:first-child):not(:last-child){border-left-color:rgba(255,255,255,.5);border-right-color:rgba(255,255,255,.5)}.el-button-group .el-button--danger:first-child{border-right-color:rgba(255,255,255,.5)}.el-button-group .el-button--danger:last-child{border-left-color:rgba(255,255,255,.5)}.el-button-group .el-button--danger:not(:first-child):not(:last-child){border-left-color:rgba(255,255,255,.5);border-right-color:rgba(255,255,255,.5)}.el-button-group .el-button--info:first-child{border-right-color:rgba(255,255,255,.5)}.el-button-group .el-button--info:last-child{border-left-color:rgba(255,255,255,.5)}.el-button-group .el-button--info:not(:first-child):not(:last-child){border-left-color:rgba(255,255,255,.5);border-right-color:rgba(255,255,255,.5)}.el-button-group .el-button{float:left;position:relative}.el-button-group .el-button+.el-button{margin-left:0}.el-button-group .el-button:first-child{border-top-right-radius:0;border-bottom-right-radius:0}.el-button-group .el-button:last-child{border-top-left-radius:0;border-bottom-left-radius:0}.el-button-group .el-button:not(:first-child):not(:last-child){border-radius:0}.el-button-group .el-button.is-active,.el-button-group .el-button:active,.el-button-group .el-button:focus,.el-button-group .el-button:hover{z-index:1}.v-modal-enter{animation:v-modal-in .2s ease}.v-modal-leave{animation:v-modal-out .2s ease forwards}@keyframes v-modal-in{0%{opacity:0}}@keyframes v-modal-out{to{opacity:0}}.v-modal{position:fixed;left:0;top:0;width:100%;height:100%;opacity:.5;background:#000}.el-message-box{text-align:left;display:inline-block;background-color:#fff;width:420px;border-radius:3px;font-size:16px;overflow:hidden;-webkit-backface-visibility:hidden;backface-visibility:hidden}.el-message-box__wrapper{position:fixed;top:0;bottom:0;left:0;right:0;text-align:center}.el-message-box__wrapper::after{content:\"\";display:inline-block;height:100%;width:0}.el-message-box__header{position:relative;padding:20px 20px 0}.el-message-box__content{padding:30px 20px;color:#475669;font-size:14px;position:relative}.el-message-box__close{display:inline-block;position:absolute;top:19px;right:20px;color:#999;cursor:pointer;line-height:20px;text-align:center}.el-message-box__close:hover{color:#20a0ff}.el-message-box__input{padding-top:15px}.el-message-box__input input.invalid,.el-message-box__input input.invalid:focus{border-color:#ff4949}.el-message-box__errormsg{color:#ff4949;font-size:12px;min-height:18px;margin-top:2px}.el-message-box__title{padding-left:0;margin-bottom:0;font-size:16px;font-weight:700;height:18px;color:#333}.el-message-box__message{margin:0}.el-message-box__message p{margin:0;line-height:1.4}.el-message-box__btns{padding:10px 20px 15px;text-align:right}.el-message-box__btns button:nth-child(2){margin-left:10px}.el-message-box__btns-reverse{-ms-flex-direction:row-reverse;flex-direction:row-reverse}.el-message-box__status{position:absolute;top:50%;-ms-transform:translateY(-50%);transform:translateY(-50%);font-size:36px!important}.el-message-box__status.el-icon-circle-check{color:#13ce66}.el-message-box__status.el-icon-information{color:#50BFFF}.el-message-box__status.el-icon-warning{color:#f7ba2a}.el-message-box__status.el-icon-circle-cross{color:#ff4949}.msgbox-fade-enter-active{animation:msgbox-fade-in .3s}.msgbox-fade-leave-active{animation:msgbox-fade-out .3s}@keyframes msgbox-fade-in{0%{transform:translate3d(0,-20px,0);opacity:0}100%{transform:translate3d(0,0,0);opacity:1}}@keyframes msgbox-fade-out{0%{transform:translate3d(0,0,0);opacity:1}100%{transform:translate3d(0,-20px,0);opacity:0}}.el-date-table{font-size:12px;min-width:224px;user-select:none}.el-date-table td{width:32px;height:32px;box-sizing:border-box;text-align:center;cursor:pointer}.el-month-table td .cell,.el-year-table td .cell{width:48px;height:32px;display:block;line-height:32px}.el-date-table td.next-month,.el-date-table td.prev-month{color:#ddd}.el-date-table td.today{color:#20a0ff}.el-date-table td.available:hover{background-color:#e5e9f2}.el-date-table td.in-range{background-color:#D3ECFF}.el-date-table td.in-range:hover{background-color:#AFDCFF}.el-date-table td.current,.el-date-table td.end-date,.el-date-table td.start-date{background-color:#20a0ff!important;color:#fff}.el-date-table td.disabled{background-color:#f4f4f4;opacity:1;cursor:not-allowed;color:#ccc}.fade-in-enter,.fade-in-leave-active,.fade-in-linear-enter,.fade-in-linear-leave,.fade-in-linear-leave-active{opacity:0}.el-date-table td.week{font-size:80%;color:#8492a6}.el-month-table,.el-year-table{font-size:12px;margin:-1px;border-collapse:collapse}.el-date-table th{padding:5px;color:#8492a6;font-weight:400}.el-date-table.is-week-mode .el-date-table__row:hover{background-color:#e5e9f2}.el-date-table.is-week-mode .el-date-table__row.current{background-color:#D3ECFF}.el-month-table td{text-align:center;padding:20px 3px;cursor:pointer}.el-month-table td .cell{color:#475669}.el-month-table td .cell:hover{background-color:#e5e9f2}.el-month-table td.disabled .cell{background-color:#f4f4f4;cursor:not-allowed;color:#ccc}.el-month-table td.current .cell{background-color:#20a0ff!important;color:#fff}.el-year-table .el-icon{color:#99a9bf}.el-year-table td{text-align:center;padding:20px 3px;cursor:pointer}.el-year-table td .cell{color:#475669}.el-year-table td .cell:hover{background-color:#e5e9f2}.el-year-table td.disabled .cell{background-color:#f4f4f4;cursor:not-allowed;color:#ccc}.el-year-table td.current .cell{background-color:#20a0ff!important;color:#fff}.el-date-range-picker{min-width:520px}.el-date-range-picker table{table-layout:fixed;width:100%}.el-date-range-picker .el-picker-panel__body{min-width:513px}.el-date-range-picker .el-picker-panel__content{margin:0}.el-date-range-picker.has-sidebar.has-time{min-width:766px}.el-date-range-picker.has-sidebar{min-width:620px}.el-date-range-picker.has-time{min-width:660px}.el-date-range-picker__editor{position:relative;border:1px solid #c0ccda;border-radius:4px;padding:5px 10px;box-sizing:border-box;height:28px;-moz-appearance:none;appearance:none;transition:border .3s;width:100%}.el-date-range-picker__editor:hover{border-color:#20a0ff}.el-date-range-picker__header{position:relative;text-align:center;height:28px}.el-date-range-picker__header button{float:left}.el-date-range-picker__header div{font-size:14px;margin-right:50px}.el-date-range-picker__content{float:left;width:50%;box-sizing:border-box;margin:0;padding:16px}.el-date-range-picker__content.is-right .el-date-range-picker__header button{float:right}.el-date-range-picker__content.is-right .el-date-range-picker__header div{margin-left:50px;margin-right:50px}.el-date-range-picker__content.is-left{border-right:1px solid #e4e4e4}.el-date-range-picker__editors-wrap{box-sizing:border-box;display:table-cell}.el-date-range-picker__editors-wrap.is-right{text-align:right}.el-date-range-picker__time-header{position:relative;border-bottom:1px solid #e4e4e4;font-size:12px;padding:8px 5px 5px;display:table;width:100%;box-sizing:border-box}.el-date-range-picker__time-header>.el-icon-arrow-right{font-size:20px;vertical-align:middle;display:table-cell;color:#99a9bf}.el-date-range-picker__time-picker-wrap{position:relative;display:table-cell;padding:0 5px}.el-date-range-picker__time-picker-wrap .el-picker-panel{position:absolute;top:13px;right:0;z-index:1;background:#fff}.el-time-range-picker{min-width:354px;overflow:visible}.el-time-range-picker__content{position:relative;text-align:center;padding:10px;display:-ms-flexbox;display:flex}.el-time-range-picker__cell{box-sizing:border-box;margin:0;padding:4px 7px 7px;-ms-flex:1;flex:1}.el-time-range-picker__header{margin-bottom:5px;text-align:center;font-size:14px}.el-time-range-picker__body{display:-ms-flexbox;display:flex;border-radius:2px;border:1px solid #d3dce6}.el-time-spinner__wrapper{height:190px;overflow:hidden;-ms-flex:1;flex:1;vertical-align:top;position:relative;-ms-overflow-style:none}.el-time-spinner__wrapper:hover{overflow-y:auto}.el-time-spinner__list{padding:0;margin:0;list-style:none;text-align:center}.el-time-spinner__list::after,.el-time-spinner__list::before{content:'';display:block;width:100%;height:80px}.el-time-spinner__item{height:32px;line-height:32px;font-size:12px}.el-time-spinner__item:hover:not(.disabled):not(.active){background:#E5E9F2;cursor:pointer}.el-time-spinner__item.active:not(.disabled){color:#fff}.el-time-spinner__item.disabled{color:#d3dce6;cursor:not-allowed}.el-time-panel{margin:5px 0;border:1px solid #d3dce6;background-color:#fff;box-shadow:0 2px 4px rgba(0,0,0,.12),0 0 6px 0 rgba(0,0,0,.04);border-radius:2px;position:absolute;width:180px;left:0;z-index:1000;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.el-time-panel__content{font-size:0;display:-ms-flexbox;display:flex;position:relative;overflow:hidden}.el-time-panel__content::after,.el-time-panel__content::before{content:\":\";top:50%;color:#fff;position:absolute;font-size:14px;margin-top:-15px;line-height:16px;background-color:#20a0ff;height:32px;z-index:-1;left:0;right:0;box-sizing:border-box;padding-top:6px;text-align:left}.el-date-editor,.el-date-editor__editor,.el-time-panel__footer{height:36px;box-sizing:border-box}.el-time-panel__content::after{left:66.66667%;margin-left:-2px}.el-time-panel__content::before{padding-left:33.33333%;margin-right:-2px}.el-time-panel__footer{border-top:1px solid #e4e4e4;padding:4px;line-height:25px;text-align:right}.el-time-panel__btn{border:none;line-height:28px;padding:0 5px;margin:0 5px;cursor:pointer;background-color:transparent;outline:0;font-size:12px;color:#8492a6}.el-time-panel__btn.confirm{font-weight:800;color:#20a0ff}.fade-in-linear-enter-active,.fade-in-linear-leave-active{transition:opacity .2s linear}.fade-in-enter-active,.fade-in-leave-active,.md-fade-center-enter-active,.md-fade-center-leave-active{transition:all .3s cubic-bezier(.55,0,.1,1)}.md-fade-bottom-enter-active,.md-fade-bottom-leave-active,.md-fade-left-enter-active,.md-fade-left-leave-active,.md-fade-right-enter-active,.md-fade-right-leave-active,.md-fade-top-enter-active,.md-fade-top-leave-active{transition:transform .3s cubic-bezier(.23,1,.32,1) .1s,opacity .3s cubic-bezier(.23,1,.32,1) .1s}.md-fade-center-enter,.md-fade-center-leave,.md-fade-center-leave-active{opacity:0;-ms-transform:scaleY(0);transform:scaleY(0)}.md-fade-bottom-enter-active,.md-fade-bottom-leave-active{opacity:1;-ms-transform:scaleY(1);transform:scaleY(1);-ms-transform-origin:center top;transform-origin:center top}.md-fade-bottom-enter,.md-fade-bottom-leave,.md-fade-bottom-leave-active{opacity:0;-ms-transform:scaleY(0);transform:scaleY(0)}.md-fade-top-enter-active,.md-fade-top-leave-active{opacity:1;-ms-transform:scaleY(1);transform:scaleY(1);-ms-transform-origin:center bottom;transform-origin:center bottom}.md-fade-top-enter,.md-fade-top-leave,.md-fade-top-leave-active{opacity:0;-ms-transform:scaleY(0);transform:scaleY(0)}.md-fade-left-enter-active,.md-fade-left-leave-active{opacity:1;-ms-transform:scaleX(1);transform:scaleX(1);-ms-transform-origin:right center;transform-origin:right center}.md-fade-left-enter,.md-fade-left-leave,.md-fade-left-leave-active{opacity:0;-ms-transform:scaleX(0);transform:scaleX(0)}.md-fade-right-enter-active,.md-fade-right-leave-active{opacity:1;-ms-transform:scaleX(1);transform:scaleX(1);-ms-transform-origin:left center;transform-origin:left center}.md-fade-right-enter,.md-fade-right-leave,.md-fade-right-leave-active{opacity:0;-ms-transform:scaleX(0);transform:scaleX(0)}.fade-enter-active,.fade-leave-active{transition:opacity .3s cubic-bezier(.645,.045,.355,1)}.fade-enter,.fade-leave-active{opacity:0}.list-enter-active,.list-leave-active,.list-move{transition:all .5s cubic-bezier(.55,0,.1,1)}.list-enter,.list-leave-active{opacity:0;-ms-transform:translate(0,-30px);transform:translate(0,-30px)}.el-date-editor{position:relative;display:inline-block;width:182px}.el-date-editor .el-picker-panel{position:absolute;min-width:180px;box-sizing:border-box;box-shadow:0 2px 6px #ccc;background:#fff;z-index:10;top:41px}.el-date-editor.lg .el-date-editor__editor{padding:6px 4px}.el-date-editor.sm .el-date-editor__editor{padding:1px}.el-date-editor.is-have-trigger .el-date-editor__editor{padding-right:20px}.el-date-editor.is-have-trigger .el-date-editor__clear{right:22px}.el-date-editor__editor{border:1px solid #c0ccda;border-radius:4px;line-height:18px;padding:3px 10px;width:100%;transition:border .3s;color:#666;font-size:14px}.el-date-editor__editor::-webkit-input-placeholder{color:#bbb;font-size:14px}.el-date-editor__editor::-moz-placeholder{color:#bbb;font-size:14px}.el-date-editor__editor:-ms-input-placeholder{color:#bbb;font-size:14px}.el-date-editor__editor::placeholder{color:#bbb;font-size:14px}.el-date-editor__editor.is-disabled{background-color:#EFF2F7;border-color:#D3DCE6;color:#bbb;cursor:not-allowed}.el-date-editor__editor.is-disabled::-webkit-input-placeholder{color:#C0CCDA}.el-date-editor__editor.is-disabled::-moz-placeholder{color:#C0CCDA}.el-date-editor__editor.is-disabled:-ms-input-placeholder{color:#C0CCDA}.el-date-editor__editor.is-disabled::placeholder{color:#C0CCDA}.el-date-editor__trigger.el-icon{cursor:pointer;position:absolute;display:inline-block;width:16px;right:10px;top:0;bottom:0;color:#c0ccda;font-size:16px;line-height:38px}.el-date-editor__clear{cursor:pointer;position:absolute;width:20px;right:0;top:0;bottom:0;line-height:36px;color:#99a9bf}.el-date-editor__clear:hover{color:#20a0ff}.el-date-editor.is-active>.el-date-editor__editor,.el-date-editor:hover>.el-date-editor__editor,.el-date-editor__editor:focus{outline:0;border-color:#20a0ff}.el-date-editor .el-date-editor__clear{display:none}.el-date-editor.is-filled.is-active>.el-date-editor__clear,.el-date-editor.is-filled:hover .el-date-editor__clear{display:inline-block}.el-picker-panel{color:#475669;border:1px solid #d3dce6;box-shadow:0 2px 6px #ccc;background:#fff;border-radius:2px;line-height:20px;margin:5px 0}.el-card,.el-menu--horizontal .el-submenu>.el-menu,.el-tabs--border-card{box-shadow:0 2px 4px 0 rgba(0,0,0,.12),0 0 6px 0 rgba(0,0,0,.04)}.el-picker-panel__body-wrapper::after,.el-picker-panel__body::after{content:\"\";display:table;clear:both}.el-picker-panel__content{position:relative;margin:15px}.el-picker-panel__footer{border-top:1px solid #e4e4e4;padding:4px;text-align:right;background-color:#fff;position:relative}.el-picker-panel__shortcut{display:block;width:100%;border:0;background-color:transparent;line-height:28px;font-size:14px;color:#475669;padding-left:12px;text-align:left;outline:0;cursor:pointer}.el-picker-panel__shortcut:hover{background-color:#e5e9f2}.el-picker-panel__shortcut.active{background-color:#e6f1fe;color:#20a0ff}.el-picker-panel__btn{border:1px solid #dcdcdc;color:#333;line-height:24px;border-radius:2px;padding:0 20px;cursor:pointer;background-color:transparent;outline:0;font-size:12px}.el-picker-panel__btn[disabled]{color:#ccc;cursor:not-allowed}.el-picker-panel__icon-btn{font-size:12px;color:#99a9bf;border:0;background:0 0;cursor:pointer;outline:0;margin-top:3px}.el-picker-panel__icon-btn:hover{color:#20a0ff}.el-picker-panel__link-btn{cursor:pointer;color:#55a4ff;text-decoration:none;padding:15px;font-size:12px}.el-picker-panel [slot=sidebar],.el-picker-panel__sidebar{position:absolute;top:0;bottom:0;width:110px;border-right:1px solid #e4e4e4;box-sizing:border-box;padding-top:6px;background-color:#f9fafc}.el-picker-panel [slot=sidebar]+.el-picker-panel__body,.el-picker-panel__sidebar+.el-picker-panel__body{margin-left:110px}.el-date-picker{min-width:254px}.el-date-picker .el-picker-panel__content{min-width:224px}.el-date-picker table{table-layout:fixed;width:100%}.el-date-picker.has-sidebar.has-time{min-width:434px}.el-date-picker.has-sidebar{min-width:370px}.el-date-picker.has-time{min-width:324px}.el-date-picker__editor-wrap{position:relative;display:table-cell;padding:0 5px}.el-date-picker__editor{position:relative;border:1px solid #c0ccda;border-radius:4px;padding:5px 10px;box-sizing:border-box;height:28px;-moz-appearance:none;appearance:none;transition:border .3s;width:100%}.el-input__inner,.el-textarea__inner{background-image:none;transition:border-color .2s cubic-bezier(.645,.045,.355,1);box-sizing:border-box}.el-date-picker__editor:hover{border-color:#20a0ff}.el-date-picker__time-header{position:relative;border-bottom:1px solid #e4e4e4;font-size:12px;padding:8px 5px 5px;display:table;width:100%;box-sizing:border-box}.el-date-picker__header{margin:12px;text-align:center}.el-date-picker__header-label{font-size:14px;padding:0 5px;line-height:22px;text-align:center;cursor:pointer}.el-date-picker__header-label.active,.el-date-picker__header-label:hover{color:#20a0ff}.el-date-picker__prev-btn{float:left}.el-date-picker__next-btn{float:right}.el-date-picker__time-wrap{padding:10px;text-align:center}.el-date-picker__time-label{float:left;cursor:pointer;line-height:30px;margin-left:10px}.time-select{margin:5px 0;min-width:0}.time-select .el-picker-panel__content{max-height:200px;overflow:hidden;margin:0}.time-select .el-picker-panel__content:hover{overflow-y:auto}.time-select-item{padding:8px 10px;font-size:14px}.time-select-item.selected:not(.disabled){background-color:#20a0ff;color:#fff}.time-select-item.selected:not(.disabled):hover{background-color:#1d8ce0}.time-select-item.disabled{color:#d3dce6;cursor:not-allowed}.time-select-item:hover{background-color:#e5e9f2;cursor:pointer}.el-input{position:relative;font-size:14px}.el-input.is-disabled .el-input__inner{background-color:#EFF2F7;border-color:#D3DCE6;color:#bbb;cursor:not-allowed}.el-input.is-disabled .el-input__inner::-webkit-input-placeholder{color:#C0CCDA}.el-input.is-disabled .el-input__inner::-moz-placeholder{color:#C0CCDA}.el-input.is-disabled .el-input__inner:-ms-input-placeholder{color:#C0CCDA}.el-input.is-disabled .el-input__inner::placeholder{color:#C0CCDA}.el-input.is-active .el-input__inner{outline:0;border-color:#20a0ff}.el-input__inner{display:block;padding:3px 10px;width:100%;height:36px;color:#1f2d3d;background-color:#fff;border:1px solid #C0CCDA;border-radius:4px;outline:0;font-size:inherit;line-height:normal}.el-input__inner::-webkit-input-placeholder{color:#99a9bf}.el-input__inner::-moz-placeholder{color:#99a9bf}.el-input__inner:-ms-input-placeholder{color:#99a9bf}.el-input__inner::placeholder{color:#99a9bf}.el-input__inner:hover{border-color:#8492a6}.el-input__inner:focus{outline:0;border-color:#20a0ff}.el-input__icon{position:absolute;width:35px;height:100%;right:0;top:0;text-align:center;color:#C0CCDA}.el-input__icon:after{content:'';height:100%;width:0;display:inline-block;vertical-align:middle}.el-input__icon+.el-input__inner{padding-right:35px}.el-input--large{font-size:16px}.el-input--large .el-input__inner{height:42px}.el-input--small{font-size:13px}.el-input--small .el-input__inner{height:30px}.el-input--mini{font-size:12px}.el-input--mini .el-input__inner{height:22px}.el-input-group{line-height:normal;display:table;border-collapse:separate}.el-input-group>.el-input__inner{vertical-align:middle;display:table-cell}.el-input-group .el-input__inner:first-child{border-top-right-radius:0;border-bottom-right-radius:0}.el-input-group .el-input__inner:last-child{border-top-left-radius:0;border-bottom-left-radius:0}.el-input-group .el-input__inner:not(:first-child):not(:last-child){border-radius:0}.el-input-group__append,.el-input-group__prepend{background-color:#f9fafc;color:#99a9bf;vertical-align:middle;display:table-cell;position:relative;border:1px solid #C0CCDA;border-radius:4px;padding:0 10px;width:1%;white-space:nowrap}.el-input-group__append .el-button,.el-input-group__append .el-select,.el-input-group__prepend .el-button,.el-input-group__prepend .el-select{display:block;margin:-10px}.el-input-group__append .el-button,.el-input-group__append .el-select .el-input__inner,.el-input-group__append .el-select:hover .el-input__inner,.el-input-group__prepend .el-button,.el-input-group__prepend .el-select .el-input__inner,.el-input-group__prepend .el-select:hover .el-input__inner{border-color:transparent;background-color:transparent;color:inherit;border-top:0;border-bottom:0}.el-input-group__append .el-button,.el-input-group__append .el-input,.el-input-group__prepend .el-button,.el-input-group__prepend .el-input{font-size:inherit}.el-input-group__prepend{border-right:0;border-top-right-radius:0;border-bottom-right-radius:0}.el-input-group__append{border-left:0;border-top-left-radius:0;border-bottom-left-radius:0}.el-textarea.is-disabled .el-textarea__inner{background-color:#EFF2F7;border-color:#D3DCE6;color:#bbb;cursor:not-allowed}.el-textarea.is-disabled .el-textarea__inner::-webkit-input-placeholder{color:#C0CCDA}.el-textarea.is-disabled .el-textarea__inner::-moz-placeholder{color:#C0CCDA}.el-textarea.is-disabled .el-textarea__inner:-ms-input-placeholder{color:#C0CCDA}.el-textarea.is-disabled .el-textarea__inner::placeholder{color:#C0CCDA}.el-textarea__inner{display:block;resize:vertical;padding:5px 7px;line-height:1.5;width:100%;font-size:14px;color:#1f2d3d;background-color:#fff;border:1px solid #C0CCDA;border-radius:4px}.el-textarea__inner::-webkit-input-placeholder{color:#99a9bf}.el-textarea__inner::-moz-placeholder{color:#99a9bf}.el-textarea__inner:-ms-input-placeholder{color:#99a9bf}.el-textarea__inner::placeholder{color:#99a9bf}.el-textarea__inner:hover{border-color:#8492a6}.el-textarea__inner:focus{outline:0;border-color:#20a0ff}.el-input-number{display:inline-block;overflow:hidden;width:180px;position:relative}.el-input-number .el-input__inner{-webkit-appearance:none;-moz-appearance:none;appearance:none;padding-right:82px}.el-input-number.is-disabled .el-input-number__decrease,.el-input-number.is-disabled .el-input-number__increase{border-color:#D3DCE6;color:#D3DCE6}.el-input-number.is-disabled .el-input-number__decrease:hover,.el-input-number.is-disabled .el-input-number__increase:hover{color:#D3DCE6;cursor:not-allowed}.el-input-number__decrease,.el-input-number__increase{height:auto;border-left:1px solid #C0CCDA;width:36px;line-height:34px;top:1px;text-align:center;color:#99A9BF;cursor:pointer;position:absolute}.el-input-number__decrease:hover,.el-input-number__increase:hover{color:#20a0ff}.el-input-number__decrease.is-disabled,.el-input-number__increase.is-disabled{color:#D3DCE6;cursor:not-allowed}.el-input-number__increase{right:0}.el-input-number__decrease{right:37px}.el-input-number--large{width:200px}.el-input-number--large .el-input-number__decrease,.el-input-number--large .el-input-number__increase{line-height:42px;width:42px;font-size:16px}.el-input-number--large .el-input-number__decrease{right:43px}.el-input-number--large .el-input__inner{padding-right:94px}.el-input-number--small{width:130px}.el-input-number--small .el-input-number__decrease,.el-input-number--small .el-input-number__increase{line-height:30px;width:30px;font-size:13px}.el-input-number--small .el-input-number__decrease{right:31px}.el-input-number--small .el-input__inner{padding-right:70px}.el-tag{background-color:#8492a6;display:inline-block;padding:0 5px;height:22px;line-height:22px;font-size:12px;color:#fff;border-radius:4px;border:1px solid #8492a6}.el-tag .el-icon-close{border-radius:50%;text-align:center;position:relative;cursor:pointer;font-size:12px;-ms-transform:scale(.75,.75);transform:scale(.75,.75);height:18px;width:18px;line-height:18px;vertical-align:middle;top:-1px;right:-2px}.el-tag .el-icon-close:hover{background-color:#fff;color:#8492a6}.el-tag--gray{background-color:#e5e9f2;border-color:#e5e9f2;color:#475669}.el-tag--gray .el-tag__close:hover{background-color:#475669;color:#fff}.el-tag--gray.is-hit{border-color:#475669}.el-tag--primary{background-color:rgba(32,159,255,.1);border-color:rgba(32,159,255,.2);color:#20a0ff}.el-tag--primary .el-tag__close:hover{background-color:#20a0ff;color:#fff}.el-tag--primary.is-hit{border-color:#20a0ff}.el-tag--success{background-color:rgba(18,206,102,.1);border-color:rgba(18,206,102,.2);color:#13ce66}.el-tag--success .el-tag__close:hover{background-color:#13ce66;color:#fff}.el-tag--success.is-hit{border-color:#13ce66}.el-tag--warning{background-color:rgba(247,186,41,.1);border-color:rgba(247,186,41,.2);color:#f7ba2a}.el-tag--warning .el-tag__close:hover{background-color:#f7ba2a;color:#fff}.el-tag--warning.is-hit{border-color:#f7ba2a}.el-tag--danger{background-color:rgba(255,73,73,.1);border-color:rgba(255,73,73,.2);color:#ff4949}.el-form-item.is-error .el-input__inner,.el-form-item.is-error .el-textarea__inner,.el-tag--danger.is-hit{border-color:#ff4949}.el-tag--danger .el-tag__close:hover{background-color:#ff4949;color:#fff}.el-breadcrumb{font-size:13px;line-height:1}.el-breadcrumb__separator{margin:0 8px;color:#c0ccda}.el-breadcrumb__item{float:left}.el-breadcrumb__item:last-child .el-breadcrumb__item__inner,.el-breadcrumb__item:last-child .el-breadcrumb__item__inner a,.el-breadcrumb__item:last-child .el-breadcrumb__item__inner a:hover,.el-breadcrumb__item:last-child .el-breadcrumb__item__inner:hover{color:#99a9bf;cursor:text}.el-breadcrumb__item:last-child .el-breadcrumb__separator{display:none}.el-breadcrumb__item__inner,.el-breadcrumb__item__inner a{transition:color .15s linear;color:#475669}.el-breadcrumb__item__inner a:hover,.el-breadcrumb__item__inner:hover{color:#20a0ff;cursor:pointer}.el-form--label-left .el-form-item__label{text-align:left}.el-form--label-top .el-form-item__label{float:none;display:inline-block;padding:0 0 10px}.el-form--inline .el-form-item{display:inline-block;margin-right:10px;vertical-align:top}.el-form-item{margin-bottom:22px}.el-form-item .el-form-item{margin-bottom:0}.el-form-item .el-form-item .el-form-item__content{margin-left:0!important}.el-form-item.is-required .el-form-item__label:before{content:'*';color:#ff4949;margin-right:4px}.el-dragger__cover:after,.el-menu:after,.el-menu:before,.el-progress-bar__inner:after,.el-row:after,.el-row:before{content:\"\"}.el-form-item__label{text-align:right;vertical-align:middle;float:left;font-size:14px;color:#5e6d82;line-height:1;padding:11px 12px 11px 0;box-sizing:border-box}.el-form-item__content{line-height:36px;position:relative;font-size:14px}.el-form-item__error{color:#ff4949;font-size:12px;line-height:1;padding-top:4px;position:absolute;top:100%;left:0}.el-tabs{display:inline-block}.el-tabs__header{border-bottom:1px solid #d3dce6;padding:0;position:relative;margin:0 0 15px}.el-tabs__header:after,.el-tabs__header:before{display:table;content:\"\"}.el-tabs__active-bar{position:absolute;bottom:0;left:0;width:100%;height:3px;background-color:#20a0ff;z-index:1;transition:transform .3s cubic-bezier(.645,.045,.355,1);list-style:none}.el-tabs--card .el-tabs__item.is-active.is-closable .el-icon-close,.el-tabs--card .el-tabs__item.is-closable:hover .el-icon-close{width:14px}.el-tabs--border-card .el-tabs__item,.el-tabs--card .el-tabs__item,.el-tabs__item .el-icon-close{transition:all .3s cubic-bezier(.645,.045,.355,1)}.el-tabs__item{padding:0 16px;height:42px;box-sizing:border-box;line-height:42px;float:left;list-style:none;font-size:14px;color:#8492a6;margin-bottom:-1px;position:relative}.el-tabs__item .el-icon-close{border-radius:50%;text-align:center;margin-left:5px}.el-tabs__item .el-icon-close:before{-ms-transform:scale(.7,.7);transform:scale(.7,.7);display:inline-block}.el-tabs__item .el-icon-close:hover{background-color:#99a9bf;color:#fff}.el-tabs__item:hover{color:#1f2d3d;cursor:pointer}.el-tabs__item.is-active{color:#20a0ff}.el-tabs__content{overflow:hidden;position:relative}.el-tabs--card .el-tabs__active-bar{display:none}.el-tab-pane,.slideInLeft-transition,.slideInRight-transition{display:inline-block}.el-tabs--card .el-tabs__item{border:1px solid transparent}.el-tabs--card .el-tabs__item.is-closable:hover{padding-right:9px;padding-left:9px}.el-tabs--card .el-tabs__item.is-active{border:1px solid #d3dce6;border-bottom-color:#fff;border-radius:4px 4px 0 0}.el-tabs--card .el-tabs__item.is-active.is-closable{padding-right:16px;padding-left:16px}.el-tabs--card .el-tabs__item .el-icon-close{position:relative;font-size:12px;width:0;height:14px;vertical-align:middle;line-height:15px;overflow:hidden;top:-1px;right:-2px;-ms-transform-origin:100% 50%;transform-origin:100% 50%}.el-tabs--border-card{background:#fff;border:1px solid #d3dce6}.el-tabs--border-card .el-tabs__content{padding:15px}.el-tabs--border-card .el-tabs__header{background-color:#eff2f7;margin:0}.el-tabs--border-card .el-tabs__item{border:1px solid transparent;border-top:0;margin-right:-1px;margin-left:-1px}.el-tabs--border-card .el-tabs__item.is-active{background-color:#fff;border-right-color:#d3dce6;border-left-color:#d3dce6}.el-tabs--border-card .el-tabs__item.is-active:first-child{border-left-color:#d3dce6}.el-tabs--border-card .el-tabs__item.is-active:last-child{border-right-color:#d3dce6}.el-tab-pane{width:100%}.slideInRight-enter{animation:slideInRight-enter .3s}.slideInRight-leave{position:absolute;left:0;right:0;animation:slideInRight-leave .3s}.slideInLeft-enter{animation:slideInLeft-enter .3s}.slideInLeft-leave{position:absolute;left:0;right:0;animation:slideInLeft-leave .3s}@keyframes slideInRight-enter{0%{opacity:0;transform-origin:0 0;transform:translateX(100%)}to{opacity:1;transform-origin:0 0;transform:translateX(0)}}@keyframes slideInRight-leave{0%{transform-origin:0 0;transform:translateX(0);opacity:1}100%{transform-origin:0 0;transform:translateX(100%);opacity:0}}@keyframes slideInLeft-enter{0%{opacity:0;transform-origin:0 0;transform:translateX(-100%)}to{opacity:1;transform-origin:0 0;transform:translateX(0)}}@keyframes slideInLeft-leave{0%{transform-origin:0 0;transform:translateX(0);opacity:1}100%{transform-origin:0 0;transform:translateX(-100%);opacity:0}}.el-progress-bar__inner:after{display:inline-block;height:100%;vertical-align:middle}.el-tree{cursor:default;background:#fff;border:1px solid #d3dce6}.el-tree__empty-block{position:relative;min-height:60px;text-align:center;width:100%;height:100%}.el-tree__empty-text{position:absolute;left:50%;top:50%;-ms-transform:translate(-50%,-50%);transform:translate(-50%,-50%);color:#5e6d82}.el-tree-node{white-space:nowrap}.el-tree-node>.el-tree-node__children{overflow:hidden;background-color:transparent;display:none}.el-tree-node.is-expanded>.el-tree-node__children{display:block}.el-tree-node__expand-icon,.el-tree-node__label,.el-tree-node__loading-icon{display:inline-block;vertical-align:middle}.el-tree-node__content{line-height:36px;height:36px;cursor:pointer}.el-tree-node__content>.el-checkbox,.el-tree-node__content>.el-tree-node__expand-icon{margin-right:8px}.el-tree-node__content>.el-checkbox{vertical-align:middle}.el-tree-node__content:hover{background:#e5e9f2}.el-tree-node__expand-icon{cursor:pointer;width:0;height:0;margin-left:10px;border:6px solid transparent;border-right-width:0;border-left-color:#99a9bf;border-left-width:7px;-ms-transform:rotate(0);transform:rotate(0);transition:transform .3s ease-in-out}.el-tree-node__expand-icon:hover{border-left-color:#999}.el-tree-node__expand-icon.expanded{-ms-transform:rotate(90deg);transform:rotate(90deg)}.el-tree-node__expand-icon.is-leaf{border-color:transparent;cursor:default}.el-tree-node__label{font-size:14px}.el-tree-node__loading-icon{margin-right:4px;font-size:14px;color:#99a9bf}.el-tree--highlight-current .el-tree-node.is-current>.el-tree-node__content{background-color:#eff7ff}.collapse-transition{transition:.3s height ease-in-out,.3s padding-top ease-in-out,.3s padding-bottom ease-in-out}.el-menu-item,.el-submenu__title{height:56px;line-height:56px;font-size:14px;color:#475669;padding:0 20px;cursor:pointer;position:relative;transition:border-color .3s,background-color .3s,color .3s;box-sizing:border-box;white-space:nowrap}.el-menu{border-radius:2px;list-style:none;position:relative;margin:0;padding-left:0;background-color:#eff2f7}.el-menu:after,.el-menu:before{display:table}.el-menu li{list-style:none}.el-menu--dark{background-color:#324057}.el-menu--dark .el-menu-item,.el-menu--dark .el-submenu__title{color:#c0ccda}.el-menu--dark .el-menu-item:hover,.el-menu--dark .el-submenu__title:hover{background-color:#475669}.el-menu--dark .el-submenu .el-menu{background-color:#1f2f3d}.el-menu--dark .el-submenu .el-menu .el-menu-item:hover{background-color:#475669}.el-menu--horizontal .el-menu-item{float:left;height:60px;line-height:60px;margin:0;cursor:pointer;position:relative;box-sizing:border-box;border-bottom:5px solid transparent}.el-menu--horizontal .el-submenu{float:left;position:relative}.el-menu--horizontal .el-submenu>.el-menu{position:absolute;top:65px;left:0;border:1px solid #d3dce6;padding:5px 0;background-color:#fff;z-index:100;min-width:100%}.el-menu--horizontal .el-submenu .el-submenu__title{height:60px;line-height:60px;border-bottom:5px solid transparent}.el-menu--horizontal .el-submenu .el-menu-item{background-color:#fff;float:none;height:36px;line-height:36px;padding:0 10px}.el-menu--horizontal .el-submenu .el-submenu__icon-arrow{position:static;vertical-align:middle;margin-left:5px;color:#99a9bf;margin-top:-3px}.el-menu--horizontal .el-menu-item:hover,.el-menu--horizontal .el-submenu__title:hover{background-color:#eff2f7}.el-menu--horizontal>.el-menu-item:hover,.el-menu--horizontal>.el-submenu.is-active .el-submenu__title,.el-menu--horizontal>.el-submenu:hover .el-submenu__title{border-bottom:5px solid #20a0ff}.el-menu--horizontal.el-menu--dark .el-menu-item:hover,.el-menu--horizontal.el-menu--dark .el-submenu__title:hover{background-color:#324057}.el-menu--horizontal.el-menu--dark .el-submenu .el-menu-item:hover,.el-menu--horizontal.el-menu--dark .el-submenu .el-submenu-title:hover,.el-menu-item:hover{background-color:#d3dce6}.el-menu--horizontal.el-menu--dark .el-submenu .el-menu-item,.el-menu--horizontal.el-menu--dark .el-submenu .el-submenu-title{color:#475669}.el-menu--horizontal.el-menu--dark .el-submenu .el-menu-item.is-active,.el-menu-item.is-active{color:#20a0ff}.el-menu-item [class^=el-icon-]{vertical-align:baseline;margin-right:10px}.el-menu-item:first-child{margin-left:0}.el-menu-item:last-child{margin-right:0}.el-submenu [class^=el-icon-]{vertical-align:baseline;margin-right:10px}.el-submenu .el-menu{background-color:#e5e9f2}.el-submenu .el-menu-item:hover,.el-submenu__title:hover{background-color:#d3dce6}.el-submenu .el-menu-item{height:50px;line-height:50px;padding:0 45px}.el-submenu.is-opened .el-submenu__icon-arrow{-ms-transform:rotate(180deg);transform:rotateZ(180deg)}.el-submenu.is-active .el-submenu__title{border-bottom-color:#20a0ff}.el-submenu__title{position:relative}.el-submenu__icon-arrow{position:absolute;top:50%;right:20px;margin-top:-7px;transition:transform .3s;font-size:12px}.el-menu-item-group>ul{padding:0}.el-menu-item-group__title{padding-top:15px;line-height:normal;font-size:14px;padding-left:20px;color:#99a9bf}.el-progress{position:relative;line-height:1}.el-progress.is-exception .el-progress-bar__inner{background-color:#ff4949}.el-progress.is-exception .el-progress__text{color:#ff4949}.el-progress.is-success .el-progress-bar__inner{background-color:#13ce66}.el-progress.is-success .el-progress__text{color:#13ce66}.el-progress__text{font-size:14px;color:#475669;display:inline-block;vertical-align:middle;margin-left:10px;line-height:1}.el-progress__text i{vertical-align:middle;display:block}.el-progress--circle{display:inline-block}.el-progress--circle .el-progress__text{position:absolute;top:50%;left:0;width:100%;text-align:center;margin:0;-ms-transform:translate(0,-50%);transform:translate(0,-50%)}.el-progress--circle .el-progress__text i{vertical-align:middle;display:inline-block}.el-progress--without-text .el-progress__text{display:none}.el-progress--without-text .el-progress-bar{padding-right:0;margin-right:0;display:block}.el-progress--text-inside .el-progress-bar{padding-right:0;margin-right:0}.el-progress-bar{padding-right:50px;display:inline-block;vertical-align:middle;width:100%;margin-right:-55px;box-sizing:border-box}.el-progress-bar__outer{height:6px;border-radius:100px;background-color:#e5e9f2;overflow:hidden;position:relative;vertical-align:middle}.el-progress-bar__inner{position:absolute;left:0;top:0;height:100%;background-color:#20a0ff;text-align:right;border-radius:100px;line-height:1}.el-dragger,.el-dragger+.el-upload__tip{text-align:center}.el-progress-bar__innerText{display:inline-block;vertical-align:middle;color:#fff;font-size:12px;margin:0 5px}@keyframes progress{0%{background-position:0 0}100%{background-position:32px 0}}.el-upload{width:360px}.el-upload__input{display:none}.el-upload__inner{display:inline-block;position:relative}.el-upload__inner iframe{position:absolute;z-index:-1;top:0;left:0;opacity:0;filter:alpha(opacity=0)}.el-upload__files{margin:0 0 10px;padding:0;list-style:none}.el-upload__file{transition:all .5s cubic-bezier(.55,0,.1,1);font-size:14px;color:#475669;line-height:32px;box-sizing:border-box;border-radius:4px;width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;position:relative}.el-upload__file a{color:#475669;transition:color .3s;padding-left:4px}.el-upload__file a [class^=el-icon]{color:#99a9bf;margin-right:7px;height:100%;line-height:inherit}.el-upload__file .el-progress-bar{margin-right:0;padding-right:0}.el-upload__file .el-progress{position:absolute;bottom:-3px;width:100%}.el-upload__file .el-progress__text{position:absolute;top:-10px;right:0}.el-upload__file:hover{background-color:#eff2f7}.el-upload__file.is-finished a:hover{color:#20a0ff;cursor:pointer}.el-upload__file.is-finished:hover .el-upload__btn-delete{display:block;cursor:pointer}.el-upload__tip{font-size:12px;color:#8492a6;margin-top:7px}.el-upload__btn-delete{position:absolute;right:15px;top:0;font-size:12px;color:#20a0ff;display:none}.el-dragger{background-color:#f9fafc;border:1px solid #c0ccda;box-sizing:border-box;width:360px;height:180px;border-radius:4px;cursor:pointer;position:relative;overflow:hidden}.el-dragger .el-upload__inner{display:block;height:100%}.el-dragger .el-icon-upload{font-size:67px;color:#99a9bf;margin:40px 0 16px;line-height:50px}.el-dragger~.el-upload__files{margin-top:7px;padding-top:5px;border-top:1px solid rgba(192,204,218,.2)}.el-dragger:not(.is-showCover):hover{border-color:#20a0ff}.el-dragger.is-dragOver{background-color:rgba(32,159,255,.06);border:2px dashed #20a0ff}.el-dragger__cover{position:absolute;left:0;top:0;width:100%;height:100%;overflow:hidden;z-index:10;cursor:default}.el-dragger__cover:after{display:inline-block;height:100%;vertical-align:middle}.el-dragger__cover img{display:block;width:100%;height:100%}.el-dragger__cover+.el-upload__inner{opacity:0;position:relative;z-index:1}.el-dragger__cover__progress{display:inline-block;vertical-align:middle;position:static;width:243px}.el-dragger__cover__progress+.el-upload__inner{opacity:0}.el-dragger__cover__content{position:absolute;top:0;left:0;width:100%;height:100%}.el-dragger__cover__interact{position:absolute;bottom:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.72);text-align:center}.el-dragger__cover__interact .btn{display:inline-block;color:#fff;font-size:14px;cursor:pointer;vertical-align:middle;transition:transform .3s cubic-bezier(.23,1,.32,1) .1s,opacity .3s cubic-bezier(.23,1,.32,1) .1s;margin-top:60px}.el-dragger__cover__interact .btn span{opacity:0;transition:opacity .15s linear}.el-dragger__cover__interact .btn:not(:first-child){margin-left:35px}.el-dragger__cover__interact .btn:hover{-ms-transform:translateY(-13px);transform:translateY(-13px)}.el-dragger__cover__interact .btn:hover span{opacity:1}.el-dragger__cover__interact .btn i{color:#fff;display:block;font-size:24px;line-height:inherit;margin:0 auto 5px}.el-dragger__cover__title{position:absolute;bottom:0;left:0;background-color:#fff;height:36px;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:400;text-align:left;padding:0 10px;margin:0;line-height:36px;font-size:14px;color:#475669}.el-dragger__text{color:#99a9bf;font-size:14px;text-align:center}.el-dragger__text em{color:#20a0ff;font-style:normal}.el-row{position:relative;box-sizing:border-box}.el-row:after,.el-row:before{display:table}.el-row--flex{display:-ms-flexbox;display:flex}.el-row--flex:after,.el-row--flex:before{display:none}.el-row--flex.is-align-bottom{-ms-flex-align:end;align-items:flex-end}.el-row--flex.is-align-middle{-ms-flex-align:center;align-items:center}.el-row--flex.is-justify-space-around{-ms-flex-pack:distribute;justify-content:space-around}.el-row--flex.is-justify-space-between{-ms-flex-pack:justify;justify-content:space-between}.el-row--flex.is-justify-end{-ms-flex-pack:end;justify-content:flex-end}.el-row--flex.is-justify-center{-ms-flex-pack:center;justify-content:center}.el-col-1,.el-col-10,.el-col-11,.el-col-12,.el-col-13,.el-col-14,.el-col-15,.el-col-16,.el-col-17,.el-col-18,.el-col-19,.el-col-2,.el-col-20,.el-col-21,.el-col-22,.el-col-23,.el-col-24,.el-col-3,.el-col-4,.el-col-5,.el-col-6,.el-col-7,.el-col-8,.el-col-9{float:left;box-sizing:border-box}.el-col-1,.el-col-xs-1{width:4.16667%}.el-col-offset-1,.el-col-xs-offset-1{margin-left:4.16667%}.el-col-pull-1,.el-col-xs-pull-1{position:relative;right:4.16667%}.el-col-push-1,.el-col-xs-push-1{position:relative;left:4.16667%}.el-col-2,.el-col-xs-2{width:8.33333%}.el-col-offset-2,.el-col-xs-offset-2{margin-left:8.33333%}.el-col-pull-2,.el-col-xs-pull-2{position:relative;right:8.33333%}.el-col-push-2,.el-col-xs-push-2{position:relative;left:8.33333%}.el-col-3,.el-col-xs-3{width:12.5%}.el-col-offset-3,.el-col-xs-offset-3{margin-left:12.5%}.el-col-pull-3,.el-col-xs-pull-3{position:relative;right:12.5%}.el-col-push-3,.el-col-xs-push-3{position:relative;left:12.5%}.el-col-4,.el-col-xs-4{width:16.66667%}.el-col-offset-4,.el-col-xs-offset-4{margin-left:16.66667%}.el-col-pull-4,.el-col-xs-pull-4{position:relative;right:16.66667%}.el-col-push-4,.el-col-xs-push-4{position:relative;left:16.66667%}.el-col-5,.el-col-xs-5{width:20.83333%}.el-col-offset-5,.el-col-xs-offset-5{margin-left:20.83333%}.el-col-pull-5,.el-col-xs-pull-5{position:relative;right:20.83333%}.el-col-push-5,.el-col-xs-push-5{position:relative;left:20.83333%}.el-col-6,.el-col-xs-6{width:25%}.el-col-offset-6,.el-col-xs-offset-6{margin-left:25%}.el-col-pull-6,.el-col-xs-pull-6{position:relative;right:25%}.el-col-push-6,.el-col-xs-push-6{position:relative;left:25%}.el-col-7,.el-col-xs-7{width:29.16667%}.el-col-offset-7,.el-col-xs-offset-7{margin-left:29.16667%}.el-col-pull-7,.el-col-xs-pull-7{position:relative;right:29.16667%}.el-col-push-7,.el-col-xs-push-7{position:relative;left:29.16667%}.el-col-8,.el-col-xs-8{width:33.33333%}.el-col-offset-8,.el-col-xs-offset-8{margin-left:33.33333%}.el-col-pull-8,.el-col-xs-pull-8{position:relative;right:33.33333%}.el-col-push-8,.el-col-xs-push-8{position:relative;left:33.33333%}.el-col-9,.el-col-xs-9{width:37.5%}.el-col-offset-9,.el-col-xs-offset-9{margin-left:37.5%}.el-col-pull-9,.el-col-xs-pull-9{position:relative;right:37.5%}.el-col-push-9,.el-col-xs-push-9{position:relative;left:37.5%}.el-col-10,.el-col-xs-10{width:41.66667%}.el-col-offset-10,.el-col-xs-offset-10{margin-left:41.66667%}.el-col-pull-10,.el-col-xs-pull-10{position:relative;right:41.66667%}.el-col-push-10,.el-col-xs-push-10{position:relative;left:41.66667%}.el-col-11,.el-col-xs-11{width:45.83333%}.el-col-offset-11,.el-col-xs-offset-11{margin-left:45.83333%}.el-col-pull-11,.el-col-xs-pull-11{position:relative;right:45.83333%}.el-col-push-11,.el-col-xs-push-11{position:relative;left:45.83333%}.el-col-12,.el-col-xs-12{width:50%}.el-col-offset-12,.el-col-xs-offset-12{margin-left:50%}.el-col-pull-12,.el-col-xs-pull-12{position:relative;right:50%}.el-col-push-12,.el-col-xs-push-12{position:relative;left:50%}.el-col-13,.el-col-xs-13{width:54.16667%}.el-col-offset-13,.el-col-xs-offset-13{margin-left:54.16667%}.el-col-pull-13,.el-col-xs-pull-13{position:relative;right:54.16667%}.el-col-push-13,.el-col-xs-push-13{position:relative;left:54.16667%}.el-col-14,.el-col-xs-14{width:58.33333%}.el-col-offset-14,.el-col-xs-offset-14{margin-left:58.33333%}.el-col-pull-14,.el-col-xs-pull-14{position:relative;right:58.33333%}.el-col-push-14,.el-col-xs-push-14{position:relative;left:58.33333%}.el-col-15,.el-col-xs-15{width:62.5%}.el-col-offset-15,.el-col-xs-offset-15{margin-left:62.5%}.el-col-pull-15,.el-col-xs-pull-15{position:relative;right:62.5%}.el-col-push-15,.el-col-xs-push-15{position:relative;left:62.5%}.el-col-16,.el-col-xs-16{width:66.66667%}.el-col-offset-16,.el-col-xs-offset-16{margin-left:66.66667%}.el-col-pull-16,.el-col-xs-pull-16{position:relative;right:66.66667%}.el-col-push-16,.el-col-xs-push-16{position:relative;left:66.66667%}.el-col-17,.el-col-xs-17{width:70.83333%}.el-col-offset-17,.el-col-xs-offset-17{margin-left:70.83333%}.el-col-pull-17,.el-col-xs-pull-17{position:relative;right:70.83333%}.el-col-push-17,.el-col-xs-push-17{position:relative;left:70.83333%}.el-col-18,.el-col-xs-18{width:75%}.el-col-offset-18,.el-col-xs-offset-18{margin-left:75%}.el-col-pull-18,.el-col-xs-pull-18{position:relative;right:75%}.el-col-push-18,.el-col-xs-push-18{position:relative;left:75%}.el-col-19,.el-col-xs-19{width:79.16667%}.el-col-offset-19,.el-col-xs-offset-19{margin-left:79.16667%}.el-col-pull-19,.el-col-xs-pull-19{position:relative;right:79.16667%}.el-col-push-19,.el-col-xs-push-19{position:relative;left:79.16667%}.el-col-20,.el-col-xs-20{width:83.33333%}.el-col-offset-20,.el-col-xs-offset-20{margin-left:83.33333%}.el-col-pull-20,.el-col-xs-pull-20{position:relative;right:83.33333%}.el-col-push-20,.el-col-xs-push-20{position:relative;left:83.33333%}.el-col-21,.el-col-xs-21{width:87.5%}.el-col-offset-21,.el-col-xs-offset-21{margin-left:87.5%}.el-col-pull-21,.el-col-xs-pull-21{position:relative;right:87.5%}.el-col-push-21,.el-col-xs-push-21{position:relative;left:87.5%}.el-col-22,.el-col-xs-22{width:91.66667%}.el-col-offset-22,.el-col-xs-offset-22{margin-left:91.66667%}.el-col-pull-22,.el-col-xs-pull-22{position:relative;right:91.66667%}.el-col-push-22,.el-col-xs-push-22{position:relative;left:91.66667%}.el-col-23,.el-col-xs-23{width:95.83333%}.el-col-offset-23,.el-col-xs-offset-23{margin-left:95.83333%}.el-col-pull-23,.el-col-xs-pull-23{position:relative;right:95.83333%}.el-col-push-23,.el-col-xs-push-23{position:relative;left:95.83333%}.el-col-24,.el-col-xs-24{width:100%}.el-col-offset-24,.el-col-xs-offset-24{margin-left:100%}.el-col-pull-24,.el-col-xs-pull-24{position:relative;right:100%}.el-col-push-24,.el-col-xs-push-24{position:relative;left:100%}@media (min-width:768px){.el-col-sm-1{width:4.16667%}.el-col-xs-offset-1{margin-left:4.16667%}.el-col-xs-pull-1{position:relative;right:4.16667%}.el-col-xs-push-1{position:relative;left:4.16667%}.el-col-sm-2{width:8.33333%}.el-col-xs-offset-2{margin-left:8.33333%}.el-col-xs-pull-2{position:relative;right:8.33333%}.el-col-xs-push-2{position:relative;left:8.33333%}.el-col-sm-3{width:12.5%}.el-col-xs-offset-3{margin-left:12.5%}.el-col-xs-pull-3{position:relative;right:12.5%}.el-col-xs-push-3{position:relative;left:12.5%}.el-col-sm-4{width:16.66667%}.el-col-xs-offset-4{margin-left:16.66667%}.el-col-xs-pull-4{position:relative;right:16.66667%}.el-col-xs-push-4{position:relative;left:16.66667%}.el-col-sm-5{width:20.83333%}.el-col-xs-offset-5{margin-left:20.83333%}.el-col-xs-pull-5{position:relative;right:20.83333%}.el-col-xs-push-5{position:relative;left:20.83333%}.el-col-sm-6{width:25%}.el-col-xs-offset-6{margin-left:25%}.el-col-xs-pull-6{position:relative;right:25%}.el-col-xs-push-6{position:relative;left:25%}.el-col-sm-7{width:29.16667%}.el-col-xs-offset-7{margin-left:29.16667%}.el-col-xs-pull-7{position:relative;right:29.16667%}.el-col-xs-push-7{position:relative;left:29.16667%}.el-col-sm-8{width:33.33333%}.el-col-xs-offset-8{margin-left:33.33333%}.el-col-xs-pull-8{position:relative;right:33.33333%}.el-col-xs-push-8{position:relative;left:33.33333%}.el-col-sm-9{width:37.5%}.el-col-xs-offset-9{margin-left:37.5%}.el-col-xs-pull-9{position:relative;right:37.5%}.el-col-xs-push-9{position:relative;left:37.5%}.el-col-sm-10{width:41.66667%}.el-col-xs-offset-10{margin-left:41.66667%}.el-col-xs-pull-10{position:relative;right:41.66667%}.el-col-xs-push-10{position:relative;left:41.66667%}.el-col-sm-11{width:45.83333%}.el-col-xs-offset-11{margin-left:45.83333%}.el-col-xs-pull-11{position:relative;right:45.83333%}.el-col-xs-push-11{position:relative;left:45.83333%}.el-col-sm-12{width:50%}.el-col-xs-offset-12{margin-left:50%}.el-col-xs-pull-12{position:relative;right:50%}.el-col-xs-push-12{position:relative;left:50%}.el-col-sm-13{width:54.16667%}.el-col-xs-offset-13{margin-left:54.16667%}.el-col-xs-pull-13{position:relative;right:54.16667%}.el-col-xs-push-13{position:relative;left:54.16667%}.el-col-sm-14{width:58.33333%}.el-col-xs-offset-14{margin-left:58.33333%}.el-col-xs-pull-14{position:relative;right:58.33333%}.el-col-xs-push-14{position:relative;left:58.33333%}.el-col-sm-15{width:62.5%}.el-col-xs-offset-15{margin-left:62.5%}.el-col-xs-pull-15{position:relative;right:62.5%}.el-col-xs-push-15{position:relative;left:62.5%}.el-col-sm-16{width:66.66667%}.el-col-xs-offset-16{margin-left:66.66667%}.el-col-xs-pull-16{position:relative;right:66.66667%}.el-col-xs-push-16{position:relative;left:66.66667%}.el-col-sm-17{width:70.83333%}.el-col-xs-offset-17{margin-left:70.83333%}.el-col-xs-pull-17{position:relative;right:70.83333%}.el-col-xs-push-17{position:relative;left:70.83333%}.el-col-sm-18{width:75%}.el-col-xs-offset-18{margin-left:75%}.el-col-xs-pull-18{position:relative;right:75%}.el-col-xs-push-18{position:relative;left:75%}.el-col-sm-19{width:79.16667%}.el-col-xs-offset-19{margin-left:79.16667%}.el-col-xs-pull-19{position:relative;right:79.16667%}.el-col-xs-push-19{position:relative;left:79.16667%}.el-col-sm-20{width:83.33333%}.el-col-xs-offset-20{margin-left:83.33333%}.el-col-xs-pull-20{position:relative;right:83.33333%}.el-col-xs-push-20{position:relative;left:83.33333%}.el-col-sm-21{width:87.5%}.el-col-xs-offset-21{margin-left:87.5%}.el-col-xs-pull-21{position:relative;right:87.5%}.el-col-xs-push-21{position:relative;left:87.5%}.el-col-sm-22{width:91.66667%}.el-col-xs-offset-22{margin-left:91.66667%}.el-col-xs-pull-22{position:relative;right:91.66667%}.el-col-xs-push-22{position:relative;left:91.66667%}.el-col-sm-23{width:95.83333%}.el-col-xs-offset-23{margin-left:95.83333%}.el-col-xs-pull-23{position:relative;right:95.83333%}.el-col-xs-push-23{position:relative;left:95.83333%}.el-col-sm-24{width:100%}.el-col-xs-offset-24{margin-left:100%}.el-col-xs-pull-24{position:relative;right:100%}.el-col-xs-push-24{position:relative;left:100%}}@media (min-width:992px){.el-col-md-1{width:4.16667%}.el-col-md-offset-1{margin-left:4.16667%}.el-col-md-pull-1{position:relative;right:4.16667%}.el-col-md-push-1{position:relative;left:4.16667%}.el-col-md-2{width:8.33333%}.el-col-md-offset-2{margin-left:8.33333%}.el-col-md-pull-2{position:relative;right:8.33333%}.el-col-md-push-2{position:relative;left:8.33333%}.el-col-md-3{width:12.5%}.el-col-md-offset-3{margin-left:12.5%}.el-col-md-pull-3{position:relative;right:12.5%}.el-col-md-push-3{position:relative;left:12.5%}.el-col-md-4{width:16.66667%}.el-col-md-offset-4{margin-left:16.66667%}.el-col-md-pull-4{position:relative;right:16.66667%}.el-col-md-push-4{position:relative;left:16.66667%}.el-col-md-5{width:20.83333%}.el-col-md-offset-5{margin-left:20.83333%}.el-col-md-pull-5{position:relative;right:20.83333%}.el-col-md-push-5{position:relative;left:20.83333%}.el-col-md-6{width:25%}.el-col-md-offset-6{margin-left:25%}.el-col-md-pull-6{position:relative;right:25%}.el-col-md-push-6{position:relative;left:25%}.el-col-md-7{width:29.16667%}.el-col-md-offset-7{margin-left:29.16667%}.el-col-md-pull-7{position:relative;right:29.16667%}.el-col-md-push-7{position:relative;left:29.16667%}.el-col-md-8{width:33.33333%}.el-col-md-offset-8{margin-left:33.33333%}.el-col-md-pull-8{position:relative;right:33.33333%}.el-col-md-push-8{position:relative;left:33.33333%}.el-col-md-9{width:37.5%}.el-col-md-offset-9{margin-left:37.5%}.el-col-md-pull-9{position:relative;right:37.5%}.el-col-md-push-9{position:relative;left:37.5%}.el-col-md-10{width:41.66667%}.el-col-md-offset-10{margin-left:41.66667%}.el-col-md-pull-10{position:relative;right:41.66667%}.el-col-md-push-10{position:relative;left:41.66667%}.el-col-md-11{width:45.83333%}.el-col-md-offset-11{margin-left:45.83333%}.el-col-md-pull-11{position:relative;right:45.83333%}.el-col-md-push-11{position:relative;left:45.83333%}.el-col-md-12{width:50%}.el-col-md-offset-12{margin-left:50%}.el-col-md-pull-12{position:relative;right:50%}.el-col-md-push-12{position:relative;left:50%}.el-col-md-13{width:54.16667%}.el-col-md-offset-13{margin-left:54.16667%}.el-col-md-pull-13{position:relative;right:54.16667%}.el-col-md-push-13{position:relative;left:54.16667%}.el-col-md-14{width:58.33333%}.el-col-md-offset-14{margin-left:58.33333%}.el-col-md-pull-14{position:relative;right:58.33333%}.el-col-md-push-14{position:relative;left:58.33333%}.el-col-md-15{width:62.5%}.el-col-md-offset-15{margin-left:62.5%}.el-col-md-pull-15{position:relative;right:62.5%}.el-col-md-push-15{position:relative;left:62.5%}.el-col-md-16{width:66.66667%}.el-col-md-offset-16{margin-left:66.66667%}.el-col-md-pull-16{position:relative;right:66.66667%}.el-col-md-push-16{position:relative;left:66.66667%}.el-col-md-17{width:70.83333%}.el-col-md-offset-17{margin-left:70.83333%}.el-col-md-pull-17{position:relative;right:70.83333%}.el-col-md-push-17{position:relative;left:70.83333%}.el-col-md-18{width:75%}.el-col-md-offset-18{margin-left:75%}.el-col-md-pull-18{position:relative;right:75%}.el-col-md-push-18{position:relative;left:75%}.el-col-md-19{width:79.16667%}.el-col-md-offset-19{margin-left:79.16667%}.el-col-md-pull-19{position:relative;right:79.16667%}.el-col-md-push-19{position:relative;left:79.16667%}.el-col-md-20{width:83.33333%}.el-col-md-offset-20{margin-left:83.33333%}.el-col-md-pull-20{position:relative;right:83.33333%}.el-col-md-push-20{position:relative;left:83.33333%}.el-col-md-21{width:87.5%}.el-col-md-offset-21{margin-left:87.5%}.el-col-md-pull-21{position:relative;right:87.5%}.el-col-md-push-21{position:relative;left:87.5%}.el-col-md-22{width:91.66667%}.el-col-md-offset-22{margin-left:91.66667%}.el-col-md-pull-22{position:relative;right:91.66667%}.el-col-md-push-22{position:relative;left:91.66667%}.el-col-md-23{width:95.83333%}.el-col-md-offset-23{margin-left:95.83333%}.el-col-md-pull-23{position:relative;right:95.83333%}.el-col-md-push-23{position:relative;left:95.83333%}.el-col-md-24{width:100%}.el-col-md-offset-24{margin-left:100%}.el-col-md-pull-24{position:relative;right:100%}.el-col-md-push-24{position:relative;left:100%}}@media (min-width:1200px){.el-col-lg-1{width:4.16667%}.el-col-xs-offset-1{margin-left:4.16667%}.el-col-xs-pull-1{position:relative;right:4.16667%}.el-col-xs-push-1{position:relative;left:4.16667%}.el-col-lg-2{width:8.33333%}.el-col-xs-offset-2{margin-left:8.33333%}.el-col-xs-pull-2{position:relative;right:8.33333%}.el-col-xs-push-2{position:relative;left:8.33333%}.el-col-lg-3{width:12.5%}.el-col-xs-offset-3{margin-left:12.5%}.el-col-xs-pull-3{position:relative;right:12.5%}.el-col-xs-push-3{position:relative;left:12.5%}.el-col-lg-4{width:16.66667%}.el-col-xs-offset-4{margin-left:16.66667%}.el-col-xs-pull-4{position:relative;right:16.66667%}.el-col-xs-push-4{position:relative;left:16.66667%}.el-col-lg-5{width:20.83333%}.el-col-xs-offset-5{margin-left:20.83333%}.el-col-xs-pull-5{position:relative;right:20.83333%}.el-col-xs-push-5{position:relative;left:20.83333%}.el-col-lg-6{width:25%}.el-col-xs-offset-6{margin-left:25%}.el-col-xs-pull-6{position:relative;right:25%}.el-col-xs-push-6{position:relative;left:25%}.el-col-lg-7{width:29.16667%}.el-col-xs-offset-7{margin-left:29.16667%}.el-col-xs-pull-7{position:relative;right:29.16667%}.el-col-xs-push-7{position:relative;left:29.16667%}.el-col-lg-8{width:33.33333%}.el-col-xs-offset-8{margin-left:33.33333%}.el-col-xs-pull-8{position:relative;right:33.33333%}.el-col-xs-push-8{position:relative;left:33.33333%}.el-col-lg-9{width:37.5%}.el-col-xs-offset-9{margin-left:37.5%}.el-col-xs-pull-9{position:relative;right:37.5%}.el-col-xs-push-9{position:relative;left:37.5%}.el-col-lg-10{width:41.66667%}.el-col-xs-offset-10{margin-left:41.66667%}.el-col-xs-pull-10{position:relative;right:41.66667%}.el-col-xs-push-10{position:relative;left:41.66667%}.el-col-lg-11{width:45.83333%}.el-col-xs-offset-11{margin-left:45.83333%}.el-col-xs-pull-11{position:relative;right:45.83333%}.el-col-xs-push-11{position:relative;left:45.83333%}.el-col-lg-12{width:50%}.el-col-xs-offset-12{margin-left:50%}.el-col-xs-pull-12{position:relative;right:50%}.el-col-xs-push-12{position:relative;left:50%}.el-col-lg-13{width:54.16667%}.el-col-xs-offset-13{margin-left:54.16667%}.el-col-xs-pull-13{position:relative;right:54.16667%}.el-col-xs-push-13{position:relative;left:54.16667%}.el-col-lg-14{width:58.33333%}.el-col-xs-offset-14{margin-left:58.33333%}.el-col-xs-pull-14{position:relative;right:58.33333%}.el-col-xs-push-14{position:relative;left:58.33333%}.el-col-lg-15{width:62.5%}.el-col-xs-offset-15{margin-left:62.5%}.el-col-xs-pull-15{position:relative;right:62.5%}.el-col-xs-push-15{position:relative;left:62.5%}.el-col-lg-16{width:66.66667%}.el-col-xs-offset-16{margin-left:66.66667%}.el-col-xs-pull-16{position:relative;right:66.66667%}.el-col-xs-push-16{position:relative;left:66.66667%}.el-col-lg-17{width:70.83333%}.el-col-xs-offset-17{margin-left:70.83333%}.el-col-xs-pull-17{position:relative;right:70.83333%}.el-col-xs-push-17{position:relative;left:70.83333%}.el-col-lg-18{width:75%}.el-col-xs-offset-18{margin-left:75%}.el-col-xs-pull-18{position:relative;right:75%}.el-col-xs-push-18{position:relative;left:75%}.el-col-lg-19{width:79.16667%}.el-col-xs-offset-19{margin-left:79.16667%}.el-col-xs-pull-19{position:relative;right:79.16667%}.el-col-xs-push-19{position:relative;left:79.16667%}.el-col-lg-20{width:83.33333%}.el-col-xs-offset-20{margin-left:83.33333%}.el-col-xs-pull-20{position:relative;right:83.33333%}.el-col-xs-push-20{position:relative;left:83.33333%}.el-col-lg-21{width:87.5%}.el-col-xs-offset-21{margin-left:87.5%}.el-col-xs-pull-21{position:relative;right:87.5%}.el-col-xs-push-21{position:relative;left:87.5%}.el-col-lg-22{width:91.66667%}.el-col-xs-offset-22{margin-left:91.66667%}.el-col-xs-pull-22{position:relative;right:91.66667%}.el-col-xs-push-22{position:relative;left:91.66667%}.el-col-lg-23{width:95.83333%}.el-col-xs-offset-23{margin-left:95.83333%}.el-col-xs-pull-23{position:relative;right:95.83333%}.el-col-xs-push-23{position:relative;left:95.83333%}.el-col-lg-24{width:100%}.el-col-xs-offset-24{margin-left:100%}.el-col-xs-pull-24{position:relative;right:100%}.el-col-xs-push-24{position:relative;left:100%}}.el-time-spinner{display:-ms-flexbox;display:flex;width:100%}.el-badge,.el-badge__content,.el-spinner{display:inline-block}.el-spinner{vertical-align:middle}.el-spinner-inner{animation:rotate 2s linear infinite;width:50px;height:50px}.el-spinner-inner .path{stroke:#ececec;stroke-linecap:round;animation:dash 1.5s ease-in-out infinite}@keyframes rotate{100%{transform:rotate(360deg)}}@keyframes dash{0%{stroke-dasharray:1,150;stroke-dashoffset:0}50%{stroke-dasharray:90,150;stroke-dashoffset:-35}100%{stroke-dasharray:90,150;stroke-dashoffset:-124}}.el-badge{position:relative;vertical-align:middle}.el-badge__content{background-color:#ff4949;border-radius:10px;color:#fff;font-size:12px;height:18px;line-height:18px;padding:0 6px;text-align:center;white-space:nowrap;border:1px solid #fff}.el-badge__content.is-dot{width:8px;height:8px;padding:0;right:0;border-radius:50%}.el-badge__content.is-fixed{top:0;right:10px;position:absolute;-ms-transform:translateY(-50%) translateX(100%);transform:translateY(-50%) translateX(100%)}.el-rate__icon,.el-rate__item{position:relative;display:inline-block}.el-badge__content.is-fixed.is-dot{right:5px}.el-card{border:1px solid #D3DCE6;border-radius:4px;background-color:#fff;overflow:hidden}.el-card__header{padding:18px 20px;border-bottom:1px solid #D3DCE6;box-sizing:border-box}.el-card__body{padding:20px}.el-rate{height:20px;line-height:1}.el-rate__item{font-size:0;vertical-align:middle}.el-rate__icon{font-size:18px;margin-right:6px;color:#C6D1DE;transition:.3s}.el-rate__decimal,.el-rate__icon .path2{position:absolute;top:0;left:0}.el-rate__icon.hover{-ms-transform:scale(1.15);transform:scale(1.15)}.el-rate__decimal{display:inline-block;overflow:hidden}.el-rate__text{font-size:14px;vertical-align:middle}.el-steps{font-size:0}.el-steps>:last-child .el-step__line{display:none}.el-step.is-horizontal,.el-step.is-vertical .el-step__head,.el-step.is-vertical .el-step__main,.el-step__line{display:inline-block}.el-steps.is-horizontal{white-space:nowrap}.el-step{position:relative;vertical-align:top}.el-step.is-vertical .el-step__main{padding-left:10px}.el-step__line{position:absolute;border-color:inherit;background-color:#c0ccda}.el-step__line.is-vertical{width:2px;box-sizing:border-box;top:30px;bottom:0}.el-step__line.is-horizontal{top:15px;height:2px;left:30px;right:0}.el-step__line.is-icon.is-horizontal{right:4px}.el-step__line-inner{display:inherit;border-width:1px;border-style:solid;border-color:inherit;transition:all 150ms;width:0;height:0}.el-step__icon{display:block;line-height:28px}.el-step__icon>*{line-height:inherit;vertical-align:middle}.el-step__head{width:28px;height:28px;border-radius:50%;background-color:transparent;text-align:center;line-height:28px;font-size:28px;vertical-align:top;transition:all 150ms}.el-step__head.is-finish{color:#20a0ff;border-color:#20a0ff}.el-step__head.is-error{color:#ff4949;border-color:#ff4949}.el-step__head.is-success{color:#13ce66;border-color:#13ce66}.el-step__head.is-process,.el-step__head.is-wait{color:#c0ccda;border-color:#c0ccda}.el-step__head.is-text{font-size:14px;border-width:2px;border-style:solid}.el-step__head.is-text.is-finish{color:#fff;background-color:#20a0ff;border-color:#20a0ff}.el-step__head.is-text.is-error{color:#fff;background-color:#ff4949;border-color:#ff4949}.el-step__head.is-text.is-success{color:#fff;background-color:#13ce66;border-color:#13ce66}.el-step__head.is-text.is-wait{color:#c0ccda;background-color:#fff;border-color:#c0ccda}.el-step__head.is-text.is-process{color:#fff;background-color:#c0ccda;border-color:#c0ccda}.el-step__main{white-space:normal;padding-right:10px;text-align:left}.el-step__title{font-size:14px;line-height:32px;display:inline-block}.el-step__title.is-finish{font-weight:700;color:#20a0ff}.el-step__title.is-error{font-weight:700;color:#ff4949}.el-step__title.is-success{font-weight:700;color:#13ce66}.el-step__title.is-wait{font-weight:400;color:#99a9bf}.el-step__title.is-process{font-weight:700;color:#475669}.el-step__description{font-size:12px;font-weight:400;line-height:14px}.el-step__description.is-finish{color:#20a0ff}.el-step__description.is-error{color:#ff4949}.el-step__description.is-success{color:#13ce66}.el-step__description.is-wait{color:#c0ccda}.el-step__description.is-process{color:#8492a6}", ""]);
+	exports.push([module.id, "@charset \"UTF-8\";.el-breadcrumb:after,.el-breadcrumb:before,.el-form-item:after,.el-form-item:before,.el-form-item__content:after,.el-form-item__content:before{display:table;content:\"\"}.el-slider__button,.el-slider__button-wrapper{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none}.el-alert,.el-dialog,.el-notification,.el-radio__inner,.el-switch__core{box-sizing:border-box}.el-radio,.el-radio__input,.el-table .el-tooltip__rel .cell,.el-table th,.el-table th>div{white-space:nowrap}.el-pagination--small .arrow.disabled,.el-table td.is-hidden>*,.el-table th.is-hidden>*{visibility:hidden}.el-breadcrumb:after,.el-button-group:after,.el-form-item:after,.el-form-item__content:after,.el-menu:after,.el-row:after,.el-slider:after,.el-tabs__header:after{clear:both}.el-autocomplete__suggestions.is-loading li:after{display:inline-block;content:\"\";height:100%;vertical-align:middle}.el-button-group:after,.el-button-group:before{display:table;content:\"\"}@font-face{font-family:element-icons;src:url(" + __webpack_require__(129) + ");src:url(" + __webpack_require__(130) + ") format('woff'),url(" + __webpack_require__(131) + ") format('truetype'),url(" + __webpack_require__(132) + "#el-icon) format('svg');font-weight:400;font-style:normal}[class*=\" el-icon-\"],[class^=el-icon-]{font-family:element-icons!important;speak:none;font-style:normal;font-weight:400;font-variant:normal;text-transform:none;line-height:1;vertical-align:baseline;display:inline-block;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.el-alert__icon,.el-radio-button__inner,.el-radio__input,.el-slider__button-wrapper .el-tooltip__rel,.el-slider__runway,.el-switch,.el-table td,.el-table th{vertical-align:middle}.el-icon-arrow-down:before{content:\"\\E600\"}.el-icon-arrow-left:before{content:\"\\E601\"}.el-icon-arrow-right:before{content:\"\\E602\"}.el-icon-arrow-up:before{content:\"\\E603\"}.el-icon-caret-bottom:before{content:\"\\E604\"}.el-icon-caret-left:before{content:\"\\E605\"}.el-icon-caret-right:before{content:\"\\E606\"}.el-icon-caret-top:before{content:\"\\E607\"}.el-icon-check:before{content:\"\\E608\"}.el-icon-circle-check:before{content:\"\\E609\"}.el-icon-circle-close:before{content:\"\\E60A\"}.el-icon-circle-cross:before{content:\"\\E60B\"}.el-icon-close:before{content:\"\\E60C\"}.el-icon-upload:before{content:\"\\E60D\"}.el-icon-d-arrow-left:before{content:\"\\E60E\"}.el-icon-d-arrow-right:before{content:\"\\E60F\"}.el-icon-d-caret:before{content:\"\\E610\"}.el-icon-date:before{content:\"\\E611\"}.el-icon-delete:before{content:\"\\E612\"}.el-icon-document:before{content:\"\\E613\"}.el-icon-edit:before{content:\"\\E614\"}.el-icon-information:before{content:\"\\E615\"}.el-icon-loading:before{content:\"\\E616\"}.el-icon-menu:before{content:\"\\E617\"}.el-icon-message:before{content:\"\\E618\"}.el-icon-minus:before{content:\"\\E619\"}.el-icon-more:before{content:\"\\E61A\"}.el-icon-picture:before{content:\"\\E61B\"}.el-icon-plus:before{content:\"\\E61C\"}.el-icon-search:before{content:\"\\E61D\"}.el-icon-setting:before{content:\"\\E61E\"}.el-icon-share:before{content:\"\\E61F\"}.el-icon-star-off:before{content:\"\\E620\"}.el-icon-star-on:before{content:\"\\E621\"}.el-icon-time:before{content:\"\\E622\"}.el-icon-warning:before{content:\"\\E623\"}.el-icon-delete2:before{content:\"\\E624\"}.el-icon-upload2:before{content:\"\\E627\"}.el-icon-view:before{content:\"\\E626\"}.el-icon-loading{animation:rotating 1s linear infinite}.el-icon--right{margin-left:5px}.el-icon--left{margin-right:5px}@keyframes rotating{0%{transform:rotateZ(0)}100%{transform:rotateZ(360deg)}}.el-alert{width:100%;padding:8px 16px;margin:0;border-radius:4px;position:relative;background-color:#fff;overflow:hidden;color:#fff;opacity:1;display:table;transition:opacity .2s}.el-alert .el-alert__description{color:#fff;font-size:12px;margin:5px 0 0}.el-alert--success{background-color:#13ce66}.el-alert--info{background-color:#50bfff}.el-alert--warning{background-color:#f7ba2a}.el-alert--error{background-color:#ff4949}.el-alert__content{display:table-cell;padding:0 8px}.el-alert__icon{font-size:16px;width:16px;display:table-cell;color:#fff}.el-alert__icon.is-big{font-size:28px;width:28px}.el-alert__title{font-size:13px;line-height:18px}.el-alert__title.is-bold{font-weight:700}.el-alert__closebtn{font-size:12px;color:#fff;opacity:1;top:12px;right:15px;position:absolute;cursor:pointer}.el-alert-fade-enter,.el-alert-fade-leave-active,.el-notification-fade-leave-active,.el-radio__original,.el-switch .label-fade-enter,.el-switch .label-fade-leave-active{opacity:0}.el-alert__closebtn.is-customed{font-style:normal;font-size:13px;top:9px}.el-notification{width:330px;padding:20px;border-radius:2px;position:fixed;right:16px;background-color:#fff;box-shadow:0 2px 4px rgba(0,0,0,.12),0 0 6px rgba(0,0,0,.04);transition:opacity .3s,transform .3s,right .3s,top .4s;overflow:hidden}.el-notification .el-icon-circle-check{color:#13ce66}.el-notification .el-icon-circle-cross{color:#ff4949}.el-notification .el-icon-information{color:#50bfff}.el-notification .el-icon-warning{color:#f7ba2a}.el-notification__group{margin-left:0}.el-notification__group span{font-size:16px;color:#1f2d3d}.el-notification__group p{font-size:14px;line-height:21px;margin:10px 0 0;color:#8492a6;text-align:justify}.el-notification__group.is-with-icon{margin-left:55px}.el-notification__icon{width:40px;height:40px;font-size:40px;float:left;position:relative;top:3px}.el-dialog__headerbtn,.el-pagination__rightwrapper{float:right}.el-notification__closeBtn{top:20px;right:20px;position:absolute;cursor:pointer;color:#c0ccda;font-size:14px}.el-notification__closeBtn:hover{color:#99A9BF}.el-notification-fade-enter{-ms-transform:translateX(100%);transform:translateX(100%);right:0}.el-slider:after,.el-slider:before{display:table;content:\"\"}.el-slider__runway{width:100%;height:4px;margin:16px 0;background-color:#e5e9f2;border-radius:3px;position:relative;cursor:pointer}.el-slider__runway.show-input{margin-right:160px;width:auto}.el-slider__runway.disabled{cursor:default}.el-slider__runway.disabled .el-slider__bar,.el-slider__runway.disabled .el-slider__button{background-color:#c0ccda}.el-slider__runway.disabled .el-slider__button-wrapper.dragging,.el-slider__runway.disabled .el-slider__button-wrapper.hover,.el-slider__runway.disabled .el-slider__button-wrapper:hover{cursor:not-allowed}.el-slider__runway.disabled .el-slider__button.dragging,.el-slider__runway.disabled .el-slider__button.hover,.el-slider__runway.disabled .el-slider__button:hover{-ms-transform:scale(1);transform:scale(1);cursor:not-allowed}.el-slider__input{float:right;margin-top:3px}.el-slider__bar{height:4px;background-color:#20a0ff;border-top-left-radius:3px;border-bottom-left-radius:3px;position:absolute}.el-slider__button-wrapper{width:36px;height:36px;position:absolute;z-index:1001;top:-16px;-ms-transform:translateX(-50%);transform:translateX(-50%);background-color:transparent;text-align:center;user-select:none}.el-slider__button-wrapper .el-tooltip{line-height:1;height:100%;display:block}.el-slider__button-wrapper .el-tooltip::after{content:'';width:0;height:100%;display:inline-block;vertical-align:middle}.el-slider__button-wrapper.hover,.el-slider__button-wrapper:hover{cursor:-webkit-grab;cursor:grab}.el-slider__button-wrapper.dragging{cursor:-webkit-grabbing;cursor:grabbing}.el-slider__button{width:12px;height:12px;background-color:#20a0ff;border-radius:50%;transition:.2s;user-select:none}.el-radio,.el-radio-button__inner,.el-switch__label{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none}.el-slider__button.dragging,.el-slider__button.hover,.el-slider__button:hover{-ms-transform:scale(1.5);transform:scale(1.5);background-color:#1d8ce0}.el-slider__button.hover,.el-slider__button:hover{cursor:-webkit-grab;cursor:grab}.el-slider__button.dragging{cursor:-webkit-grabbing;cursor:grabbing}.el-slider__stop{position:absolute;width:4px;height:4px;border-radius:100%;background-color:#c0ccda;-ms-transform:translateX(-50%);transform:translateX(-50%)}.el-radio,.el-radio__inner,.el-radio__input{position:relative;cursor:pointer;display:inline-block}.el-radio{color:#1f2d3d}.el-radio+.el-radio{margin-left:15px}.el-radio__input{outline:0;line-height:1}.el-radio__inner{border:1px solid #c0ccda;width:18px;height:18px;border-radius:50%;background-color:#fff}.el-radio__inner:not(.is-disabled):hover{border-color:#20a0ff}.el-radio__inner::after{width:6px;height:6px;border-radius:50%;background-color:#fff;content:\"\";position:absolute;left:50%;top:50%;-ms-transform:translate(-50%,-50%) scale(0);transform:translate(-50%,-50%) scale(0);transition:transform .15s cubic-bezier(.71,-.46,.88,.6)}.el-switch__core,.el-switch__label{width:46px;height:22px;cursor:pointer}.el-radio__inner.is-disabled.is-checked{background-color:#D3DCE6;border-color:#D3DCE6}.el-radio__inner.is-disabled.is-checked::after{background-color:#fff}.el-radio__inner.is-focus{border-color:#20a0ff}.el-radio__inner.is-checked{border-color:#20a0ff;background:#20a0ff}.el-radio__inner.is-disabled,.el-radio__inner.is-disabled::after{background-color:#EFF2F7;cursor:not-allowed}.el-radio__inner.is-checked::after{-ms-transform:translate(-50%,-50%) scale(1);transform:translate(-50%,-50%) scale(1)}.el-radio__inner.is-disabled{border-color:#D3DCE6}.el-radio__inner.is-disabled+.el-radio__label{cursor:not-allowed}.el-radio__original{outline:0;position:absolute;z-index:-1;top:0;left:0;right:0;bottom:0;margin:0}.el-radio__label{font-size:14px;padding-left:5px}.el-radio-group{display:inline-block;font-size:0;line-height:1}.el-radio-group .el-radio{font-size:14px}.el-radio-button{position:relative;overflow:hidden;display:inline-block}.el-radio-button:not(:last-child){margin-right:-1px}.el-radio-button:first-child .el-radio-button__inner{border-radius:4px 0 0 4px}.el-radio-button:last-child .el-radio-button__inner{border-radius:0 4px 4px 0}.el-radio-button__inner{display:inline-block;line-height:1;white-space:nowrap;background:#fff;border:1px solid #c0ccda;color:#1F2D3D;-webkit-appearance:none;text-align:center;box-sizing:border-box;outline:0;margin:0;position:relative;cursor:pointer;transition:all .3s cubic-bezier(.645,.045,.355,1);padding:10px 15px;font-size:14px;border-radius:0}.el-radio-button__inner:hover{color:#20a0ff}.el-radio-button__inner [class*=el-icon-]{line-height:.9}.el-radio-button__inner [class*=el-icon-]+span{margin-left:5px}.el-radio-button__orig-radio{opacity:0;outline:0;position:absolute;z-index:-1;left:-999px}.el-radio-button__orig-radio:disabled+.el-radio-button__inner{color:#c0ccda;cursor:not-allowed;background-image:none;background-color:#EFF2F7;border-color:#D3DCE6}.el-radio-button--large .el-radio-button__inner{padding:11px 19px;font-size:16px;border-radius:0}.el-radio-button--small .el-radio-button__inner{padding:7px 9px;font-size:12px;border-radius:0}.el-radio-button--mini .el-radio-button__inner{padding:4px;font-size:12px;border-radius:0}.el-switch{display:inline-block;position:relative;font-size:14px;line-height:22px;height:22px}.el-switch__label,.el-switch__label *{position:absolute;display:inline-block;font-size:14px}.el-switch.is-disabled .el-switch__core{border-color:#E5E9F3!important;background:#E5E9F3!important}.el-switch.is-disabled .el-switch__core span{background-color:#F9FAFC!important}.el-switch.is-disabled .el-switch__core~.el-switch__label *{color:#F9FAFC!important}.el-switch.is-disabled .el-switch__input:checked+.el-switch__core{border-color:#E5E9F3;background-color:#E5E9F3}.el-switch.is-disabled .el-switch__core,.el-switch.is-disabled .el-switch__label{cursor:not-allowed}.el-switch__label{transition:.2s;z-index:10;left:0;top:0;user-select:none}.el-checkbox,.el-pager{-moz-user-select:none;-ms-user-select:none}.el-button,.el-checkbox,.el-date-table,.el-message-box,.el-pager{-webkit-user-select:none}.el-switch__label *{line-height:1;top:4px;color:#fff}.el-switch__label--left i{left:6px}.el-switch__label--right i{right:6px}.el-switch__input{display:none}.el-switch__input:checked+.el-switch__core{border-color:#20a0ff;background-color:#20a0ff}.el-switch__core{margin:0;display:inline-block;position:relative;border:1px solid #c0ccda;outline:0;border-radius:12px;background:#c0ccda;transition:border-color .3s,background-color .3s}.el-switch__core .el-switch__button{top:0;left:0;position:absolute;border-radius:100%;transition:transform .3s;width:16px;height:16px;z-index:20;background-color:#fff}.el-switch--wide .el-switch__label.el-switch__label--left span{left:10px}.el-switch--wide .el-switch__label.el-switch__label--right span{right:10px}.el-dropdown{display:inline-block;position:relative;color:#475669;font-size:14px}.el-dropdown .el-button-group,.el-table .el-tooltip,.el-table .el-tooltip__rel{display:block}.el-dropdown .el-dropdown__caret-button{padding-right:5px;padding-left:5px}.el-dropdown .el-dropdown__caret-button .el-dropdown__icon{padding-left:0}.el-dropdown__icon{font-size:12px;margin:0 3px}.el-dropdown-menu{margin:5px 0;background-color:#fff;border:1px solid #D3DCE6;box-shadow:0 2px 4px rgba(0,0,0,.12),0 0 6px rgba(0,0,0,.12);padding:6px 0;z-index:10;position:absolute;top:0;left:0;min-width:100px}.el-dropdown-menu__item{list-style:none;line-height:36px;padding:0 10px;margin:0;cursor:pointer}.el-dropdown-menu__item:not(.is-disabled):hover{background-color:#e5e9f2;color:#475669}.el-dropdown-menu__item.is-disabled{cursor:default;color:#c0ccda;pointer-events:none}.el-dropdown-menu__item--divided{position:relative;margin-top:6px;border-top:1px solid #D3DCE6}.el-dropdown-menu__item--divided:before{content:'';height:6px;display:block;margin:0 -10px;background-color:#fff}.el-loading-mask{position:absolute;z-index:10000;background-color:rgba(255,255,255,.9);margin:0;top:0;right:0;bottom:0;left:0}.el-loading-mask.is-fullscreen{position:fixed}.el-loading-mask.is-fullscreen .el-loading-spinner{margin-top:-25px}.el-loading-mask.is-fullscreen .el-loading-spinner .circular{width:50px;height:50px}.el-loading-spinner{top:50%;margin-top:-21px;width:100%;text-align:center;position:absolute}.el-loading-spinner .el-loading-text{color:#20a0ff;margin:3px 0;font-size:14px}.el-loading-spinner .circular{width:42px;height:42px;animation:loading-rotate 2s linear infinite}.el-loading-spinner .path{animation:loading-dash 1.5s ease-in-out infinite;stroke-dasharray:90,150;stroke-dashoffset:0;stroke-width:2;stroke:#20a0ff;stroke-linecap:round}@keyframes loading-rotate{100%{transform:rotate(360deg)}}@keyframes loading-dash{0%{stroke-dasharray:1,200;stroke-dashoffset:0}50%{stroke-dasharray:90,150;stroke-dashoffset:-40px}100%{stroke-dasharray:90,150;stroke-dashoffset:-120px}}.el-dialog{position:absolute;left:50%;-ms-transform:translateX(-50%);transform:translateX(-50%);background:#fff;border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,.3)}.el-dialog--tiny{width:30%}.el-dialog--small{width:50%}.el-dialog--large{width:90%}.el-dialog--full{width:100%;top:0;height:100%;overflow:auto}.el-dialog__wrapper{top:0;right:0;bottom:0;left:0;position:fixed;overflow:auto;margin:0}.el-table,.el-table td,.el-table th{box-sizing:border-box;position:relative}.el-dialog__header{padding:20px 20px 0}.el-dialog__close{cursor:pointer;color:#c0ccda}.el-dialog__close:hover{color:#20a0ff}.el-dialog__title{line-height:1;font-size:16px;font-weight:700;color:#1f2d3d}.el-dialog__body{padding:30px 20px;color:#475669;font-size:14px}.el-dialog__footer{padding:10px 20px 15px;text-align:right;box-sizing:border-box}.dialog-fade-enter-active{animation:dialog-fade-in .3s}.dialog-fade-leave-active{animation:dialog-fade-out .3s}@keyframes dialog-fade-in{0%{transform:translate3d(0,-20px,0);opacity:0}100%{transform:translate3d(0,0,0);opacity:1}}@keyframes dialog-fade-out{0%{transform:translate3d(0,0,0);opacity:1}100%{transform:translate3d(0,-20px,0);opacity:0}}.el-table{overflow:hidden;width:100%;max-width:100%;background-color:#fff;border:1px solid #e0e6ed;font-size:14px;color:#1f2d3d}.el-table td,.el-table th{height:40px;min-width:0;text-overflow:ellipsis}.el-table::after,.el-table::before{content:'';position:absolute;background-color:#e0e6ed;z-index:1}.el-table td.is-right,.el-table th.is-right{text-align:right}.el-table td.is-left,.el-table th.is-left{text-align:left}.el-table td.is-center,.el-table th.is-center{text-align:center}.el-table td,.el-table th.is-leaf{border-bottom:1px solid #e0e6ed}.el-table td.gutter,.el-table th.gutter{width:15px;border-right-width:0;border-bottom-width:0;padding:0}.el-table .cell,.el-table th>div{padding-left:18px;padding-right:18px;box-sizing:border-box;text-overflow:ellipsis}.el-table::before{left:0;bottom:0;width:100%;height:1px}.el-table::after{top:0;right:0;width:1px;height:100%}.el-table .caret-wrapper,.el-table th>.cell{position:relative;display:inline-block;vertical-align:middle}.el-table th{overflow:hidden;background-color:#EFF2F7;text-align:left}.el-table th>div{display:inline-block;line-height:40px;overflow:hidden}.el-table td>div{box-sizing:border-box}.el-table th.required>div::before{display:inline-block;content:\"\";width:8px;height:8px;border-radius:50%;background:#ff4d51;margin-right:5px;vertical-align:middle}.el-table th>.cell{word-wrap:normal;text-overflow:ellipsis;line-height:20px;width:100%;box-sizing:border-box}.el-table th>.cell.highlight{color:#20a0ff}.el-table .caret-wrapper{cursor:pointer;margin-left:5px;margin-top:-2px;width:16px;height:34px;overflow:visible;overflow:initial}.el-table .cell,.el-table__header-wrapper{overflow:hidden}.el-table .sort-caret{display:inline-block;width:0;height:0;border:0;content:\"\";position:absolute;left:3px;z-index:2}.el-table .sort-caret.ascending,.el-table .sort-caret.descending{border-right:5px solid transparent;border-left:5px solid transparent}.el-table .sort-caret.ascending{top:11px;border-top:none;border-bottom:5px solid #99a9bf}.el-table .sort-caret.descending{bottom:11px;border-top:5px solid #99a9bf;border-bottom:none}.el-table .ascending .sort-caret.ascending{border-bottom-color:#475669}.el-table .descending .sort-caret.descending{border-top-color:#475669}.el-table td.gutter{width:0}.el-table .cell{white-space:normal;word-break:break-all;line-height:24px}.el-table tr input[type=checkbox]{margin:0}.el-table tr{background-color:#fff}.el-table .hidden-columns{visibility:hidden;position:absolute;z-index:-1}.el-table__empty-block{position:relative;min-height:60px;text-align:center;width:100%;height:100%}.el-table__empty-text{position:absolute;left:50%;top:50%;-ms-transform:translate(-50%,-50%);transform:translate(-50%,-50%);color:#5e6d82}.el-table__fixed-header-wrapper thead div,.el-table__header-wrapper thead div{color:#1f2d3d;background-color:#EFF2F7}.el-table--fit{border-right:0;border-bottom:0}.el-table--border th,.el-table__fixed-right-patch{border-bottom:1px solid #e0e6ed}.el-table--fit td.gutter,.el-table--fit th.gutter{border-right-width:1px}.el-table--border td,.el-table--border th{border-right:1px solid #e0e6ed}.el-table__fixed,.el-table__fixed-right{position:absolute;top:0;left:0;box-shadow:1px 0 8px #d3d4d6;overflow-x:hidden}.el-table__fixed-right::before,.el-table__fixed::before{content:'';position:absolute;left:0;bottom:0;width:100%;height:1px;background-color:#e0e6ed;z-index:4}.el-table__fixed-right-patch{position:absolute;top:-1px;right:0;background-color:#EFF2F7}.el-table__fixed-right{top:0;left:auto;right:0;box-shadow:-1px 0 8px #d3d4d6}.el-table__fixed-right .el-table__fixed-body-wrapper,.el-table__fixed-right .el-table__fixed-header-wrapper{left:auto;right:0}.el-table__fixed-header-wrapper{position:absolute;left:0;top:0;z-index:3}.el-table__fixed-body-wrapper{position:absolute;left:0;top:37px;overflow:hidden;z-index:3}.el-table__body-wrapper,.el-table__header-wrapper{width:100%}.el-table__body,.el-table__header{table-layout:fixed}.el-table__body-wrapper{overflow:auto;position:relative}.el-table--striped .el-table__body tr:nth-child(2n) td{background:#FAFAFA}.el-table--striped .el-table__body tr:nth-child(2n).current-row td{background:#EFF7FF}.el-table__body tr.hover-row>td{background-color:#eff2f7}.el-table__body tr.current-row>td{background:#eff7ff}.el-table__column-resize-proxy{position:absolute;left:200px;top:0;bottom:0;width:0;border-left:1px solid #e0e6ed;z-index:10}.el-checkbox,.el-checkbox__inner,.el-checkbox__input{display:inline-block;position:relative}.el-table__column-filter-trigger{display:inline-block;line-height:34px;margin-left:5px;cursor:pointer}.el-table__column-filter-trigger i{color:#99a9bf}.el-table--enable-row-transition .el-table__body td{transition:background-color .25s ease}.el-table--enable-row-hover tr:hover>td{background-color:#eff2f7}.el-table--fluid-height .el-table__fixed,.el-table--fluid-height .el-table__fixed-right{bottom:0;overflow:hidden}.el-checkbox{color:#1f2d3d;cursor:pointer;white-space:nowrap}.el-checkbox+.el-checkbox{margin-left:15px}.el-checkbox__input{white-space:nowrap;cursor:pointer;outline:0;line-height:1;vertical-align:middle}.el-checkbox__inner{border:1px solid #c0ccda;border-radius:4px;box-sizing:border-box;width:18px;height:18px;background-color:#fff;z-index:1;transition:border-color .25s cubic-bezier(.71,-.46,.29,1.46),background-color .25s cubic-bezier(.71,-.46,.29,1.46)}.el-checkbox__inner:not(.is-disabled):hover{border-color:#20a0ff}.el-checkbox__inner::after{box-sizing:content-box;content:\"\";border:2px solid #fff;border-left:0;border-top:0;height:8px;left:5px;position:absolute;top:1px;-ms-transform:rotate(45deg) scaleY(0);transform:rotate(45deg) scaleY(0);width:4px;transition:transform .15s cubic-bezier(.71,-.46,.88,.6) .05s;-ms-transform-origin:center;transform-origin:center}.el-checkbox__inner.is-disabled.is-checked{background-color:#D3DCE6;border-color:#D3DCE6}.el-checkbox__inner.is-disabled.is-checked::after{border-color:#fff}.el-checkbox__inner.is-disabled.is-indeterminate{background-color:#D3DCE6;border-color:#D3DCE6}.el-checkbox__inner.is-disabled.is-indeterminate::before{border-color:#fff}.el-checkbox__inner.is-indeterminate{background-color:#20a0ff;border-color:#2e90fe}.el-checkbox__inner.is-indeterminate::before{content:'';position:absolute;display:block;border:1px solid #fff;margin-top:-1px;left:3px;right:3px;top:50%}.el-checkbox__inner.is-indeterminate::after{display:none}.el-checkbox__inner.is-focus{border-color:#20a0ff}.el-checkbox__inner.is-checked{background-color:#20a0ff;border-color:#2e90fe}.el-checkbox__inner.is-checked::after{-ms-transform:rotate(45deg) scaleY(1);transform:rotate(45deg) scaleY(1)}.el-checkbox__inner.is-disabled{background-color:#EFF2F7;border-color:#D3DCE6;cursor:not-allowed}.el-checkbox__inner.is-disabled::after{cursor:not-allowed;border-color:#EFF2F7}.el-checkbox__inner.is-disabled+.el-checkbox__label{cursor:not-allowed}.el-checkbox__original{opacity:0;outline:0;position:absolute;margin:0;left:-999px}.el-checkbox__label{font-size:14px;padding-left:5px}.el-table-column--selection .cell{padding-left:14px;padding-right:14px}.el-table-filter{border:1px solid #d3dce6;border-radius:2px;background-color:#fff;box-shadow:0 2px 4px rgba(0,0,0,.12),0 0 6px rgba(0,0,0,.12);box-sizing:border-box;margin:2px 0}.el-table-filter__list{padding:5px 0;margin:0;list-style:none;min-width:100px}.el-table-filter__list-item{line-height:36px;padding:0 10px;cursor:pointer;font-size:14px}.el-table-filter__list-item:hover{background-color:#e5e9f2;color:#475669}.el-table-filter__list-item.is-active{background-color:#20a0ff;color:#fff}.el-table-filter__content{min-width:100px}.el-table-filter__bottom{border-top:1px solid #d3dce6;padding:8px}.el-table-filter__bottom button{background:0 0;border:none;color:#8492a6;cursor:pointer;font-size:14px;padding:0 3px}.el-table-filter__bottom button:hover{color:#20a0ff}.el-table-filter__bottom button:focus{outline:0}.el-table-filter__bottom button.is-disabled{color:#c0ccda;cursor:not-allowed}.el-table-filter__checkbox-group{padding:10px}.el-table-filter__checkbox-group .el-checkbox{display:block;margin-bottom:8px;margin-left:5px}.el-table-filter__checkbox-group .el-checkbox:last-child{margin-bottom:0}.el-select-dropdown{position:absolute;z-index:1001;border:1px solid #D3DCE6;border-radius:2px;background-color:#fff;box-shadow:0 2px 4px rgba(0,0,0,.12),0 0 6px rgba(0,0,0,.04);box-sizing:border-box;margin:5px 0}.el-select-dropdown.is-multiple .el-select-dropdown__item.selected{color:#20a0ff;background-color:#fff}.el-select-dropdown.is-multiple .el-select-dropdown__item.selected.hover,.el-select-dropdown__item.hover{background-color:#e5e9f2}.el-select-dropdown.is-multiple .el-select-dropdown__item.selected::after{position:absolute;right:10px;font-family:element-icons;content:\"\\E608\";font-size:11px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.el-select-dropdown__empty{padding:10px 0;margin:0;text-align:center;color:#999;font-size:14px}.el-select-dropdown__list{list-style:none;padding:6px 0;margin:0;width:100%;max-height:274px;box-sizing:border-box;overflow-y:auto}.el-select-dropdown__list.is-empty{padding:0}.el-select-dropdown__item{font-size:14px;padding:8px 10px;position:relative;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#475669;height:36px;line-height:1.5;box-sizing:border-box;cursor:pointer}.el-select-dropdown__item.selected{color:#fff;background-color:#20a0ff}.el-select-dropdown__item.selected.hover{background-color:#1D8CE0}.el-select-dropdown__item span{line-height:1.5!important}.el-select-dropdown__item.is-disabled{color:#c0ccda;cursor:not-allowed}.el-select-dropdown__item.is-disabled:hover{background-color:#fff}.el-select-group{margin:0;padding:0}.el-select-group .el-select-dropdown__item{padding-left:20px}.el-select-group__wrap{list-style:none;margin:0;padding:0}.el-select-group__title{padding-left:10px;font-size:12px;color:#999;height:30px;line-height:30px}.el-select{display:block;position:relative}.el-select:hover .el-input__inner{border-color:#8492a6}.el-select .el-input__inner{cursor:pointer}.el-select .el-input__inner:focus{border-color:#20a0ff}.el-select .el-input .el-input__icon{color:#c0ccda;font-size:12px;transition:transform .3s;-ms-transform:translateY(-50%) rotate(180deg);transform:translateY(-50%) rotateZ(180deg);line-height:16px;top:50%;cursor:pointer}.el-select .el-input .el-input__icon.is-show-close{transition:0s;width:16px;height:16px;font-size:14px;right:8px;text-align:center;-ms-transform:translateY(-50%) rotate(180deg);transform:translateY(-50%) rotateZ(180deg);border-radius:100%;color:#c0ccda}.el-select .el-input .el-input__icon.is-show-close:hover{color:#99a9bf}.el-select .el-input .el-input__icon.is-reverse{-ms-transform:translateY(-50%);transform:translateY(-50%)}.el-select .el-input.is-disabled .el-input__inner{cursor:not-allowed}.el-select .el-input.is-disabled .el-input__inner:hover{border-color:#D3DCE6}.el-select .el-tag__close{margin-top:-2px}.el-select .el-tag{height:24px;line-height:24px;box-sizing:border-box;margin:3px 0 3px 6px}.el-select__input{border:none;outline:0;padding:0;margin-left:10px;color:#666;font-size:14px;vertical-align:baseline;-webkit-appearance:none;-moz-appearance:none;appearance:none;height:28px;background-color:transparent}.el-button,.el-input__inner{-webkit-appearance:none;outline:0}.el-select__input.is-mini{height:14px}.el-select__close{cursor:pointer;position:absolute;top:8px;z-index:1000;right:25px;color:#c0ccda;line-height:18px;font-size:12px}.el-select__close:hover{color:#99a9bf}.el-select__tags{position:absolute;line-height:normal;white-space:normal;z-index:1000;top:50%;-ms-transform:translateY(-50%);transform:translateY(-50%)}.el-select__tag{display:inline-block;height:24px;line-height:24px;font-size:14px;border-radius:4px;color:#fff;background-color:#20a0ff}.el-select__tag .el-icon-close{font-size:12px}.el-pagination{white-space:nowrap;padding:2px 5px;color:#475669}.el-pagination button,.el-pagination span{display:inline-block;font-size:13px;min-width:28px;height:28px;line-height:28px;vertical-align:top;box-sizing:border-box}.el-pagination .el-select .el-input{width:110px}.el-pagination .el-select .el-input input{padding-right:25px;border-radius:2px;height:28px}.el-pagination button{border:none;padding:0 6px;background:0 0}.el-pagination button:focus{outline:0}.el-pagination button:hover{color:#20a0ff}.el-pagination button.disabled{color:#e4e4e4;background-color:#fff;cursor:not-allowed}.el-pager li,.el-pager li.btn-quicknext:hover,.el-pager li.btn-quickprev:hover{cursor:pointer}.el-pagination .btn-next,.el-pagination .btn-prev{background:center center no-repeat #fff;background-size:16px;border:1px solid #D3DCE6;cursor:pointer;margin:0;color:#99a9bf}.el-pagination .btn-next .el-icon,.el-pagination .btn-prev .el-icon{display:block;font-size:12px}.el-pager,.el-pager li{vertical-align:top;display:inline-block}.el-pagination .btn-prev{border-radius:2px 0 0 2px;border-right:0}.el-pagination .btn-next{border-radius:0 2px 2px 0;border-left:0}.el-pagination--small .btn-next,.el-pagination--small .btn-prev,.el-pagination--small .el-pager li,.el-pagination--small .el-pager li:last-child{border-color:transparent;font-size:12px;line-height:22px;height:22px;min-width:22px}.el-pagination--small .el-pager li{border-radius:2px}.el-pagination__sizes{margin:0 10px 0 0}.el-pagination__sizes .el-input .el-input__inner{font-size:13px;border-color:#D3DCE6}.el-pagination__sizes .el-input .el-input__inner:hover{border-color:#20a0ff}.el-pagination__jump{margin-left:10px}.el-pagination__total{margin:0 10px}.el-pagination__editor{border:1px solid #D3DCE6;border-radius:2px;line-height:18px;padding:4px 2px;width:30px;text-align:center;margin:0 6px;box-sizing:border-box;transition:border .3s}.el-pagination__editor::-webkit-inner-spin-button,.el-pagination__editor::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}.el-popover[x-placement^=bottom],.el-tooltip__popper[x-placement^=bottom]{margin-top:12px}.el-pagination__editor:focus{outline:0;border-color:#20a0ff}.el-pager{user-select:none;list-style:none;font-size:0;padding:0}.el-button,.el-date-table{-moz-user-select:none;-ms-user-select:none}.el-pager li{padding:0 4px;border:1px solid #D3DCE6;border-right:0;background:#fff;font-size:13px;min-width:28px;height:28px;line-height:28px;box-sizing:border-box;text-align:center}.el-autocomplete__suggestions.is-loading .el-icon-loading,.el-button-group,.el-message-box,.el-message-box__wrapper::after,.el-message__group p,.el-message__icon{vertical-align:middle}.el-pager li:last-child{border-right:1px solid #D3DCE6}.el-pager li.btn-quicknext,.el-pager li.btn-quickprev{line-height:28px;color:#99a9bf}.el-pager li.active+li{border-left:0;padding-left:5px}.el-pager li:hover{color:#20a0ff}.el-pager li.active{border-color:#20a0ff;background-color:#20a0ff;color:#fff;cursor:default}.el-popover{position:absolute;background:#fff;min-width:150px;border-radius:2px;border:1px solid #D3DCE6;padding:10px;z-index:2000;font-size:12px;box-shadow:0 2px 4px 0 rgba(0,0,0,.12),0 0 6px 0 rgba(0,0,0,.04)}.el-popover .popper__arrow,.el-popover .popper__arrow::after{position:absolute;display:block;width:0;height:0;border-color:transparent;border-style:solid}.el-tooltip,.el-tooltip__rel{display:inline-block}.el-popover .popper__arrow{border-width:6px}.el-popover .popper__arrow::after{content:\" \";border-width:6px}.el-popover[x-placement^=top]{margin-bottom:12px}.el-popover[x-placement^=top] .popper__arrow{bottom:-6px;left:50%;margin-right:3px;border-top-color:#D3DCE6;border-bottom-width:0}.el-popover[x-placement^=top] .popper__arrow::after{bottom:1px;margin-left:-6px;border-top-color:#fff;border-bottom-width:0}.el-popover[x-placement^=bottom] .popper__arrow{top:-6px;left:50%;margin-right:3px;border-top-width:0;border-bottom-color:#D3DCE6}.el-popover[x-placement^=left],.el-tooltip__popper[x-placement^=left]{margin-right:12px}.el-popover[x-placement^=bottom] .popper__arrow::after{top:1px;margin-left:-6px;border-top-width:0;border-bottom-color:#fff}.el-popover[x-placement^=right]{margin-left:12px}.el-popover[x-placement^=right] .popper__arrow{top:50%;left:-6px;margin-bottom:3px;border-right-color:#D3DCE6;border-left-width:0}.el-popover[x-placement^=right] .popper__arrow::after{bottom:-6px;left:1px;border-right-color:#fff;border-left-width:0}.el-popover[x-placement^=left] .popper__arrow{top:50%;right:-6px;margin-bottom:3px;border-right-width:0;border-left-color:#D3DCE6}.el-popover[x-placement^=left] .popper__arrow::after{right:1px;bottom:-6px;margin-left:-6px;border-right-width:0;border-left-color:#fff}.el-popover__title{color:#1f2d3d;font-size:13px;line-height:1;margin-bottom:9px}.el-tooltip__rel{position:relative}.el-tooltip__popper{position:absolute;border-radius:4px;padding:10px;z-index:2000;font-size:12px;line-height:1.2}.el-tooltip__popper .popper__arrow,.el-tooltip__popper .popper__arrow::after{position:absolute;display:block;width:0;height:0;border-color:transparent;border-style:solid}.el-tooltip__popper .popper__arrow{border-width:6px}.el-tooltip__popper .popper__arrow::after{content:\" \";border-width:5px}.el-tooltip__popper[x-placement^=top]{margin-bottom:12px}.el-tooltip__popper[x-placement^=top] .popper__arrow{bottom:-6px;border-top-color:#1f2d3d;border-bottom-width:0}.el-tooltip__popper[x-placement^=top] .popper__arrow::after{bottom:1px;margin-left:-5px;border-top-color:#1f2d3d;border-bottom-width:0}.el-tooltip__popper[x-placement^=bottom] .popper__arrow{top:-6px;border-top-width:0;border-bottom-color:#1f2d3d}.el-tooltip__popper[x-placement^=bottom] .popper__arrow::after{top:1px;margin-left:-5px;border-top-width:0;border-bottom-color:#1f2d3d}.el-tooltip__popper[x-placement^=right]{margin-left:12px}.el-tooltip__popper[x-placement^=right] .popper__arrow{left:-6px;border-right-color:#1f2d3d;border-left-width:0}.el-tooltip__popper[x-placement^=right] .popper__arrow::after{bottom:-5px;left:1px;border-right-color:#1f2d3d;border-left-width:0}.el-tooltip__popper[x-placement^=left] .popper__arrow{right:-6px;border-right-width:0;border-left-color:#1f2d3d}.el-tooltip__popper[x-placement^=left] .popper__arrow::after{right:1px;bottom:-5px;margin-left:-5px;border-right-width:0;border-left-color:#1f2d3d}.el-tooltip__popper.is-light{background:#fff;border:1px solid #1f2d3d}.el-tooltip__popper.is-light[x-placement^=top] .popper__arrow{border-top-color:#1f2d3d}.el-tooltip__popper.is-light[x-placement^=top] .popper__arrow::after{border-top-color:#fff}.el-tooltip__popper.is-light[x-placement^=bottom] .popper__arrow{border-bottom-color:#1f2d3d}.el-tooltip__popper.is-light[x-placement^=bottom] .popper__arrow::after{border-bottom-color:#fff}.el-tooltip__popper.is-light[x-placement^=left] .popper__arrow{border-left-color:#1f2d3d}.el-tooltip__popper.is-light[x-placement^=left] .popper__arrow::after{border-left-color:#fff}.el-tooltip__popper.is-light[x-placement^=right] .popper__arrow{border-right-color:#1f2d3d}.el-tooltip__popper.is-light[x-placement^=right] .popper__arrow::after{border-right-color:#fff}.el-tooltip__popper.is-dark{background:#1f2d3d;color:#fff}.el-autocomplete{position:relative}.el-autocomplete__suggestions{position:absolute;left:0;top:110%;margin:0;background-color:#fff;border:1px solid #D3DCE6;width:100%;padding:6px 0;z-index:10;border-radius:2px;max-height:280px;box-sizing:border-box;overflow:auto;box-shadow:0 0 6px 0 rgba(0,0,0,.04),0 2px 4px 0 rgba(0,0,0,.12)}.el-message,.el-time-panel{box-shadow:0 2px 4px rgba(0,0,0,.12),0 0 6px rgba(0,0,0,.04)}.el-autocomplete__suggestions li{list-style:none;line-height:36px;padding:0 10px;margin:0;cursor:pointer;color:#475669;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.el-autocomplete__suggestions li:hover{background-color:#e5e9f2}.el-autocomplete__suggestions li.highlighted{background-color:#20a0ff;color:#fff}.el-autocomplete__suggestions li:active{background-color:#0082e6}.el-autocomplete__suggestions.is-loading li:hover,.el-message{background-color:#fff}.el-autocomplete__suggestions li.divider{margin-top:6px;border-top:1px solid #D3DCE6}.el-autocomplete__suggestions li.divider:last-child{margin-bottom:-6px}.el-autocomplete__suggestions.is-loading li{text-align:center;height:100px;line-height:100px;font-size:20px;color:#999}.el-message{min-width:300px;padding:10px 12px;box-sizing:border-box;border-radius:2px;position:fixed;left:50%;top:20px;-ms-transform:translateX(-50%);transform:translateX(-50%);transition:opacity .3s,transform .4s;overflow:hidden}.el-message .el-icon-circle-check{color:#13ce66}.el-message .el-icon-circle-cross{color:#ff4949}.el-message .el-icon-information{color:#50bfff}.el-message .el-icon-warning{color:#f7ba2a}.el-message__group{margin-left:38px;position:relative;height:20px}.el-message__group p{font-size:14px;line-height:20px;margin:0 34px 0 0;white-space:nowrap;color:#8492a6;text-align:justify;display:inline-block}.el-message__group.is-with-icon{margin-left:0}.el-message__img{width:40px;height:40px;position:absolute;left:0;top:0}.el-message__icon{margin-right:8px}.el-message__closeBtn{top:3px;right:0;position:absolute;cursor:pointer;color:#c0ccda;font-size:14px}.el-message__closeBtn:hover{color:#99A9BF}.el-message-fade-enter,.el-message-fade-leave-active{opacity:0;-ms-transform:translate(-50%,-100%);transform:translate(-50%,-100%)}.el-button{display:inline-block;line-height:1;white-space:nowrap;cursor:pointer;background:#fff;border:1px solid #c0ccda;color:#1F2D3D;text-align:center;box-sizing:border-box;margin:0;padding:10px 15px;font-size:14px;border-radius:4px}.el-button+.el-button{margin-left:10px}.el-button:focus,.el-button:hover{color:#20a0ff;border-color:#20a0ff}.el-button:active{color:#1d90e6;border-color:#1d90e6;outline:0}.el-button::-moz-focus-inner{border:0}.el-button [class*=el-icon-]+span{margin-left:5px}.el-button.is-loading{position:relative;pointer-events:none}.el-button.is-loading:before{pointer-events:none;content:'';position:absolute;left:-1px;top:-1px;right:-1px;bottom:-1px;border-radius:inherit;background-color:rgba(255,255,255,.35)}.el-button.is-disabled,.el-button.is-disabled:focus,.el-button.is-disabled:hover{color:#c0ccda;cursor:not-allowed;background-image:none;background-color:#EFF2F7;border-color:#D3DCE6}.el-button.is-disabled.el-button--text{background-color:transparent}.el-button.is-disabled.is-plain,.el-button.is-disabled.is-plain:focus,.el-button.is-disabled.is-plain:hover{background-color:#fff;border-color:#d3dce6;color:#C0CCDA}.el-button.is-active{color:#1d90e6;border-color:#1d90e6}.el-button.is-plain:focus,.el-button.is-plain:hover{background:#fff;border-color:#20a0ff;color:#20a0ff}.el-button.is-plain:active{background:#fff;border-color:#1d90e6;color:#1d90e6;outline:0}.el-button--primary{color:#fff;background-color:#20a0ff;border-color:#20a0ff}.el-button--primary:focus,.el-button--primary:hover{background:#4db3ff;border-color:#4db3ff;color:#fff}.el-button--primary.is-active,.el-button--primary:active{background:#1d90e6;border-color:#1d90e6;color:#fff}.el-button--primary:active{outline:0}.el-button--primary.is-plain{background:#fff;border:1px solid #c0ccda;color:#1F2D3D}.el-button--primary.is-plain:focus,.el-button--primary.is-plain:hover{background:#fff;border-color:#20a0ff;color:#20a0ff}.el-button--primary.is-plain:active{background:#fff;border-color:#1d90e6;color:#1d90e6;outline:0}.el-button--success{color:#fff;background-color:#13ce66;border-color:#13ce66}.el-button--success:focus,.el-button--success:hover{background:#42d885;border-color:#42d885;color:#fff}.el-button--success.is-active,.el-button--success:active{background:#11b95c;border-color:#11b95c;color:#fff}.el-button--success:active{outline:0}.el-button--success.is-plain{background:#fff;border:1px solid #c0ccda;color:#1F2D3D}.el-button--success.is-plain:focus,.el-button--success.is-plain:hover{background:#fff;border-color:#13ce66;color:#13ce66}.el-button--success.is-plain:active{background:#fff;border-color:#11b95c;color:#11b95c;outline:0}.el-button--warning{color:#fff;background-color:#f7ba2a;border-color:#f7ba2a}.el-button--warning:focus,.el-button--warning:hover{background:#f9c855;border-color:#f9c855;color:#fff}.el-button--warning.is-active,.el-button--warning:active{background:#dea726;border-color:#dea726;color:#fff}.el-button--warning:active{outline:0}.el-button--warning.is-plain{background:#fff;border:1px solid #c0ccda;color:#1F2D3D}.el-button--warning.is-plain:focus,.el-button--warning.is-plain:hover{background:#fff;border-color:#f7ba2a;color:#f7ba2a}.el-button--warning.is-plain:active{background:#fff;border-color:#dea726;color:#dea726;outline:0}.el-button--danger{color:#fff;background-color:#ff4949;border-color:#ff4949}.el-button--danger:focus,.el-button--danger:hover{background:#ff6d6d;border-color:#ff6d6d;color:#fff}.el-button--danger.is-active,.el-button--danger:active{background:#e64242;border-color:#e64242;color:#fff}.el-button--danger:active{outline:0}.el-button--danger.is-plain{background:#fff;border:1px solid #c0ccda;color:#1F2D3D}.el-button--danger.is-plain:focus,.el-button--danger.is-plain:hover{background:#fff;border-color:#ff4949;color:#ff4949}.el-button--danger.is-plain:active{background:#fff;border-color:#e64242;color:#e64242;outline:0}.el-button--info{color:#fff;background-color:#50bfff;border-color:#50bfff}.el-button--info:focus,.el-button--info:hover{background:#73ccff;border-color:#73ccff;color:#fff}.el-button--info.is-active,.el-button--info:active{background:#48ace6;border-color:#48ace6;color:#fff}.el-button--info:active{outline:0}.el-button--info.is-plain{background:#fff;border:1px solid #c0ccda;color:#1F2D3D}.el-button--info.is-plain:focus,.el-button--info.is-plain:hover{background:#fff;border-color:#50bfff;color:#50bfff}.el-button--info.is-plain:active{background:#fff;border-color:#48ace6;color:#48ace6;outline:0}.el-button--large{padding:11px 19px;font-size:16px;border-radius:4px}.el-button--small{padding:7px 9px;font-size:12px;border-radius:4px}.el-button--mini{padding:4px;font-size:12px;border-radius:4px}.el-button--text{border:none;color:#20a0ff;background:0 0;padding-left:0;padding-right:0}.el-button--text:focus,.el-button--text:hover{color:#4db3ff}.el-button--text:active{color:#1d90e6}.el-button-group{display:inline-block}.el-button-group .el-button--primary:first-child{border-right-color:rgba(255,255,255,.5)}.el-button-group .el-button--primary:last-child{border-left-color:rgba(255,255,255,.5)}.el-button-group .el-button--primary:not(:first-child):not(:last-child){border-left-color:rgba(255,255,255,.5);border-right-color:rgba(255,255,255,.5)}.el-button-group .el-button--success:first-child{border-right-color:rgba(255,255,255,.5)}.el-button-group .el-button--success:last-child{border-left-color:rgba(255,255,255,.5)}.el-button-group .el-button--success:not(:first-child):not(:last-child){border-left-color:rgba(255,255,255,.5);border-right-color:rgba(255,255,255,.5)}.el-button-group .el-button--warning:first-child{border-right-color:rgba(255,255,255,.5)}.el-button-group .el-button--warning:last-child{border-left-color:rgba(255,255,255,.5)}.el-button-group .el-button--warning:not(:first-child):not(:last-child){border-left-color:rgba(255,255,255,.5);border-right-color:rgba(255,255,255,.5)}.el-button-group .el-button--danger:first-child{border-right-color:rgba(255,255,255,.5)}.el-button-group .el-button--danger:last-child{border-left-color:rgba(255,255,255,.5)}.el-button-group .el-button--danger:not(:first-child):not(:last-child){border-left-color:rgba(255,255,255,.5);border-right-color:rgba(255,255,255,.5)}.el-button-group .el-button--info:first-child{border-right-color:rgba(255,255,255,.5)}.el-button-group .el-button--info:last-child{border-left-color:rgba(255,255,255,.5)}.el-button-group .el-button--info:not(:first-child):not(:last-child){border-left-color:rgba(255,255,255,.5);border-right-color:rgba(255,255,255,.5)}.el-button-group .el-button{float:left;position:relative}.el-button-group .el-button+.el-button{margin-left:0}.el-button-group .el-button:first-child{border-top-right-radius:0;border-bottom-right-radius:0}.el-button-group .el-button:last-child{border-top-left-radius:0;border-bottom-left-radius:0}.el-button-group .el-button:not(:first-child):not(:last-child){border-radius:0}.el-button-group .el-button:not(:last-child){margin-right:-1px}.el-button-group .el-button.is-active,.el-button-group .el-button:active,.el-button-group .el-button:focus,.el-button-group .el-button:hover{z-index:1}.v-modal-enter{animation:v-modal-in .2s ease}.v-modal-leave{animation:v-modal-out .2s ease forwards}@keyframes v-modal-in{0%{opacity:0}}@keyframes v-modal-out{to{opacity:0}}.v-modal{position:fixed;left:0;top:0;width:100%;height:100%;opacity:.5;background:#000}.el-message-box{text-align:left;display:inline-block;background-color:#fff;width:420px;border-radius:3px;font-size:16px;overflow:hidden;-webkit-backface-visibility:hidden;backface-visibility:hidden}.el-message-box__wrapper{position:fixed;top:0;bottom:0;left:0;right:0;text-align:center}.el-message-box__wrapper::after{content:\"\";display:inline-block;height:100%;width:0}.el-message-box__header{position:relative;padding:20px 20px 0}.el-message-box__content{padding:30px 20px;color:#475669;font-size:14px;position:relative}.el-message-box__close{display:inline-block;position:absolute;top:19px;right:20px;color:#999;cursor:pointer;line-height:20px;text-align:center}.el-message-box__close:hover{color:#20a0ff}.el-message-box__input{padding-top:15px}.el-message-box__input input.invalid,.el-message-box__input input.invalid:focus{border-color:#ff4949}.el-message-box__errormsg{color:#ff4949;font-size:12px;min-height:18px;margin-top:2px}.el-message-box__title{padding-left:0;margin-bottom:0;font-size:16px;font-weight:700;height:18px;color:#333}.el-message-box__message{margin:0}.el-message-box__message p{margin:0;line-height:1.4}.el-message-box__btns{padding:10px 20px 15px;text-align:right}.el-message-box__btns button:nth-child(2){margin-left:10px}.el-message-box__btns-reverse{-ms-flex-direction:row-reverse;flex-direction:row-reverse}.el-message-box__status{position:absolute;top:50%;-ms-transform:translateY(-50%);transform:translateY(-50%);font-size:36px!important}.el-message-box__status.el-icon-circle-check{color:#13ce66}.el-message-box__status.el-icon-information{color:#50bfff}.el-message-box__status.el-icon-warning{color:#f7ba2a}.el-message-box__status.el-icon-circle-cross{color:#ff4949}.msgbox-fade-enter-active{animation:msgbox-fade-in .3s}.msgbox-fade-leave-active{animation:msgbox-fade-out .3s}@keyframes msgbox-fade-in{0%{transform:translate3d(0,-20px,0);opacity:0}100%{transform:translate3d(0,0,0);opacity:1}}@keyframes msgbox-fade-out{0%{transform:translate3d(0,0,0);opacity:1}100%{transform:translate3d(0,-20px,0);opacity:0}}.el-date-table{font-size:12px;min-width:224px;user-select:none}.el-date-table td{width:32px;height:32px;box-sizing:border-box;text-align:center;cursor:pointer}.el-month-table td .cell,.el-year-table td .cell{width:48px;height:32px;display:block;line-height:32px}.el-date-table td.next-month,.el-date-table td.prev-month{color:#ddd}.el-date-table td.today{color:#20a0ff}.el-date-table td.available:hover{background-color:#e5e9f2}.el-date-table td.in-range{background-color:#D3ECFF}.el-date-table td.in-range:hover{background-color:#AFDCFF}.el-date-table td.current,.el-date-table td.end-date,.el-date-table td.start-date{background-color:#20a0ff!important;color:#fff}.el-date-table td.disabled{background-color:#f4f4f4;opacity:1;cursor:not-allowed;color:#ccc}.el-fade-in-enter,.el-fade-in-leave-active,.fade-in-linear-enter,.fade-in-linear-leave,.fade-in-linear-leave-active{opacity:0}.el-date-table td.week{font-size:80%;color:#8492a6}.el-month-table,.el-year-table{font-size:12px;margin:-1px;border-collapse:collapse}.el-date-table th{padding:5px;color:#8492a6;font-weight:400}.el-date-table.is-week-mode .el-date-table__row:hover{background-color:#e5e9f2}.el-date-table.is-week-mode .el-date-table__row.current{background-color:#D3ECFF}.el-month-table td{text-align:center;padding:20px 3px;cursor:pointer}.el-month-table td .cell{color:#475669}.el-month-table td .cell:hover{background-color:#e5e9f2}.el-month-table td.disabled .cell{background-color:#f4f4f4;cursor:not-allowed;color:#ccc}.el-month-table td.current .cell{background-color:#20a0ff!important;color:#fff}.el-year-table .el-icon{color:#99a9bf}.el-year-table td{text-align:center;padding:20px 3px;cursor:pointer}.el-year-table td .cell{color:#475669}.el-year-table td .cell:hover{background-color:#e5e9f2}.el-year-table td.disabled .cell{background-color:#f4f4f4;cursor:not-allowed;color:#ccc}.el-year-table td.current .cell{background-color:#20a0ff!important;color:#fff}.el-date-range-picker{min-width:520px}.el-date-range-picker table{table-layout:fixed;width:100%}.el-date-range-picker .el-picker-panel__body{min-width:513px}.el-date-range-picker .el-picker-panel__content{margin:0}.el-date-range-picker.has-sidebar.has-time{min-width:766px}.el-date-range-picker.has-sidebar{min-width:620px}.el-date-range-picker.has-time{min-width:660px}.el-date-range-picker__header{position:relative;text-align:center;height:28px}.el-date-range-picker__header button{float:left}.el-date-range-picker__header div{font-size:14px;margin-right:50px}.el-date-range-picker__content{float:left;width:50%;box-sizing:border-box;margin:0;padding:16px}.el-date-range-picker__content.is-right .el-date-range-picker__header button{float:right}.el-date-range-picker__content.is-right .el-date-range-picker__header div{margin-left:50px;margin-right:50px}.el-date-range-picker__content.is-left{border-right:1px solid #e4e4e4}.el-date-range-picker__editors-wrap{box-sizing:border-box;display:table-cell}.el-date-range-picker__editors-wrap.is-right{text-align:right}.el-date-range-picker__time-header{position:relative;border-bottom:1px solid #e4e4e4;font-size:12px;padding:8px 5px 5px;display:table;width:100%;box-sizing:border-box}.el-date-range-picker__time-header>.el-icon-arrow-right{font-size:20px;vertical-align:middle;display:table-cell;color:#99a9bf}.el-date-range-picker__time-picker-wrap{position:relative;display:table-cell;padding:0 5px}.el-date-range-picker__time-picker-wrap .el-picker-panel{position:absolute;top:13px;right:0;z-index:1;background:#fff}.el-time-range-picker{min-width:354px;overflow:visible}.el-time-range-picker__content{position:relative;text-align:center;padding:10px}.el-time-range-picker__cell{box-sizing:border-box;margin:0;padding:4px 7px 7px;width:50%;display:inline-block}.el-time-range-picker__header{margin-bottom:5px;text-align:center;font-size:14px}.el-time-range-picker__body{border-radius:2px;border:1px solid #D3DCE6}.el-time-spinner.has-seconds .el-time-spinner__wrapper{width:33.33333%}.el-time-spinner__wrapper{height:190px;overflow:hidden;display:inline-block;width:50%;vertical-align:top;position:relative;-ms-overflow-style:none}.el-time-spinner__wrapper:hover{overflow-y:auto}.el-time-spinner__list{padding:0;margin:0;list-style:none;text-align:center}.el-time-spinner__list::after,.el-time-spinner__list::before{content:'';display:block;width:100%;height:80px}.el-time-spinner__item{height:32px;line-height:32px;font-size:12px}.el-time-spinner__item:hover:not(.disabled):not(.active){background:#e5e9f2;cursor:pointer}.el-time-spinner__item.active:not(.disabled){color:#fff}.el-time-spinner__item.disabled{color:#D3DCE6;cursor:not-allowed}.el-time-panel{margin:5px 0;border:1px solid #D3DCE6;background-color:#fff;border-radius:2px;position:absolute;width:180px;left:0;z-index:1000;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.el-time-panel__content{font-size:0;position:relative;overflow:hidden}.el-time-panel__content::after,.el-time-panel__content::before{content:\":\";top:50%;color:#fff;position:absolute;font-size:14px;margin-top:-15px;line-height:16px;background-color:#20a0ff;height:32px;z-index:-1;left:0;right:0;box-sizing:border-box;padding-top:6px;text-align:left}.el-time-panel__content::after{left:50%;margin-left:-2px}.el-time-panel__content::before{padding-left:50%;margin-right:-2px}.el-time-panel__content.has-seconds::after{left:66.66667%}.el-time-panel__content.has-seconds::before{padding-left:33.33333%}.el-time-panel__footer{border-top:1px solid #e4e4e4;padding:4px;height:36px;line-height:25px;text-align:right;box-sizing:border-box}.el-time-panel__btn{border:none;line-height:28px;padding:0 5px;margin:0 5px;cursor:pointer;background-color:transparent;outline:0;font-size:12px;color:#8492a6}.el-time-panel__btn.confirm{font-weight:800;color:#20a0ff}.fade-in-linear-enter-active,.fade-in-linear-leave-active{transition:opacity .2s linear}.el-fade-in-enter-active,.el-fade-in-leave-active,.el-zoom-in-center-enter-active,.el-zoom-in-center-leave-active{transition:all .3s cubic-bezier(.55,0,.1,1)}.el-zoom-in-center-enter,.el-zoom-in-center-leave-active{opacity:0;-ms-transform:scaleX(0);transform:scaleX(0)}.el-zoom-in-top-enter-active,.el-zoom-in-top-leave-active{opacity:1;-ms-transform:scaleY(1);transform:scaleY(1);transition:transform .3s cubic-bezier(.23,1,.32,1) .1s,opacity .3s cubic-bezier(.23,1,.32,1) .1s;-ms-transform-origin:center top;transform-origin:center top}.el-zoom-in-top-enter,.el-zoom-in-top-leave-active{opacity:0;-ms-transform:scaleY(0);transform:scaleY(0)}.el-zoom-in-bottom-enter-active,.el-zoom-in-bottom-leave-active{opacity:1;-ms-transform:scaleY(1);transform:scaleY(1);transition:transform .3s cubic-bezier(.23,1,.32,1) .1s,opacity .3s cubic-bezier(.23,1,.32,1) .1s;-ms-transform-origin:center bottom;transform-origin:center bottom}.el-zoom-in-bottom-enter,.el-zoom-in-bottom-leave-active{opacity:0;-ms-transform:scaleY(0);transform:scaleY(0)}.el-date-editor{position:relative;display:inline-block}.el-date-editor .el-picker-panel{position:absolute;min-width:180px;box-sizing:border-box;box-shadow:0 2px 6px #ccc;background:#fff;z-index:10;top:41px}.el-picker-panel{color:#475669;border:1px solid #D3DCE6;box-shadow:0 2px 6px #ccc;background:#fff;border-radius:2px;line-height:20px;margin:5px 0}.el-card,.el-menu--horizontal .el-submenu>.el-menu,.el-tabs--border-card{box-shadow:0 2px 4px 0 rgba(0,0,0,.12),0 0 6px 0 rgba(0,0,0,.04)}.el-picker-panel__body-wrapper::after,.el-picker-panel__body::after{content:\"\";display:table;clear:both}.el-picker-panel__content{position:relative;margin:15px}.el-picker-panel__footer{border-top:1px solid #e4e4e4;padding:4px;text-align:right;background-color:#fff;position:relative}.el-picker-panel__shortcut{display:block;width:100%;border:0;background-color:transparent;line-height:28px;font-size:14px;color:#475669;padding-left:12px;text-align:left;outline:0;cursor:pointer}.el-picker-panel__shortcut:hover{background-color:#e5e9f2}.el-picker-panel__shortcut.active{background-color:#e6f1fe;color:#20a0ff}.el-picker-panel__btn{border:1px solid #dcdcdc;color:#333;line-height:24px;border-radius:2px;padding:0 20px;cursor:pointer;background-color:transparent;outline:0;font-size:12px}.el-picker-panel__btn[disabled]{color:#ccc;cursor:not-allowed}.el-picker-panel__icon-btn{font-size:12px;color:#99a9bf;border:0;background:0 0;cursor:pointer;outline:0;margin-top:3px}.el-date-picker__header-label.active,.el-date-picker__header-label:hover,.el-picker-panel__icon-btn:hover{color:#20a0ff}.el-input__inner,.el-textarea__inner{background-image:none;transition:border-color .2s cubic-bezier(.645,.045,.355,1);box-sizing:border-box}.el-picker-panel__link-btn{cursor:pointer;color:#20a0ff;text-decoration:none;padding:15px;font-size:12px}.el-picker-panel [slot=sidebar],.el-picker-panel__sidebar{position:absolute;top:0;bottom:0;width:110px;border-right:1px solid #e4e4e4;box-sizing:border-box;padding-top:6px;background-color:#f9fafc}.el-picker-panel [slot=sidebar]+.el-picker-panel__body,.el-picker-panel__sidebar+.el-picker-panel__body{margin-left:110px}.el-date-picker{min-width:254px}.el-date-picker .el-picker-panel__content{min-width:224px}.el-date-picker table{table-layout:fixed;width:100%}.el-date-picker.has-sidebar.has-time{min-width:434px}.el-date-picker.has-sidebar{min-width:370px}.el-date-picker.has-time{min-width:324px}.el-date-picker__editor-wrap{position:relative;display:table-cell;padding:0 5px}.el-date-picker__time-header{position:relative;border-bottom:1px solid #e4e4e4;font-size:12px;padding:8px 5px 5px;display:table;width:100%;box-sizing:border-box}.el-date-picker__header{margin:12px;text-align:center}.el-date-picker__header-label{font-size:14px;padding:0 5px;line-height:22px;text-align:center;cursor:pointer}.el-date-picker__prev-btn{float:left}.el-date-picker__next-btn{float:right}.el-date-picker__time-wrap{padding:10px;text-align:center}.el-date-picker__time-label{float:left;cursor:pointer;line-height:30px;margin-left:10px}.time-select{margin:5px 0;min-width:0}.time-select .el-picker-panel__content{max-height:200px;overflow:hidden;margin:0}.time-select .el-picker-panel__content:hover{overflow-y:auto}.time-select-item{padding:8px 10px;font-size:14px}.time-select-item.selected:not(.disabled){background-color:#20a0ff;color:#fff}.time-select-item.selected:not(.disabled):hover{background-color:#20a0ff}.time-select-item.disabled{color:#D3DCE6;cursor:not-allowed}.time-select-item:hover{background-color:#e5e9f2;cursor:pointer}.el-input{position:relative;font-size:14px}.el-input.is-disabled .el-input__inner{background-color:#EFF2F7;border-color:#D3DCE6;color:#bbb;cursor:not-allowed}.el-input.is-disabled .el-input__inner::-webkit-input-placeholder{color:#c0ccda}.el-input.is-disabled .el-input__inner::-moz-placeholder{color:#c0ccda}.el-input.is-disabled .el-input__inner:-ms-input-placeholder{color:#c0ccda}.el-input.is-disabled .el-input__inner::placeholder{color:#c0ccda}.el-input.is-active .el-input__inner{outline:0;border-color:#20a0ff}.el-input__inner{-moz-appearance:none;appearance:none;background-color:#fff;border-radius:4px;border:1px solid #c0ccda;color:#1f2d3d;display:block;font-size:inherit;height:36px;line-height:1;padding:3px 10px;width:100%}.el-input__inner::-webkit-input-placeholder{color:#99a9bf}.el-input__inner::-moz-placeholder{color:#99a9bf}.el-input__inner:-ms-input-placeholder{color:#99a9bf}.el-input__inner::placeholder{color:#99a9bf}.el-input__inner:hover{border-color:#8492a6}.el-input__inner:focus{outline:0;border-color:#20a0ff}.el-input__icon{position:absolute;width:35px;height:100%;right:0;top:0;text-align:center;color:#c0ccda}.el-input__icon:after{content:'';height:100%;width:0;display:inline-block;vertical-align:middle}.el-input__icon+.el-input__inner{padding-right:35px}.el-input--large{font-size:16px}.el-input--large .el-input__inner{height:42px}.el-input--small{font-size:13px}.el-input--small .el-input__inner{height:30px}.el-input--mini{font-size:12px}.el-input--mini .el-input__inner{height:22px}.el-input-group{line-height:normal;display:table;border-collapse:separate}.el-input-group>.el-input__inner{vertical-align:middle;display:table-cell}.el-input-group__append,.el-input-group__prepend{background-color:#f9fafc;color:#99a9bf;vertical-align:middle;display:table-cell;position:relative;border:1px solid #c0ccda;border-radius:4px;padding:0 10px;width:1%;white-space:nowrap}.el-input-group--prepend .el-input__inner,.el-input-group__append{border-top-left-radius:0;border-bottom-left-radius:0}.el-input-group--append .el-input__inner,.el-input-group__prepend{border-top-right-radius:0;border-bottom-right-radius:0}.el-input-group__append .el-button,.el-input-group__append .el-select,.el-input-group__prepend .el-button,.el-input-group__prepend .el-select{display:block;margin:-10px}.el-input-group__append .el-button,.el-input-group__append .el-select .el-input__inner,.el-input-group__append .el-select:hover .el-input__inner,.el-input-group__prepend .el-button,.el-input-group__prepend .el-select .el-input__inner,.el-input-group__prepend .el-select:hover .el-input__inner{border-color:transparent;background-color:transparent;color:inherit;border-top:0;border-bottom:0}.el-input-group__append .el-button,.el-input-group__append .el-input,.el-input-group__prepend .el-button,.el-input-group__prepend .el-input{font-size:inherit}.el-input-group__prepend{border-right:0}.el-input-group__append{border-left:0}.el-textarea.is-disabled .el-textarea__inner{background-color:#EFF2F7;border-color:#D3DCE6;color:#bbb;cursor:not-allowed}.el-textarea.is-disabled .el-textarea__inner::-webkit-input-placeholder{color:#c0ccda}.el-textarea.is-disabled .el-textarea__inner::-moz-placeholder{color:#c0ccda}.el-textarea.is-disabled .el-textarea__inner:-ms-input-placeholder{color:#c0ccda}.el-textarea.is-disabled .el-textarea__inner::placeholder{color:#c0ccda}.el-textarea__inner{display:block;resize:vertical;padding:5px 7px;line-height:1.5;width:100%;font-size:14px;color:#1f2d3d;background-color:#fff;border:1px solid #c0ccda;border-radius:4px}.el-textarea__inner::-webkit-input-placeholder{color:#99a9bf}.el-textarea__inner::-moz-placeholder{color:#99a9bf}.el-textarea__inner:-ms-input-placeholder{color:#99a9bf}.el-textarea__inner::placeholder{color:#99a9bf}.el-textarea__inner:hover{border-color:#8492a6}.el-textarea__inner:focus{outline:0;border-color:#20a0ff}.el-input-number{display:inline-block;overflow:hidden;width:180px;position:relative}.el-input-number .el-input__inner{-webkit-appearance:none;-moz-appearance:none;appearance:none;padding-right:82px}.el-input-number.is-without-controls .el-input__inner{padding-right:10px}.el-input-number.is-disabled .el-input-number__decrease,.el-input-number.is-disabled .el-input-number__increase{border-color:#D3DCE6;color:#D3DCE6}.el-input-number.is-disabled .el-input-number__decrease:hover,.el-input-number.is-disabled .el-input-number__increase:hover{color:#D3DCE6;cursor:not-allowed}.el-input-number__decrease,.el-input-number__increase{height:auto;border-left:1px solid #c0ccda;width:36px;line-height:34px;top:1px;text-align:center;color:#99A9BF;cursor:pointer;position:absolute}.el-input-number__decrease:hover,.el-input-number__increase:hover{color:#20a0ff}.el-input-number__decrease.is-disabled,.el-input-number__increase.is-disabled{color:#D3DCE6;cursor:not-allowed}.el-input-number__increase{right:0}.el-input-number__decrease{right:37px}.el-input-number--large{width:200px}.el-input-number--large .el-input-number__decrease,.el-input-number--large .el-input-number__increase{line-height:42px;width:42px;font-size:16px}.el-input-number--large .el-input-number__decrease{right:43px}.el-input-number--large .el-input__inner{padding-right:94px}.el-input-number--small{width:130px}.el-input-number--small .el-input-number__decrease,.el-input-number--small .el-input-number__increase{line-height:30px;width:30px;font-size:13px}.el-input-number--small .el-input-number__decrease{right:31px}.el-input-number--small .el-input__inner{padding-right:70px}.el-tag{background-color:#8492a6;display:inline-block;padding:0 5px;height:24px;line-height:22px;font-size:12px;color:#fff;border-radius:4px;box-sizing:border-box;border:1px solid transparent;white-space:nowrap}.el-tag .el-icon-close{border-radius:50%;text-align:center;position:relative;cursor:pointer;font-size:12px;-ms-transform:scale(.75,.75);transform:scale(.75,.75);height:18px;width:18px;line-height:18px;vertical-align:middle;top:-1px;right:-2px}.el-tag .el-icon-close:hover{background-color:#fff;color:#8492a6}.el-tag--gray{background-color:#e5e9f2;border-color:#e5e9f2;color:#475669}.el-tag--gray .el-tag__close:hover{background-color:#475669;color:#fff}.el-tag--gray.is-hit{border-color:#475669}.el-tag--primary{background-color:rgba(32,159,255,.1);border-color:rgba(32,159,255,.2);color:#20a0ff}.el-tag--primary .el-tag__close:hover{background-color:#20a0ff;color:#fff}.el-tag--primary.is-hit{border-color:#20a0ff}.el-tag--success{background-color:rgba(18,206,102,.1);border-color:rgba(18,206,102,.2);color:#13ce66}.el-tag--success .el-tag__close:hover{background-color:#13ce66;color:#fff}.el-tag--success.is-hit{border-color:#13ce66}.el-tag--warning{background-color:rgba(247,186,41,.1);border-color:rgba(247,186,41,.2);color:#f7ba2a}.el-tag--warning .el-tag__close:hover{background-color:#f7ba2a;color:#fff}.el-tag--warning.is-hit{border-color:#f7ba2a}.el-tag--danger{background-color:rgba(255,73,73,.1);border-color:rgba(255,73,73,.2);color:#ff4949}.el-form-item.is-error .el-input__inner,.el-form-item.is-error .el-textarea__inner,.el-tag--danger.is-hit{border-color:#ff4949}.el-tag--danger .el-tag__close:hover{background-color:#ff4949;color:#fff}.el-breadcrumb{font-size:13px;line-height:1}.el-breadcrumb__separator{margin:0 8px;color:#c0ccda}.el-breadcrumb__item{float:left}.el-breadcrumb__item:last-child .el-breadcrumb__item__inner,.el-breadcrumb__item:last-child .el-breadcrumb__item__inner a,.el-breadcrumb__item:last-child .el-breadcrumb__item__inner a:hover,.el-breadcrumb__item:last-child .el-breadcrumb__item__inner:hover{color:#99a9bf;cursor:text}.el-breadcrumb__item:last-child .el-breadcrumb__separator{display:none}.el-breadcrumb__item__inner,.el-breadcrumb__item__inner a{transition:color .15s linear;color:#475669}.el-breadcrumb__item__inner a:hover,.el-breadcrumb__item__inner:hover{color:#20a0ff;cursor:pointer}.el-form--label-left .el-form-item__label{text-align:left}.el-form--label-top .el-form-item__label{float:none;display:inline-block;padding:0 0 10px}.el-form--inline .el-form-item{display:inline-block;margin-right:10px;vertical-align:top}.el-form-item{margin-bottom:22px}.el-form-item .el-form-item{margin-bottom:0}.el-form-item .el-form-item .el-form-item__content{margin-left:0!important}.el-form-item.is-required .el-form-item__label:before{content:'*';color:#ff4949;margin-right:4px}.el-dragger__cover:after,.el-menu:after,.el-menu:before,.el-progress-bar__inner:after,.el-row:after,.el-row:before{content:\"\"}.el-form-item__label{text-align:right;vertical-align:middle;float:left;font-size:14px;color:#5e6d82;line-height:1;padding:11px 12px 11px 0;box-sizing:border-box}.el-form-item__content{line-height:36px;position:relative;font-size:14px}.el-form-item__error{color:#ff4949;font-size:12px;line-height:1;padding-top:4px;position:absolute;top:100%;left:0}.el-tabs{display:inline-block}.el-tabs__header{border-bottom:1px solid #d3dce6;padding:0;position:relative;margin:0 0 15px}.el-tabs__header:after,.el-tabs__header:before{display:table;content:\"\"}.el-tabs__active-bar{position:absolute;bottom:0;left:0;width:100%;height:3px;background-color:#20a0ff;z-index:1;transition:transform .3s cubic-bezier(.645,.045,.355,1);list-style:none}.el-tabs--card .el-tabs__item.is-active.is-closable .el-icon-close,.el-tabs--card .el-tabs__item.is-closable:hover .el-icon-close{width:14px}.el-tabs--border-card .el-tabs__item,.el-tabs--card .el-tabs__item,.el-tabs__item .el-icon-close{transition:all .3s cubic-bezier(.645,.045,.355,1)}.el-tabs__item{padding:0 16px;height:42px;box-sizing:border-box;line-height:42px;float:left;list-style:none;font-size:14px;color:#8492a6;margin-bottom:-1px;position:relative}.el-tabs__item .el-icon-close{border-radius:50%;text-align:center;margin-left:5px}.el-tabs__item .el-icon-close:before{-ms-transform:scale(.7,.7);transform:scale(.7,.7);display:inline-block}.el-tabs__item .el-icon-close:hover{background-color:#99a9bf;color:#fff}.el-tabs__item:hover{color:#1f2d3d;cursor:pointer}.el-tabs__item.is-disabled{color:#bbb;cursor:default}.el-tabs__item.is-active{color:#20a0ff}.el-tabs__content{overflow:hidden;position:relative}.el-tabs--card .el-tabs__active-bar{display:none}.el-tab-pane,.slideInLeft-transition,.slideInRight-transition{display:inline-block}.el-tabs--card .el-tabs__item{border:1px solid transparent}.el-tabs--card .el-tabs__item.is-closable:hover{padding-right:9px;padding-left:9px}.el-tabs--card .el-tabs__item.is-active{border:1px solid #d3dce6;border-bottom-color:#fff;border-radius:4px 4px 0 0}.el-tabs--card .el-tabs__item.is-active.is-closable{padding-right:16px;padding-left:16px}.el-tabs--card .el-tabs__item .el-icon-close{position:relative;font-size:12px;width:0;height:14px;vertical-align:middle;line-height:15px;overflow:hidden;top:-1px;right:-2px;-ms-transform-origin:100% 50%;transform-origin:100% 50%}.el-tabs--border-card{background:#fff;border:1px solid #d3dce6}.el-tabs--border-card .el-tabs__content{padding:15px}.el-tabs--border-card .el-tabs__header{background-color:#eff2f7;margin:0}.el-tabs--border-card .el-tabs__item{border:1px solid transparent;border-top:0;margin-right:-1px;margin-left:-1px}.el-tabs--border-card .el-tabs__item.is-active{background-color:#fff;border-right-color:#d3dce6;border-left-color:#d3dce6}.el-tabs--border-card .el-tabs__item.is-active:first-child{border-left-color:#d3dce6}.el-tabs--border-card .el-tabs__item.is-active:last-child{border-right-color:#d3dce6}.el-tab-pane{width:100%}.slideInRight-enter{animation:slideInRight-enter .3s}.slideInRight-leave{position:absolute;left:0;right:0;animation:slideInRight-leave .3s}.slideInLeft-enter{animation:slideInLeft-enter .3s}.slideInLeft-leave{position:absolute;left:0;right:0;animation:slideInLeft-leave .3s}@keyframes slideInRight-enter{0%{opacity:0;transform-origin:0 0;transform:translateX(100%)}to{opacity:1;transform-origin:0 0;transform:translateX(0)}}@keyframes slideInRight-leave{0%{transform-origin:0 0;transform:translateX(0);opacity:1}100%{transform-origin:0 0;transform:translateX(100%);opacity:0}}@keyframes slideInLeft-enter{0%{opacity:0;transform-origin:0 0;transform:translateX(-100%)}to{opacity:1;transform-origin:0 0;transform:translateX(0)}}@keyframes slideInLeft-leave{0%{transform-origin:0 0;transform:translateX(0);opacity:1}100%{transform-origin:0 0;transform:translateX(-100%);opacity:0}}.el-progress-bar__inner:after{display:inline-block;height:100%;vertical-align:middle}.el-tree{cursor:default;background:#fff;border:1px solid #d3dce6}.el-tree__empty-block{position:relative;min-height:60px;text-align:center;width:100%;height:100%}.el-tree__empty-text{position:absolute;left:50%;top:50%;-ms-transform:translate(-50%,-50%);transform:translate(-50%,-50%);color:#5e6d82}.el-tree-node{white-space:nowrap}.el-tree-node>.el-tree-node__children{overflow:hidden;background-color:transparent;display:none}.el-tree-node.is-expanded>.el-tree-node__children{display:block}.el-tree-node__expand-icon,.el-tree-node__label,.el-tree-node__loading-icon{display:inline-block;vertical-align:middle}.el-tree-node__content{line-height:36px;height:36px;cursor:pointer}.el-tree-node__content>.el-checkbox,.el-tree-node__content>.el-tree-node__expand-icon{margin-right:8px}.el-tree-node__content>.el-checkbox{vertical-align:middle}.el-tree-node__content:hover{background:#e5e9f2}.el-tree-node__expand-icon{cursor:pointer;width:0;height:0;margin-left:10px;border:6px solid transparent;border-right-width:0;border-left-color:#99a9bf;border-left-width:7px;-ms-transform:rotate(0);transform:rotate(0);transition:transform .3s ease-in-out}.el-tree-node__expand-icon:hover{border-left-color:#999}.el-tree-node__expand-icon.expanded{-ms-transform:rotate(90deg);transform:rotate(90deg)}.el-tree-node__expand-icon.is-leaf{border-color:transparent;cursor:default}.el-tree-node__label{font-size:14px}.el-tree-node__loading-icon{margin-right:4px;font-size:14px;color:#99a9bf}.el-tree--highlight-current .el-tree-node.is-current>.el-tree-node__content{background-color:#eff7ff}.collapse-transition{transition:.3s height ease-in-out,.3s padding-top ease-in-out,.3s padding-bottom ease-in-out}.el-menu-item,.el-submenu__title{height:56px;line-height:56px;font-size:14px;color:#475669;padding:0 20px;cursor:pointer;position:relative;transition:border-color .3s,background-color .3s,color .3s;box-sizing:border-box;white-space:nowrap}.el-menu{border-radius:2px;list-style:none;position:relative;margin:0;padding-left:0;background-color:#eff2f7}.el-menu:after,.el-menu:before{display:table}.el-menu li{list-style:none}.el-menu--dark{background-color:#324057}.el-menu--dark .el-menu-item,.el-menu--dark .el-submenu__title{color:#c0ccda}.el-menu--dark .el-menu-item:hover,.el-menu--dark .el-submenu__title:hover{background-color:#475669}.el-menu--dark .el-submenu .el-menu{background-color:#1f2f3d}.el-menu--dark .el-submenu .el-menu .el-menu-item:hover{background-color:#475669}.el-menu--horizontal .el-menu-item{float:left;height:60px;line-height:60px;margin:0;cursor:pointer;position:relative;box-sizing:border-box;border-bottom:5px solid transparent}.el-menu--horizontal .el-submenu{float:left;position:relative}.el-menu--horizontal .el-submenu>.el-menu{position:absolute;top:65px;left:0;border:1px solid #d3dce6;padding:5px 0;background-color:#fff;z-index:100;min-width:100%}.el-menu--horizontal .el-submenu .el-submenu__title{height:60px;line-height:60px;border-bottom:5px solid transparent}.el-menu--horizontal .el-submenu .el-menu-item{background-color:#fff;float:none;height:36px;line-height:36px;padding:0 10px}.el-menu--horizontal .el-submenu .el-submenu__icon-arrow{position:static;vertical-align:middle;margin-left:5px;color:#99a9bf;margin-top:-3px}.el-menu--horizontal .el-menu-item:hover,.el-menu--horizontal .el-submenu__title:hover{background-color:#eff2f7}.el-menu--horizontal>.el-menu-item:hover,.el-menu--horizontal>.el-submenu.is-active .el-submenu__title,.el-menu--horizontal>.el-submenu:hover .el-submenu__title{border-bottom:5px solid #20a0ff}.el-menu--horizontal.el-menu--dark .el-menu-item:hover,.el-menu--horizontal.el-menu--dark .el-submenu__title:hover{background-color:#324057}.el-menu--horizontal.el-menu--dark .el-submenu .el-menu-item:hover,.el-menu--horizontal.el-menu--dark .el-submenu .el-submenu-title:hover,.el-menu-item:hover{background-color:#d3dce6}.el-menu--horizontal.el-menu--dark .el-submenu .el-menu-item,.el-menu--horizontal.el-menu--dark .el-submenu .el-submenu-title{color:#475669}.el-menu--horizontal.el-menu--dark .el-submenu .el-menu-item.is-active,.el-menu-item.is-active{color:#20a0ff}.el-menu-item [class^=el-icon-]{vertical-align:baseline;margin-right:10px}.el-menu-item:first-child{margin-left:0}.el-menu-item:last-child{margin-right:0}.el-submenu [class^=el-icon-]{vertical-align:baseline;margin-right:10px}.el-submenu .el-menu{background-color:#e5e9f2}.el-submenu .el-menu-item:hover,.el-submenu__title:hover{background-color:#d3dce6}.el-submenu .el-menu-item{height:50px;line-height:50px;padding:0 45px}.el-submenu.is-opened>.el-submenu__title .el-submenu__icon-arrow{-ms-transform:rotate(180deg);transform:rotateZ(180deg)}.el-submenu.is-active .el-submenu__title{border-bottom-color:#20a0ff}.el-submenu__title{position:relative}.el-submenu__icon-arrow{position:absolute;top:50%;right:20px;margin-top:-7px;transition:transform .3s;font-size:12px}.el-menu-item-group>ul{padding:0}.el-menu-item-group__title{padding-top:15px;line-height:normal;font-size:14px;padding-left:20px;color:#99a9bf}.el-progress{position:relative;line-height:1}.el-progress.is-exception .el-progress-bar__inner{background-color:#ff4949}.el-progress.is-exception .el-progress__text{color:#ff4949}.el-progress.is-success .el-progress-bar__inner{background-color:#13ce66}.el-progress.is-success .el-progress__text{color:#13ce66}.el-progress__text{font-size:14px;color:#475669;display:inline-block;vertical-align:middle;margin-left:10px;line-height:1}.el-progress__text i{vertical-align:middle;display:block}.el-progress--circle{display:inline-block}.el-progress--circle .el-progress__text{position:absolute;top:50%;left:0;width:100%;text-align:center;margin:0;-ms-transform:translate(0,-50%);transform:translate(0,-50%)}.el-progress--circle .el-progress__text i{vertical-align:middle;display:inline-block}.el-progress--without-text .el-progress__text{display:none}.el-progress--without-text .el-progress-bar{padding-right:0;margin-right:0;display:block}.el-progress--text-inside .el-progress-bar{padding-right:0;margin-right:0}.el-progress-bar{padding-right:50px;display:inline-block;vertical-align:middle;width:100%;margin-right:-55px;box-sizing:border-box}.el-progress-bar__outer{height:6px;border-radius:100px;background-color:#e5e9f2;overflow:hidden;position:relative;vertical-align:middle}.el-progress-bar__inner{position:absolute;left:0;top:0;height:100%;background-color:#20a0ff;text-align:right;border-radius:100px;line-height:1}.el-dragger,.el-dragger+.el-upload__tip{text-align:center}.el-progress-bar__innerText{display:inline-block;vertical-align:middle;color:#fff;font-size:12px;margin:0 5px}@keyframes progress{0%{background-position:0 0}100%{background-position:32px 0}}.el-upload{width:360px}.el-upload__input{display:none}.el-upload__inner{display:inline-block;position:relative}.el-upload__inner iframe{position:absolute;z-index:-1;top:0;left:0;opacity:0;filter:alpha(opacity=0)}.el-upload__files{margin:0 0 10px;padding:0;list-style:none}.el-upload__file{transition:all .5s cubic-bezier(.55,0,.1,1);font-size:14px;color:#475669;line-height:32px;box-sizing:border-box;border-radius:4px;width:100%;position:relative}.el-upload__file a{color:#475669;display:block;margin-right:40px;overflow:hidden;padding-left:4px;text-overflow:ellipsis;transition:color .3s;white-space:nowrap}.el-upload__file a [class^=el-icon]{color:#99a9bf;margin-right:7px;height:100%;line-height:inherit}.el-upload__file .el-progress-bar{margin-right:0;padding-right:0}.el-upload__file .el-progress{position:absolute;bottom:-3px;width:100%}.el-upload__file .el-progress__text{position:absolute;top:-10px;right:0}.el-upload__file:hover{background-color:#eff2f7}.el-upload__file.is-finished a:hover{color:#20a0ff;cursor:pointer}.el-upload__file.is-finished:hover .el-upload__btn-delete{display:block;cursor:pointer}.el-upload__tip{font-size:12px;color:#8492a6;margin-top:7px}.el-upload__btn-delete{position:absolute;right:15px;top:0;font-size:12px;color:#20a0ff;display:none}.el-dragger{background-color:#f9fafc;border:1px solid #c0ccda;box-sizing:border-box;width:360px;height:180px;border-radius:4px;cursor:pointer;position:relative;overflow:hidden}.el-dragger .el-upload__inner{display:block;height:100%}.el-dragger .el-icon-upload{font-size:67px;color:#99a9bf;margin:40px 0 16px;line-height:50px}.el-dragger~.el-upload__files{margin-top:7px;padding-top:5px;border-top:1px solid rgba(192,204,218,.2)}.el-dragger:not(.is-showCover):hover{border-color:#20a0ff}.el-dragger.is-dragOver{background-color:rgba(32,159,255,.06);border:2px dashed #20a0ff}.el-dragger__cover{position:absolute;left:0;top:0;width:100%;height:100%;overflow:hidden;z-index:10;cursor:default}.el-dragger__cover:after{display:inline-block;height:100%;vertical-align:middle}.el-dragger__cover img{display:block;width:100%;height:100%}.el-dragger__cover+.el-upload__inner{opacity:0;position:relative;z-index:1}.el-dragger__cover__progress{display:inline-block;vertical-align:middle;position:static;width:243px}.el-dragger__cover__progress+.el-upload__inner{opacity:0}.el-dragger__cover__content{position:absolute;top:0;left:0;width:100%;height:100%}.el-dragger__cover__interact{position:absolute;bottom:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.72);text-align:center}.el-dragger__cover__interact .btn{display:inline-block;color:#fff;font-size:14px;cursor:pointer;vertical-align:middle;transition:transform .3s cubic-bezier(.23,1,.32,1) .1s,opacity .3s cubic-bezier(.23,1,.32,1) .1s;margin-top:60px}.el-dragger__cover__interact .btn span{opacity:0;transition:opacity .15s linear}.el-dragger__cover__interact .btn:not(:first-child){margin-left:35px}.el-dragger__cover__interact .btn:hover{-ms-transform:translateY(-13px);transform:translateY(-13px)}.el-dragger__cover__interact .btn:hover span{opacity:1}.el-dragger__cover__interact .btn i{color:#fff;display:block;font-size:24px;line-height:inherit;margin:0 auto 5px}.el-dragger__cover__title{position:absolute;bottom:0;left:0;background-color:#fff;height:36px;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:400;text-align:left;padding:0 10px;margin:0;line-height:36px;font-size:14px;color:#475669}.el-dragger__text{color:#99a9bf;font-size:14px;text-align:center}.el-dragger__text em{color:#20a0ff;font-style:normal}.el-row{position:relative;box-sizing:border-box}.el-row:after,.el-row:before{display:table}.el-row--flex{display:-ms-flexbox;display:flex}.el-row--flex:after,.el-row--flex:before{display:none}.el-badge,.el-badge__content,.el-spinner{display:inline-block}.el-row--flex.is-align-bottom{-ms-flex-align:end;align-items:flex-end}.el-row--flex.is-align-middle{-ms-flex-align:center;align-items:center}.el-row--flex.is-justify-space-around{-ms-flex-pack:distribute;justify-content:space-around}.el-row--flex.is-justify-space-between{-ms-flex-pack:justify;justify-content:space-between}.el-row--flex.is-justify-end{-ms-flex-pack:end;justify-content:flex-end}.el-row--flex.is-justify-center{-ms-flex-pack:center;justify-content:center}.el-col-1,.el-col-10,.el-col-11,.el-col-12,.el-col-13,.el-col-14,.el-col-15,.el-col-16,.el-col-17,.el-col-18,.el-col-19,.el-col-2,.el-col-20,.el-col-21,.el-col-22,.el-col-23,.el-col-24,.el-col-3,.el-col-4,.el-col-5,.el-col-6,.el-col-7,.el-col-8,.el-col-9{float:left;box-sizing:border-box}.el-col-1,.el-col-xs-1{width:4.16667%}.el-col-offset-1,.el-col-xs-offset-1{margin-left:4.16667%}.el-col-pull-1,.el-col-xs-pull-1{position:relative;right:4.16667%}.el-col-push-1,.el-col-xs-push-1{position:relative;left:4.16667%}.el-col-2,.el-col-xs-2{width:8.33333%}.el-col-offset-2,.el-col-xs-offset-2{margin-left:8.33333%}.el-col-pull-2,.el-col-xs-pull-2{position:relative;right:8.33333%}.el-col-push-2,.el-col-xs-push-2{position:relative;left:8.33333%}.el-col-3,.el-col-xs-3{width:12.5%}.el-col-offset-3,.el-col-xs-offset-3{margin-left:12.5%}.el-col-pull-3,.el-col-xs-pull-3{position:relative;right:12.5%}.el-col-push-3,.el-col-xs-push-3{position:relative;left:12.5%}.el-col-4,.el-col-xs-4{width:16.66667%}.el-col-offset-4,.el-col-xs-offset-4{margin-left:16.66667%}.el-col-pull-4,.el-col-xs-pull-4{position:relative;right:16.66667%}.el-col-push-4,.el-col-xs-push-4{position:relative;left:16.66667%}.el-col-5,.el-col-xs-5{width:20.83333%}.el-col-offset-5,.el-col-xs-offset-5{margin-left:20.83333%}.el-col-pull-5,.el-col-xs-pull-5{position:relative;right:20.83333%}.el-col-push-5,.el-col-xs-push-5{position:relative;left:20.83333%}.el-col-6,.el-col-xs-6{width:25%}.el-col-offset-6,.el-col-xs-offset-6{margin-left:25%}.el-col-pull-6,.el-col-xs-pull-6{position:relative;right:25%}.el-col-push-6,.el-col-xs-push-6{position:relative;left:25%}.el-col-7,.el-col-xs-7{width:29.16667%}.el-col-offset-7,.el-col-xs-offset-7{margin-left:29.16667%}.el-col-pull-7,.el-col-xs-pull-7{position:relative;right:29.16667%}.el-col-push-7,.el-col-xs-push-7{position:relative;left:29.16667%}.el-col-8,.el-col-xs-8{width:33.33333%}.el-col-offset-8,.el-col-xs-offset-8{margin-left:33.33333%}.el-col-pull-8,.el-col-xs-pull-8{position:relative;right:33.33333%}.el-col-push-8,.el-col-xs-push-8{position:relative;left:33.33333%}.el-col-9,.el-col-xs-9{width:37.5%}.el-col-offset-9,.el-col-xs-offset-9{margin-left:37.5%}.el-col-pull-9,.el-col-xs-pull-9{position:relative;right:37.5%}.el-col-push-9,.el-col-xs-push-9{position:relative;left:37.5%}.el-col-10,.el-col-xs-10{width:41.66667%}.el-col-offset-10,.el-col-xs-offset-10{margin-left:41.66667%}.el-col-pull-10,.el-col-xs-pull-10{position:relative;right:41.66667%}.el-col-push-10,.el-col-xs-push-10{position:relative;left:41.66667%}.el-col-11,.el-col-xs-11{width:45.83333%}.el-col-offset-11,.el-col-xs-offset-11{margin-left:45.83333%}.el-col-pull-11,.el-col-xs-pull-11{position:relative;right:45.83333%}.el-col-push-11,.el-col-xs-push-11{position:relative;left:45.83333%}.el-col-12,.el-col-xs-12{width:50%}.el-col-offset-12,.el-col-xs-offset-12{margin-left:50%}.el-col-pull-12,.el-col-xs-pull-12{position:relative;right:50%}.el-col-push-12,.el-col-xs-push-12{position:relative;left:50%}.el-col-13,.el-col-xs-13{width:54.16667%}.el-col-offset-13,.el-col-xs-offset-13{margin-left:54.16667%}.el-col-pull-13,.el-col-xs-pull-13{position:relative;right:54.16667%}.el-col-push-13,.el-col-xs-push-13{position:relative;left:54.16667%}.el-col-14,.el-col-xs-14{width:58.33333%}.el-col-offset-14,.el-col-xs-offset-14{margin-left:58.33333%}.el-col-pull-14,.el-col-xs-pull-14{position:relative;right:58.33333%}.el-col-push-14,.el-col-xs-push-14{position:relative;left:58.33333%}.el-col-15,.el-col-xs-15{width:62.5%}.el-col-offset-15,.el-col-xs-offset-15{margin-left:62.5%}.el-col-pull-15,.el-col-xs-pull-15{position:relative;right:62.5%}.el-col-push-15,.el-col-xs-push-15{position:relative;left:62.5%}.el-col-16,.el-col-xs-16{width:66.66667%}.el-col-offset-16,.el-col-xs-offset-16{margin-left:66.66667%}.el-col-pull-16,.el-col-xs-pull-16{position:relative;right:66.66667%}.el-col-push-16,.el-col-xs-push-16{position:relative;left:66.66667%}.el-col-17,.el-col-xs-17{width:70.83333%}.el-col-offset-17,.el-col-xs-offset-17{margin-left:70.83333%}.el-col-pull-17,.el-col-xs-pull-17{position:relative;right:70.83333%}.el-col-push-17,.el-col-xs-push-17{position:relative;left:70.83333%}.el-col-18,.el-col-xs-18{width:75%}.el-col-offset-18,.el-col-xs-offset-18{margin-left:75%}.el-col-pull-18,.el-col-xs-pull-18{position:relative;right:75%}.el-col-push-18,.el-col-xs-push-18{position:relative;left:75%}.el-col-19,.el-col-xs-19{width:79.16667%}.el-col-offset-19,.el-col-xs-offset-19{margin-left:79.16667%}.el-col-pull-19,.el-col-xs-pull-19{position:relative;right:79.16667%}.el-col-push-19,.el-col-xs-push-19{position:relative;left:79.16667%}.el-col-20,.el-col-xs-20{width:83.33333%}.el-col-offset-20,.el-col-xs-offset-20{margin-left:83.33333%}.el-col-pull-20,.el-col-xs-pull-20{position:relative;right:83.33333%}.el-col-push-20,.el-col-xs-push-20{position:relative;left:83.33333%}.el-col-21,.el-col-xs-21{width:87.5%}.el-col-offset-21,.el-col-xs-offset-21{margin-left:87.5%}.el-col-pull-21,.el-col-xs-pull-21{position:relative;right:87.5%}.el-col-push-21,.el-col-xs-push-21{position:relative;left:87.5%}.el-col-22,.el-col-xs-22{width:91.66667%}.el-col-offset-22,.el-col-xs-offset-22{margin-left:91.66667%}.el-col-pull-22,.el-col-xs-pull-22{position:relative;right:91.66667%}.el-col-push-22,.el-col-xs-push-22{position:relative;left:91.66667%}.el-col-23,.el-col-xs-23{width:95.83333%}.el-col-offset-23,.el-col-xs-offset-23{margin-left:95.83333%}.el-col-pull-23,.el-col-xs-pull-23{position:relative;right:95.83333%}.el-col-push-23,.el-col-xs-push-23{position:relative;left:95.83333%}.el-col-24,.el-col-xs-24{width:100%}.el-col-offset-24,.el-col-xs-offset-24{margin-left:100%}.el-col-pull-24,.el-col-xs-pull-24{position:relative;right:100%}.el-col-push-24,.el-col-xs-push-24{position:relative;left:100%}@media (min-width:768px){.el-col-sm-1{width:4.16667%}.el-col-sm-offset-1{margin-left:4.16667%}.el-col-sm-pull-1{position:relative;right:4.16667%}.el-col-sm-push-1{position:relative;left:4.16667%}.el-col-sm-2{width:8.33333%}.el-col-sm-offset-2{margin-left:8.33333%}.el-col-sm-pull-2{position:relative;right:8.33333%}.el-col-sm-push-2{position:relative;left:8.33333%}.el-col-sm-3{width:12.5%}.el-col-sm-offset-3{margin-left:12.5%}.el-col-sm-pull-3{position:relative;right:12.5%}.el-col-sm-push-3{position:relative;left:12.5%}.el-col-sm-4{width:16.66667%}.el-col-sm-offset-4{margin-left:16.66667%}.el-col-sm-pull-4{position:relative;right:16.66667%}.el-col-sm-push-4{position:relative;left:16.66667%}.el-col-sm-5{width:20.83333%}.el-col-sm-offset-5{margin-left:20.83333%}.el-col-sm-pull-5{position:relative;right:20.83333%}.el-col-sm-push-5{position:relative;left:20.83333%}.el-col-sm-6{width:25%}.el-col-sm-offset-6{margin-left:25%}.el-col-sm-pull-6{position:relative;right:25%}.el-col-sm-push-6{position:relative;left:25%}.el-col-sm-7{width:29.16667%}.el-col-sm-offset-7{margin-left:29.16667%}.el-col-sm-pull-7{position:relative;right:29.16667%}.el-col-sm-push-7{position:relative;left:29.16667%}.el-col-sm-8{width:33.33333%}.el-col-sm-offset-8{margin-left:33.33333%}.el-col-sm-pull-8{position:relative;right:33.33333%}.el-col-sm-push-8{position:relative;left:33.33333%}.el-col-sm-9{width:37.5%}.el-col-sm-offset-9{margin-left:37.5%}.el-col-sm-pull-9{position:relative;right:37.5%}.el-col-sm-push-9{position:relative;left:37.5%}.el-col-sm-10{width:41.66667%}.el-col-sm-offset-10{margin-left:41.66667%}.el-col-sm-pull-10{position:relative;right:41.66667%}.el-col-sm-push-10{position:relative;left:41.66667%}.el-col-sm-11{width:45.83333%}.el-col-sm-offset-11{margin-left:45.83333%}.el-col-sm-pull-11{position:relative;right:45.83333%}.el-col-sm-push-11{position:relative;left:45.83333%}.el-col-sm-12{width:50%}.el-col-sm-offset-12{margin-left:50%}.el-col-sm-pull-12{position:relative;right:50%}.el-col-sm-push-12{position:relative;left:50%}.el-col-sm-13{width:54.16667%}.el-col-sm-offset-13{margin-left:54.16667%}.el-col-sm-pull-13{position:relative;right:54.16667%}.el-col-sm-push-13{position:relative;left:54.16667%}.el-col-sm-14{width:58.33333%}.el-col-sm-offset-14{margin-left:58.33333%}.el-col-sm-pull-14{position:relative;right:58.33333%}.el-col-sm-push-14{position:relative;left:58.33333%}.el-col-sm-15{width:62.5%}.el-col-sm-offset-15{margin-left:62.5%}.el-col-sm-pull-15{position:relative;right:62.5%}.el-col-sm-push-15{position:relative;left:62.5%}.el-col-sm-16{width:66.66667%}.el-col-sm-offset-16{margin-left:66.66667%}.el-col-sm-pull-16{position:relative;right:66.66667%}.el-col-sm-push-16{position:relative;left:66.66667%}.el-col-sm-17{width:70.83333%}.el-col-sm-offset-17{margin-left:70.83333%}.el-col-sm-pull-17{position:relative;right:70.83333%}.el-col-sm-push-17{position:relative;left:70.83333%}.el-col-sm-18{width:75%}.el-col-sm-offset-18{margin-left:75%}.el-col-sm-pull-18{position:relative;right:75%}.el-col-sm-push-18{position:relative;left:75%}.el-col-sm-19{width:79.16667%}.el-col-sm-offset-19{margin-left:79.16667%}.el-col-sm-pull-19{position:relative;right:79.16667%}.el-col-sm-push-19{position:relative;left:79.16667%}.el-col-sm-20{width:83.33333%}.el-col-sm-offset-20{margin-left:83.33333%}.el-col-sm-pull-20{position:relative;right:83.33333%}.el-col-sm-push-20{position:relative;left:83.33333%}.el-col-sm-21{width:87.5%}.el-col-sm-offset-21{margin-left:87.5%}.el-col-sm-pull-21{position:relative;right:87.5%}.el-col-sm-push-21{position:relative;left:87.5%}.el-col-sm-22{width:91.66667%}.el-col-sm-offset-22{margin-left:91.66667%}.el-col-sm-pull-22{position:relative;right:91.66667%}.el-col-sm-push-22{position:relative;left:91.66667%}.el-col-sm-23{width:95.83333%}.el-col-sm-offset-23{margin-left:95.83333%}.el-col-sm-pull-23{position:relative;right:95.83333%}.el-col-sm-push-23{position:relative;left:95.83333%}.el-col-sm-24{width:100%}.el-col-sm-offset-24{margin-left:100%}.el-col-sm-pull-24{position:relative;right:100%}.el-col-sm-push-24{position:relative;left:100%}}@media (min-width:992px){.el-col-md-1{width:4.16667%}.el-col-md-offset-1{margin-left:4.16667%}.el-col-md-pull-1{position:relative;right:4.16667%}.el-col-md-push-1{position:relative;left:4.16667%}.el-col-md-2{width:8.33333%}.el-col-md-offset-2{margin-left:8.33333%}.el-col-md-pull-2{position:relative;right:8.33333%}.el-col-md-push-2{position:relative;left:8.33333%}.el-col-md-3{width:12.5%}.el-col-md-offset-3{margin-left:12.5%}.el-col-md-pull-3{position:relative;right:12.5%}.el-col-md-push-3{position:relative;left:12.5%}.el-col-md-4{width:16.66667%}.el-col-md-offset-4{margin-left:16.66667%}.el-col-md-pull-4{position:relative;right:16.66667%}.el-col-md-push-4{position:relative;left:16.66667%}.el-col-md-5{width:20.83333%}.el-col-md-offset-5{margin-left:20.83333%}.el-col-md-pull-5{position:relative;right:20.83333%}.el-col-md-push-5{position:relative;left:20.83333%}.el-col-md-6{width:25%}.el-col-md-offset-6{margin-left:25%}.el-col-md-pull-6{position:relative;right:25%}.el-col-md-push-6{position:relative;left:25%}.el-col-md-7{width:29.16667%}.el-col-md-offset-7{margin-left:29.16667%}.el-col-md-pull-7{position:relative;right:29.16667%}.el-col-md-push-7{position:relative;left:29.16667%}.el-col-md-8{width:33.33333%}.el-col-md-offset-8{margin-left:33.33333%}.el-col-md-pull-8{position:relative;right:33.33333%}.el-col-md-push-8{position:relative;left:33.33333%}.el-col-md-9{width:37.5%}.el-col-md-offset-9{margin-left:37.5%}.el-col-md-pull-9{position:relative;right:37.5%}.el-col-md-push-9{position:relative;left:37.5%}.el-col-md-10{width:41.66667%}.el-col-md-offset-10{margin-left:41.66667%}.el-col-md-pull-10{position:relative;right:41.66667%}.el-col-md-push-10{position:relative;left:41.66667%}.el-col-md-11{width:45.83333%}.el-col-md-offset-11{margin-left:45.83333%}.el-col-md-pull-11{position:relative;right:45.83333%}.el-col-md-push-11{position:relative;left:45.83333%}.el-col-md-12{width:50%}.el-col-md-offset-12{margin-left:50%}.el-col-md-pull-12{position:relative;right:50%}.el-col-md-push-12{position:relative;left:50%}.el-col-md-13{width:54.16667%}.el-col-md-offset-13{margin-left:54.16667%}.el-col-md-pull-13{position:relative;right:54.16667%}.el-col-md-push-13{position:relative;left:54.16667%}.el-col-md-14{width:58.33333%}.el-col-md-offset-14{margin-left:58.33333%}.el-col-md-pull-14{position:relative;right:58.33333%}.el-col-md-push-14{position:relative;left:58.33333%}.el-col-md-15{width:62.5%}.el-col-md-offset-15{margin-left:62.5%}.el-col-md-pull-15{position:relative;right:62.5%}.el-col-md-push-15{position:relative;left:62.5%}.el-col-md-16{width:66.66667%}.el-col-md-offset-16{margin-left:66.66667%}.el-col-md-pull-16{position:relative;right:66.66667%}.el-col-md-push-16{position:relative;left:66.66667%}.el-col-md-17{width:70.83333%}.el-col-md-offset-17{margin-left:70.83333%}.el-col-md-pull-17{position:relative;right:70.83333%}.el-col-md-push-17{position:relative;left:70.83333%}.el-col-md-18{width:75%}.el-col-md-offset-18{margin-left:75%}.el-col-md-pull-18{position:relative;right:75%}.el-col-md-push-18{position:relative;left:75%}.el-col-md-19{width:79.16667%}.el-col-md-offset-19{margin-left:79.16667%}.el-col-md-pull-19{position:relative;right:79.16667%}.el-col-md-push-19{position:relative;left:79.16667%}.el-col-md-20{width:83.33333%}.el-col-md-offset-20{margin-left:83.33333%}.el-col-md-pull-20{position:relative;right:83.33333%}.el-col-md-push-20{position:relative;left:83.33333%}.el-col-md-21{width:87.5%}.el-col-md-offset-21{margin-left:87.5%}.el-col-md-pull-21{position:relative;right:87.5%}.el-col-md-push-21{position:relative;left:87.5%}.el-col-md-22{width:91.66667%}.el-col-md-offset-22{margin-left:91.66667%}.el-col-md-pull-22{position:relative;right:91.66667%}.el-col-md-push-22{position:relative;left:91.66667%}.el-col-md-23{width:95.83333%}.el-col-md-offset-23{margin-left:95.83333%}.el-col-md-pull-23{position:relative;right:95.83333%}.el-col-md-push-23{position:relative;left:95.83333%}.el-col-md-24{width:100%}.el-col-md-offset-24{margin-left:100%}.el-col-md-pull-24{position:relative;right:100%}.el-col-md-push-24{position:relative;left:100%}}@media (min-width:1200px){.el-col-lg-1{width:4.16667%}.el-col-lg-offset-1{margin-left:4.16667%}.el-col-lg-pull-1{position:relative;right:4.16667%}.el-col-lg-push-1{position:relative;left:4.16667%}.el-col-lg-2{width:8.33333%}.el-col-lg-offset-2{margin-left:8.33333%}.el-col-lg-pull-2{position:relative;right:8.33333%}.el-col-lg-push-2{position:relative;left:8.33333%}.el-col-lg-3{width:12.5%}.el-col-lg-offset-3{margin-left:12.5%}.el-col-lg-pull-3{position:relative;right:12.5%}.el-col-lg-push-3{position:relative;left:12.5%}.el-col-lg-4{width:16.66667%}.el-col-lg-offset-4{margin-left:16.66667%}.el-col-lg-pull-4{position:relative;right:16.66667%}.el-col-lg-push-4{position:relative;left:16.66667%}.el-col-lg-5{width:20.83333%}.el-col-lg-offset-5{margin-left:20.83333%}.el-col-lg-pull-5{position:relative;right:20.83333%}.el-col-lg-push-5{position:relative;left:20.83333%}.el-col-lg-6{width:25%}.el-col-lg-offset-6{margin-left:25%}.el-col-lg-pull-6{position:relative;right:25%}.el-col-lg-push-6{position:relative;left:25%}.el-col-lg-7{width:29.16667%}.el-col-lg-offset-7{margin-left:29.16667%}.el-col-lg-pull-7{position:relative;right:29.16667%}.el-col-lg-push-7{position:relative;left:29.16667%}.el-col-lg-8{width:33.33333%}.el-col-lg-offset-8{margin-left:33.33333%}.el-col-lg-pull-8{position:relative;right:33.33333%}.el-col-lg-push-8{position:relative;left:33.33333%}.el-col-lg-9{width:37.5%}.el-col-lg-offset-9{margin-left:37.5%}.el-col-lg-pull-9{position:relative;right:37.5%}.el-col-lg-push-9{position:relative;left:37.5%}.el-col-lg-10{width:41.66667%}.el-col-lg-offset-10{margin-left:41.66667%}.el-col-lg-pull-10{position:relative;right:41.66667%}.el-col-lg-push-10{position:relative;left:41.66667%}.el-col-lg-11{width:45.83333%}.el-col-lg-offset-11{margin-left:45.83333%}.el-col-lg-pull-11{position:relative;right:45.83333%}.el-col-lg-push-11{position:relative;left:45.83333%}.el-col-lg-12{width:50%}.el-col-lg-offset-12{margin-left:50%}.el-col-lg-pull-12{position:relative;right:50%}.el-col-lg-push-12{position:relative;left:50%}.el-col-lg-13{width:54.16667%}.el-col-lg-offset-13{margin-left:54.16667%}.el-col-lg-pull-13{position:relative;right:54.16667%}.el-col-lg-push-13{position:relative;left:54.16667%}.el-col-lg-14{width:58.33333%}.el-col-lg-offset-14{margin-left:58.33333%}.el-col-lg-pull-14{position:relative;right:58.33333%}.el-col-lg-push-14{position:relative;left:58.33333%}.el-col-lg-15{width:62.5%}.el-col-lg-offset-15{margin-left:62.5%}.el-col-lg-pull-15{position:relative;right:62.5%}.el-col-lg-push-15{position:relative;left:62.5%}.el-col-lg-16{width:66.66667%}.el-col-lg-offset-16{margin-left:66.66667%}.el-col-lg-pull-16{position:relative;right:66.66667%}.el-col-lg-push-16{position:relative;left:66.66667%}.el-col-lg-17{width:70.83333%}.el-col-lg-offset-17{margin-left:70.83333%}.el-col-lg-pull-17{position:relative;right:70.83333%}.el-col-lg-push-17{position:relative;left:70.83333%}.el-col-lg-18{width:75%}.el-col-lg-offset-18{margin-left:75%}.el-col-lg-pull-18{position:relative;right:75%}.el-col-lg-push-18{position:relative;left:75%}.el-col-lg-19{width:79.16667%}.el-col-lg-offset-19{margin-left:79.16667%}.el-col-lg-pull-19{position:relative;right:79.16667%}.el-col-lg-push-19{position:relative;left:79.16667%}.el-col-lg-20{width:83.33333%}.el-col-lg-offset-20{margin-left:83.33333%}.el-col-lg-pull-20{position:relative;right:83.33333%}.el-col-lg-push-20{position:relative;left:83.33333%}.el-col-lg-21{width:87.5%}.el-col-lg-offset-21{margin-left:87.5%}.el-col-lg-pull-21{position:relative;right:87.5%}.el-col-lg-push-21{position:relative;left:87.5%}.el-col-lg-22{width:91.66667%}.el-col-lg-offset-22{margin-left:91.66667%}.el-col-lg-pull-22{position:relative;right:91.66667%}.el-col-lg-push-22{position:relative;left:91.66667%}.el-col-lg-23{width:95.83333%}.el-col-lg-offset-23{margin-left:95.83333%}.el-col-lg-pull-23{position:relative;right:95.83333%}.el-col-lg-push-23{position:relative;left:95.83333%}.el-col-lg-24{width:100%}.el-col-lg-offset-24{margin-left:100%}.el-col-lg-pull-24{position:relative;right:100%}.el-col-lg-push-24{position:relative;left:100%}}.el-time-spinner{width:100%;white-space:nowrap}.el-spinner{vertical-align:middle}.el-spinner-inner{animation:rotate 2s linear infinite;width:50px;height:50px}.el-spinner-inner .path{stroke:#ececec;stroke-linecap:round;animation:dash 1.5s ease-in-out infinite}@keyframes rotate{100%{transform:rotate(360deg)}}@keyframes dash{0%{stroke-dasharray:1,150;stroke-dashoffset:0}50%{stroke-dasharray:90,150;stroke-dashoffset:-35}100%{stroke-dasharray:90,150;stroke-dashoffset:-124}}.el-badge{position:relative;vertical-align:middle}.el-badge__content{background-color:#ff4949;border-radius:10px;color:#fff;font-size:12px;height:18px;line-height:18px;padding:0 6px;text-align:center;white-space:nowrap;border:1px solid #fff}.el-badge__content.is-dot{width:8px;height:8px;padding:0;right:0;border-radius:50%}.el-badge__content.is-fixed{top:0;right:10px;position:absolute;-ms-transform:translateY(-50%) translateX(100%);transform:translateY(-50%) translateX(100%)}.el-rate__icon,.el-rate__item{position:relative;display:inline-block}.el-badge__content.is-fixed.is-dot{right:5px}.el-card{border:1px solid #D3DCE6;border-radius:4px;background-color:#fff;overflow:hidden}.el-card__header{padding:18px 20px;border-bottom:1px solid #D3DCE6;box-sizing:border-box}.el-card__body{padding:20px}.el-rate{height:20px;line-height:1}.el-rate__item{font-size:0;vertical-align:middle}.el-rate__icon{font-size:18px;margin-right:6px;color:#C6D1DE;transition:.3s}.el-rate__decimal,.el-rate__icon .path2{position:absolute;top:0;left:0}.el-rate__icon.hover{-ms-transform:scale(1.15);transform:scale(1.15)}.el-rate__decimal{display:inline-block;overflow:hidden}.el-rate__text{font-size:14px;vertical-align:middle}.el-steps{font-size:0}.el-steps>:last-child .el-step__line{display:none}.el-step.is-horizontal,.el-step.is-vertical .el-step__head,.el-step.is-vertical .el-step__main,.el-step__line{display:inline-block}.el-steps.is-horizontal{white-space:nowrap}.el-step{position:relative;vertical-align:top}.el-step.is-vertical .el-step__main{padding-left:10px}.el-step__line{position:absolute;border-color:inherit;background-color:#c0ccda}.el-step__line.is-vertical{width:2px;box-sizing:border-box;top:32px;bottom:0;left:15px}.el-step__line.is-horizontal{top:15px;height:2px;left:32px;right:0}.el-step__line.is-icon.is-horizontal{right:4px}.el-step__line-inner{display:block;border-width:1px;border-style:solid;border-color:inherit;transition:all 150ms;width:0;height:0}.el-step__icon{display:block;line-height:28px}.el-step__icon>*{line-height:inherit;vertical-align:middle}.el-step__head{width:28px;height:28px;border-radius:50%;background-color:transparent;text-align:center;line-height:28px;font-size:28px;vertical-align:top;transition:all 150ms}.el-step__head.is-finish{color:#20a0ff;border-color:#20a0ff}.el-step__head.is-error{color:#ff4949;border-color:#ff4949}.el-step__head.is-success{color:#13ce66;border-color:#13ce66}.el-step__head.is-process,.el-step__head.is-wait{color:#c0ccda;border-color:#c0ccda}.el-step__head.is-text{font-size:14px;border-width:2px;border-style:solid}.el-step__head.is-text.is-finish{color:#fff;background-color:#20a0ff;border-color:#20a0ff}.el-step__head.is-text.is-error{color:#fff;background-color:#ff4949;border-color:#ff4949}.el-step__head.is-text.is-success{color:#fff;background-color:#13ce66;border-color:#13ce66}.el-step__head.is-text.is-wait{color:#c0ccda;background-color:#fff;border-color:#c0ccda}.el-step__head.is-text.is-process{color:#fff;background-color:#c0ccda;border-color:#c0ccda}.el-step__main{white-space:normal;padding-right:10px;text-align:left}.el-step__title{font-size:14px;line-height:32px;display:inline-block}.el-step__title.is-finish{font-weight:700;color:#20a0ff}.el-step__title.is-error{font-weight:700;color:#ff4949}.el-step__title.is-success{font-weight:700;color:#13ce66}.el-step__title.is-wait{font-weight:400;color:#99a9bf}.el-step__title.is-process{font-weight:700;color:#475669}.el-step__description{font-size:12px;font-weight:400;line-height:14px}.el-step__description.is-finish{color:#20a0ff}.el-step__description.is-error{color:#ff4949}.el-step__description.is-success{color:#13ce66}.el-step__description.is-wait{color:#c0ccda}.el-step__description.is-process{color:#8492a6}", ""]);
 
 	// exports
 
 
 /***/ },
-/* 99 */
+/* 129 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__.p + "a61be9cda5272a0c94b957cb630cc970.eot";
 
 /***/ },
-/* 100 */
+/* 130 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__.p + "d2f69a92faa6fe990d2e613c358be705.woff";
 
 /***/ },
-/* 101 */
+/* 131 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__.p + "b02bdc1b846fd65473922f5f62832108.ttf";
 
 /***/ },
-/* 102 */
+/* 132 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__.p + "09162bc124a0849343f0e5b1044ebba2.svg";
 
 /***/ },
-/* 103 */
+/* 133 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -44717,6 +47291,352 @@
 			URL.revokeObjectURL(oldSrc);
 	}
 
+
+/***/ },
+/* 134 */,
+/* 135 */,
+/* 136 */,
+/* 137 */,
+/* 138 */,
+/* 139 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __vue_exports__, __vue_options__
+	var __vue_styles__ = {}
+
+	/* styles */
+	__webpack_require__(140)
+
+	/* script */
+	__vue_exports__ = __webpack_require__(142)
+
+	/* template */
+	var __vue_template__ = __webpack_require__(143)
+	__vue_options__ = __vue_exports__ = __vue_exports__ || {}
+	if (
+	  typeof __vue_exports__.default === "object" ||
+	  typeof __vue_exports__.default === "function"
+	) {
+	if (Object.keys(__vue_exports__).some(function (key) { return key !== "default" && key !== "__esModule" })) {console.error("named exports are not supported in *.vue files.")}
+	__vue_options__ = __vue_exports__ = __vue_exports__.default
+	}
+	if (typeof __vue_options__ === "function") {
+	  __vue_options__ = __vue_options__.options
+	}
+	__vue_options__.__file = "/Users/cuiqikun/xunull/Github/xunull/noadmin-koa/front/xiaowan/src/main/components/manage/menu/menu-tree.vue"
+	__vue_options__.render = __vue_template__.render
+	__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
+
+	/* hot reload */
+	if (false) {(function () {
+	  var hotAPI = require("vue-hot-reload-api")
+	  hotAPI.install(require("vue"), false)
+	  if (!hotAPI.compatible) return
+	  module.hot.accept()
+	  if (!module.hot.data) {
+	    hotAPI.createRecord("data-v-4a58bcbf", __vue_options__)
+	  } else {
+	    hotAPI.reload("data-v-4a58bcbf", __vue_options__)
+	  }
+	})()}
+	if (__vue_options__.functional) {console.error("[vue-loader] menu-tree.vue: functional components are not supported and should be defined in plain js files using render functions.")}
+
+	module.exports = __vue_exports__
+
+
+/***/ },
+/* 140 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(141);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(20)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../../../../node_modules/css-loader/index.js!./../../../../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-4a58bcbf!./../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./menu-tree.vue", function() {
+				var newContent = require("!!./../../../../../../node_modules/css-loader/index.js!./../../../../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-4a58bcbf!./../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./menu-tree.vue");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 141 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(19)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "\n.start-button-group {\n    margin-left: 10px;\n}\n.end-button-group {\n    margin-right: 10px;\n}\n.inner-nav {\n    height:50px;\n    border:1px solid #e0e6ed;\n    border-radius: 3px;\n    display: flex;\n    flex-direction: row;\n    justify-content: space-between;\n    align-items: center;\n    margin-bottom: 5px;\n}\n\n", ""]);
+
+	// exports
+
+
+/***/ },
+/* 142 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+
+	var selected_user = [];
+
+	exports.default = {
+	  data: function data() {
+	    var treeData = [];
+
+	    return {
+	      treeData: treeData,
+	      props: {
+	        label: 'name',
+	        children: 'children_menu'
+	      }
+	    };
+	  },
+
+	  computed: {},
+	  mounted: function mounted() {},
+
+	  methods: {
+	    nodeClick: function nodeClick(obj, nodeObj, nodeArr) {
+	      this.$emit('nodeclick', obj);
+	    },
+	    loadNode: function loadNode(node, resolve) {
+
+	      this.$http.get('/admin/menus/rolemenus', {
+	        params: {
+	          role_id: 1,
+	          pid: node.data.id
+	        }
+	      }).then(function (response) {
+	        if (response.body.ok) {
+	          console.log(response.body.data);
+	          resolve(response.body.data);
+	        }
+	      }, function (response) {});
+	    },
+	    reloadTable: function reloadTable() {
+	      var _this = this;
+
+	      this.$http.get('/admin/users').then(function (response) {
+
+	        if (response.body.ok) {
+	          var _$data$userData;
+
+	          var _iteratorNormalCompletion = true;
+	          var _didIteratorError = false;
+	          var _iteratorError = undefined;
+
+	          try {
+	            for (var _iterator = response.body.data[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	              var user = _step.value;
+
+	              console.log(user.create_time);
+	              var date = new Date(user.create_time);
+	              // console.log(date.toLocaleDateString())
+	              // console.log(date.toLocaleString())
+	              // console.log(date.toLocaleTimeString())
+	              user.create_time = date.toLocaleString();
+	            }
+	          } catch (err) {
+	            _didIteratorError = true;
+	            _iteratorError = err;
+	          } finally {
+	            try {
+	              if (!_iteratorNormalCompletion && _iterator.return) {
+	                _iterator.return();
+	              }
+	            } finally {
+	              if (_didIteratorError) {
+	                throw _iteratorError;
+	              }
+	            }
+	          }
+
+	          _this.$data.userData = [];
+	          (_$data$userData = _this.$data.userData).push.apply(_$data$userData, _toConsumableArray(response.body.data));
+	        }
+	      }, function (response) {});
+	    },
+	    unLockUser: function unLockUser() {
+	      var _this2 = this;
+
+	      if (!this.selected_user_isNull()) {
+	        this.$http.post('/admin/users/unlock', {
+	          users: selected_user
+	        }).then(function (response) {
+	          if (response.body.ok) {
+	            _this2.$message.success({
+	              duration: 1000,
+	              message: '操作成功'
+	            });
+	            _this2.reloadTable();
+	          } else {
+	            _this2.$message.error({
+	              duration: 1000,
+	              message: response.body.error_msg
+	            });
+	          }
+	        }, function (response) {});
+	      }
+	    },
+	    selected_user_isNull: function selected_user_isNull() {
+	      if (0 === selected_user.length) {
+	        this.$message.error({
+	          duration: 1000,
+	          message: '无目标用户'
+	        });
+	        return true;
+	      } else {
+	        return false;
+	      }
+	    },
+	    toCreateUser: function toCreateUser() {
+	      this.$router.push('/manage/user/userCreate');
+	    },
+	    selectChange: function selectChange(selection) {
+	      var tempArr = [];
+	      var _iteratorNormalCompletion2 = true;
+	      var _didIteratorError2 = false;
+	      var _iteratorError2 = undefined;
+
+	      try {
+	        for (var _iterator2 = selection[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	          var user = _step2.value;
+
+	          tempArr.push(user.id);
+	        }
+	      } catch (err) {
+	        _didIteratorError2 = true;
+	        _iteratorError2 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	            _iterator2.return();
+	          }
+	        } finally {
+	          if (_didIteratorError2) {
+	            throw _iteratorError2;
+	          }
+	        }
+	      }
+
+	      selected_user = tempArr;
+	      console.log(selected_user);
+	    },
+	    blockUser: function blockUser() {
+	      var _this3 = this;
+
+	      if (!this.selected_user_isNull()) {
+	        this.$http.post('/admin/users/block', {
+	          users: selected_user
+	        }).then(function (response) {
+	          if (response.body.ok) {
+	            _this3.$message.success({
+	              duration: 1000,
+	              message: '操作成功'
+	            });
+	            _this3.reloadTable();
+	          } else {
+	            _this3.$message.error({
+	              duration: 1000,
+	              message: response.body.error_msg
+	            });
+	          }
+	        }, function (response) {});
+	      }
+	    },
+	    deleteUser: function deleteUser() {
+	      var _this4 = this;
+
+	      if (0 === selected_user.length) {
+	        this.$message.error({
+	          duration: 1000,
+	          message: '无目标用户'
+	        });
+	      } else {
+	        this.$http.post('/admin/users/delete', {
+	          users: selected_user
+	        }).then(function (response) {
+	          if (response.body.ok) {
+	            _this4.$message.success({
+	              duration: 1000,
+	              message: '操作成功'
+	            });
+	            _this4.reloadTable();
+	          } else {
+	            _this4.$message.error({
+	              duration: 1000,
+	              message: response.body.error_msg
+	            });
+	          }
+	        }, function (response) {});
+	      }
+	    }
+	  },
+	  components: {}
+	};
+
+/***/ },
+/* 143 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+	  return _c('div', [_c('el-tree', {
+	    staticClass: "tree-div",
+	    attrs: {
+	      "data": _vm.treeData,
+	      "props": _vm.props,
+	      "load": _vm.loadNode,
+	      "highlight-current": true,
+	      "lazy": ""
+	    },
+	    on: {
+	      "node-click": _vm.nodeClick
+	    }
+	  })], 1)
+	},staticRenderFns: []}
+	if (false) {
+	  module.hot.accept()
+	  if (module.hot.data) {
+	     require("vue-hot-reload-api").rerender("data-v-4a58bcbf", module.exports)
+	  }
+	}
 
 /***/ }
 /******/ ]);

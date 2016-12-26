@@ -29,8 +29,10 @@ global.projects.admin.project_config=appConfigYaml
 
 co(function * readBanner() {
 	var banner = yield common.file.readFile(path.resolve(__dirname,'./banner.txt'))
+	var banner2 = yield common.file.readFile(path.resolve(__dirname,'./banner2.txt'))
 	// console.log(banner.toString())
 	console.log(colors.rainbow(banner.toString()))
+
 })
 
 // var fn = co.wrap(function* (val) {
