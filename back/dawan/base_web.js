@@ -35,9 +35,9 @@ app.use(session({
 app.use(bodyParser())
 
 // 加载app需要使用的中间件
-require('./base_middlewares')(app);
+require('./base_middlewares')(app)
 // 系统路由
-require('./router')(app);
+require('./router')(app)
 
 app.on('error', function(err, ctx) {
     console.error('server error', err, ctx)

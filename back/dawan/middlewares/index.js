@@ -1,13 +1,15 @@
-exports.responseTime = require('./responseTime');
+exports.responseTime = require('./responseTime')
 
-exports.resEnhance = require('./resEnhance');
+exports.resEnhance = require('./resEnhance')
 
-exports.koaCtxObj = require('./koaCtxObj');
+exports.koaCtxObj = require('./koaCtxObj')
 
-exports.nosession = require('./nosession');
+exports.nosession = require('./nosession')
 
-exports.reqTrace = require('./reqTrace');
+exports.reqTrace = require('./reqTrace')
 
-exports.frontRender = require('./frontRender');
+exports.frontRender = require('./frontRender')
 
-exports.permission = require('./permission');
+exports.permission = require('./permission')
+
+exports.morgan = require('./morgan')
