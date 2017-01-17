@@ -17,6 +17,7 @@ import RoleCreateView from '../main/components/manage/role/role-create-view.vue'
 import MenuView from '../main/components/manage/menu/menu-view.vue'
 import MenuCreate from '../main/components/manage/menu/menu-create.vue'
 import MenuTree from '../main/components/manage/menu/menu-tree.vue'
+import RoleMenuView from '../main/components/manage/menu/role-menu.vue'
 
 
 import Element from 'element-ui'
@@ -137,6 +138,15 @@ var router = new VueRouter({
                             '主页', '系统管理', '角色管理', '菜单创建'
                         ],
                         breadcrumbUrl: ['/', '', '/manage/menu', '/manage/menu/menuCreate']
+                    }
+                },{
+                    path: 'roleMenu/:role_id',
+                    component: RoleMenuView,
+                    meta: {
+                        breadcrumbName: [
+                            '主页', '系统管理', '角色管理', '角色菜单管理'
+                        ],
+                        breadcrumbUrl: ['/', '', '/manage/menu', '/manage/menu/roleMenu']
                     }
                 }
             ]

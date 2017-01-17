@@ -11,7 +11,7 @@ Menu.prototype.create = function(pid,name,uri,menu_icon,
                                     level,create_user) {
     return this.connection.execute(mapper.create,
                                     [pid,name,uri,menu_icon,level,create_user])
-    
+
 }
 
 Menu.prototype.getMenuById = function(menu_id) {
@@ -29,7 +29,6 @@ Menu.prototype.getRoleMenuTree = async function(role_id,pid) {
 
     let db_menus = await this.connection.execute(mapper.getRoleMenus,[role_id,pid])
 
-    logger.focus(db_menus)
     let result_menus=[]
 
     generateMenu(result_menus,pid,db_menus)

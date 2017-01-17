@@ -1,9 +1,9 @@
-const exec = require('./exec');
+const exec = require('./exec')
 
-const execFile = require('./execFile');
+const execFile = require('./execFile')
 
-var target = {};
+var target = {}
 
-Object.assign(target, exec, execFile);
+Object.assign(target, exec, execFile)
 
-module.exports = target;
+module.exports = target

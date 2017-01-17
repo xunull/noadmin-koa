@@ -102,6 +102,10 @@
 
 	var _menuTree2 = _interopRequireDefault(_menuTree);
 
+	var _roleMenu = __webpack_require__(149);
+
+	var _roleMenu2 = _interopRequireDefault(_roleMenu);
+
 	var _elementUi = __webpack_require__(72);
 
 	var _elementUi2 = _interopRequireDefault(_elementUi);
@@ -110,12 +114,12 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	// 角色管理
-	_vue2.default.use(_elementUi2.default);
 	// menu 管理
 
 
 	// 用户管理
+	_vue2.default.use(_elementUi2.default);
+	// 角色管理
 
 	_vue2.default.use(_vueRouter2.default);
 	_vue2.default.use(_vueResource2.default);
@@ -207,6 +211,13 @@
 	            meta: {
 	                breadcrumbName: ['主页', '系统管理', '角色管理', '菜单创建'],
 	                breadcrumbUrl: ['/', '', '/manage/menu', '/manage/menu/menuCreate']
+	            }
+	        }, {
+	            path: 'roleMenu/:role_id',
+	            component: _roleMenu2.default,
+	            meta: {
+	                breadcrumbName: ['主页', '系统管理', '角色管理', '角色菜单管理'],
+	                breadcrumbUrl: ['/', '', '/manage/menu', '/manage/menu/roleMenu']
 	            }
 	        }]
 	    }]
@@ -16584,7 +16595,7 @@
 
 
 	// module
-	exports.push([module.id, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+	exports.push([module.id, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
 
 	// exports
 
@@ -16622,6 +16633,10 @@
 	//
 	//
 	//
+	//
+	//
+	//
+	//
 
 	exports.default = {
 	    data: function data() {
@@ -16633,13 +16648,17 @@
 	            }
 	        }, function (response) {});
 	        return {
-	            roles: roles
+	            roles: roles,
+	            role_id: null
 	        };
 	    },
 
 	    methods: {
 	        toCreateMenu: function toCreateMenu() {
 	            this.$router.push('/manage/menu/menuCreate');
+	        },
+	        toRoleMenu: function toRoleMenu() {
+	            this.$router.push('/manage/menu/roleMenu/' + this.$data.role_id);
 	        }
 	    }
 	};
@@ -16655,19 +16674,19 @@
 	    directives: [{
 	      name: "model",
 	      rawName: "v-model",
-	      value: (_vm.value),
-	      expression: "value"
+	      value: (_vm.role_id),
+	      expression: "role_id"
 	    }],
 	    attrs: {
 	      "filterable": "",
 	      "placeholder": "请选择角色"
 	    },
 	    domProps: {
-	      "value": (_vm.value)
+	      "value": (_vm.role_id)
 	    },
 	    on: {
 	      "input": function($event) {
-	        _vm.value = $event
+	        _vm.role_id = $event
 	      }
 	    }
 	  }, _vm._l((_vm.roles), function(item) {
@@ -16677,7 +16696,18 @@
 	        "value": item.id
 	      }
 	    })
-	  })), _vm._v(" "), _c('el-button', {
+	  })), _vm._v(" "), _c('div', [_c('el-button', {
+	    staticClass: "end-button-group",
+	    attrs: {
+	      "plain": true,
+	      "type": "primary"
+	    },
+	    nativeOn: {
+	      "click": function($event) {
+	        _vm.toRoleMenu($event)
+	      }
+	    }
+	  }, [_vm._v("角色菜单设置")]), _vm._v(" "), _c('el-button', {
 	    staticClass: "end-button-group",
 	    attrs: {
 	      "plain": true,
@@ -16688,7 +16718,7 @@
 	        _vm.toCreateMenu($event)
 	      }
 	    }
-	  }, [_vm._v("创建菜单")])], 1), _vm._v(" "), _c('router-view')], 1)
+	  }, [_vm._v("创建菜单")])], 1)], 1), _vm._v(" "), _c('router-view')], 1)
 	},staticRenderFns: []}
 	if (false) {
 	  module.hot.accept()
@@ -16779,7 +16809,7 @@
 
 
 	// module
-	exports.push([module.id, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+	exports.push([module.id, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
 
 	// exports
 
@@ -16805,7 +16835,9 @@
 
 	        return {
 	            name: null,
-	            uri: null
+	            uri: null,
+	            parent_name: null,
+	            parent_menu: null
 	        };
 	    },
 
@@ -16813,7 +16845,8 @@
 	        saveMenu: function saveMenu() {
 	            this.$http.post('/admin/menus/create', {
 	                name: this.$data.name,
-	                uri: this.$data.uri
+	                uri: this.$data.uri,
+	                parent: this.$data.parent_menu
 	            }).then(function (response) {
 	                console.log(response.body);
 	            }, function (response) {
@@ -16823,16 +16856,20 @@
 	            console.log(this.$data);
 	        },
 	        back: function back() {
-	            this.$router.push('/manage/menu/menuTree');
+	            this.$router.push('/manage/menu');
 	        },
 	        nodeClick: function nodeClick(obj) {
-	            console.log(obj);
+	            this.$data.parent_name = obj.name;
+	            this.$data.parent_menu = obj;
 	        }
 	    },
 	    components: {
 	        MenuTree: _menuTree2.default
 	    }
 	}; //
+	//
+	//
+	//
 	//
 	//
 	//
@@ -16906,6 +16943,25 @@
 	    on: {
 	      "input": function($event) {
 	        _vm.name = $event
+	      }
+	    }
+	  })], 1), _vm._v(" "), _c('el-form-item', {
+	    attrs: {
+	      "label": "父级菜单"
+	    }
+	  }, [_c('el-input', {
+	    directives: [{
+	      name: "model",
+	      rawName: "v-model",
+	      value: (_vm.parent_name),
+	      expression: "parent_name"
+	    }],
+	    domProps: {
+	      "value": (_vm.parent_name)
+	    },
+	    on: {
+	      "input": function($event) {
+	        _vm.parent_name = $event
 	      }
 	    }
 	  })], 1), _vm._v(" "), _c('el-form-item', {
@@ -47445,7 +47501,6 @@
 	        }
 	      }).then(function (response) {
 	        if (response.body.ok) {
-	          console.log(response.body.data);
 	          resolve(response.body.data);
 	        }
 	      }, function (response) {});
@@ -47635,6 +47690,348 @@
 	  module.hot.accept()
 	  if (module.hot.data) {
 	     require("vue-hot-reload-api").rerender("data-v-4a58bcbf", module.exports)
+	  }
+	}
+
+/***/ },
+/* 144 */,
+/* 145 */,
+/* 146 */,
+/* 147 */,
+/* 148 */,
+/* 149 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __vue_exports__, __vue_options__
+	var __vue_styles__ = {}
+
+	/* styles */
+	__webpack_require__(150)
+
+	/* script */
+	__vue_exports__ = __webpack_require__(152)
+
+	/* template */
+	var __vue_template__ = __webpack_require__(153)
+	__vue_options__ = __vue_exports__ = __vue_exports__ || {}
+	if (
+	  typeof __vue_exports__.default === "object" ||
+	  typeof __vue_exports__.default === "function"
+	) {
+	if (Object.keys(__vue_exports__).some(function (key) { return key !== "default" && key !== "__esModule" })) {console.error("named exports are not supported in *.vue files.")}
+	__vue_options__ = __vue_exports__ = __vue_exports__.default
+	}
+	if (typeof __vue_options__ === "function") {
+	  __vue_options__ = __vue_options__.options
+	}
+	__vue_options__.__file = "/Users/cuiqikun/xunull/Github/xunull/noadmin-koa/front/xiaowan/src/main/components/manage/menu/role-menu.vue"
+	__vue_options__.render = __vue_template__.render
+	__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
+
+	/* hot reload */
+	if (false) {(function () {
+	  var hotAPI = require("vue-hot-reload-api")
+	  hotAPI.install(require("vue"), false)
+	  if (!hotAPI.compatible) return
+	  module.hot.accept()
+	  if (!module.hot.data) {
+	    hotAPI.createRecord("data-v-5adbb4c9", __vue_options__)
+	  } else {
+	    hotAPI.reload("data-v-5adbb4c9", __vue_options__)
+	  }
+	})()}
+	if (__vue_options__.functional) {console.error("[vue-loader] role-menu.vue: functional components are not supported and should be defined in plain js files using render functions.")}
+
+	module.exports = __vue_exports__
+
+
+/***/ },
+/* 150 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(151);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(20)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../../../../node_modules/css-loader/index.js!./../../../../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-5adbb4c9!./../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./role-menu.vue", function() {
+				var newContent = require("!!./../../../../../../node_modules/css-loader/index.js!./../../../../../../node_modules/vue-loader/lib/style-rewriter.js?id=data-v-5adbb4c9!./../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./role-menu.vue");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 151 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(19)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "\n.start-button-group {\n    margin-left: 10px;\n}\n.end-button-group {\n    margin-right: 10px;\n}\n.inner-nav {\n    height:50px;\n    border:1px solid #e0e6ed;\n    border-radius: 3px;\n    display: flex;\n    flex-direction: row;\n    justify-content: space-between;\n    align-items: center;\n    margin-bottom: 5px;\n}\n\n", ""]);
+
+	// exports
+
+
+/***/ },
+/* 152 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+
+	var selected_user = [];
+
+	exports.default = {
+	  data: function data() {
+	    var treeData = [];
+
+	    return {
+	      treeData: treeData,
+	      props: {
+	        label: 'name',
+	        children: 'children_menu'
+	      }
+	    };
+	  },
+
+	  computed: {},
+	  mounted: function mounted() {},
+
+	  methods: {
+	    nodeClick: function nodeClick(obj, nodeObj, nodeArr) {
+	      this.$emit('nodeclick', obj);
+	    },
+	    loadNode: function loadNode(node, resolve) {
+
+	      this.$http.get('/admin/menus/rolemenus', {
+	        params: {
+	          role_id: 1,
+	          pid: node.data.id
+	        }
+	      }).then(function (response) {
+	        if (response.body.ok) {
+	          resolve(response.body.data);
+	        }
+	      }, function (response) {});
+	    },
+	    reloadTable: function reloadTable() {
+	      var _this = this;
+
+	      this.$http.get('/admin/users').then(function (response) {
+
+	        if (response.body.ok) {
+	          var _$data$userData;
+
+	          var _iteratorNormalCompletion = true;
+	          var _didIteratorError = false;
+	          var _iteratorError = undefined;
+
+	          try {
+	            for (var _iterator = response.body.data[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	              var user = _step.value;
+
+	              console.log(user.create_time);
+	              var date = new Date(user.create_time);
+	              // console.log(date.toLocaleDateString())
+	              // console.log(date.toLocaleString())
+	              // console.log(date.toLocaleTimeString())
+	              user.create_time = date.toLocaleString();
+	            }
+	          } catch (err) {
+	            _didIteratorError = true;
+	            _iteratorError = err;
+	          } finally {
+	            try {
+	              if (!_iteratorNormalCompletion && _iterator.return) {
+	                _iterator.return();
+	              }
+	            } finally {
+	              if (_didIteratorError) {
+	                throw _iteratorError;
+	              }
+	            }
+	          }
+
+	          _this.$data.userData = [];
+	          (_$data$userData = _this.$data.userData).push.apply(_$data$userData, _toConsumableArray(response.body.data));
+	        }
+	      }, function (response) {});
+	    },
+	    unLockUser: function unLockUser() {
+	      var _this2 = this;
+
+	      if (!this.selected_user_isNull()) {
+	        this.$http.post('/admin/users/unlock', {
+	          users: selected_user
+	        }).then(function (response) {
+	          if (response.body.ok) {
+	            _this2.$message.success({
+	              duration: 1000,
+	              message: '操作成功'
+	            });
+	            _this2.reloadTable();
+	          } else {
+	            _this2.$message.error({
+	              duration: 1000,
+	              message: response.body.error_msg
+	            });
+	          }
+	        }, function (response) {});
+	      }
+	    },
+	    selected_user_isNull: function selected_user_isNull() {
+	      if (0 === selected_user.length) {
+	        this.$message.error({
+	          duration: 1000,
+	          message: '无目标用户'
+	        });
+	        return true;
+	      } else {
+	        return false;
+	      }
+	    },
+	    toCreateUser: function toCreateUser() {
+	      this.$router.push('/manage/user/userCreate');
+	    },
+	    selectChange: function selectChange(selection) {
+	      var tempArr = [];
+	      var _iteratorNormalCompletion2 = true;
+	      var _didIteratorError2 = false;
+	      var _iteratorError2 = undefined;
+
+	      try {
+	        for (var _iterator2 = selection[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	          var user = _step2.value;
+
+	          tempArr.push(user.id);
+	        }
+	      } catch (err) {
+	        _didIteratorError2 = true;
+	        _iteratorError2 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	            _iterator2.return();
+	          }
+	        } finally {
+	          if (_didIteratorError2) {
+	            throw _iteratorError2;
+	          }
+	        }
+	      }
+
+	      selected_user = tempArr;
+	      console.log(selected_user);
+	    },
+	    blockUser: function blockUser() {
+	      var _this3 = this;
+
+	      if (!this.selected_user_isNull()) {
+	        this.$http.post('/admin/users/block', {
+	          users: selected_user
+	        }).then(function (response) {
+	          if (response.body.ok) {
+	            _this3.$message.success({
+	              duration: 1000,
+	              message: '操作成功'
+	            });
+	            _this3.reloadTable();
+	          } else {
+	            _this3.$message.error({
+	              duration: 1000,
+	              message: response.body.error_msg
+	            });
+	          }
+	        }, function (response) {});
+	      }
+	    },
+	    deleteUser: function deleteUser() {
+	      var _this4 = this;
+
+	      if (0 === selected_user.length) {
+	        this.$message.error({
+	          duration: 1000,
+	          message: '无目标用户'
+	        });
+	      } else {
+	        this.$http.post('/admin/users/delete', {
+	          users: selected_user
+	        }).then(function (response) {
+	          if (response.body.ok) {
+	            _this4.$message.success({
+	              duration: 1000,
+	              message: '操作成功'
+	            });
+	            _this4.reloadTable();
+	          } else {
+	            _this4.$message.error({
+	              duration: 1000,
+	              message: response.body.error_msg
+	            });
+	          }
+	        }, function (response) {});
+	      }
+	    }
+	  },
+	  components: {}
+	};
+
+/***/ },
+/* 153 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+	  return _c('div', [_c('el-tree', {
+	    staticClass: "tree-div",
+	    attrs: {
+	      "data": _vm.treeData,
+	      "props": _vm.props,
+	      "load": _vm.loadNode,
+	      "highlight-current": true,
+	      "lazy": ""
+	    },
+	    on: {
+	      "node-click": _vm.nodeClick
+	    }
+	  })], 1)
+	},staticRenderFns: []}
+	if (false) {
+	  module.hot.accept()
+	  if (module.hot.data) {
+	     require("vue-hot-reload-api").rerender("data-v-5adbb4c9", module.exports)
 	  }
 	}
 

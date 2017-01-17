@@ -13,6 +13,9 @@
                 <el-form-item label="菜单名称">
                   <el-input v-model='name'></el-input>
                 </el-form-item>
+                <el-form-item label="父级菜单">
+                  <el-input v-model='parent_name'></el-input>
+                </el-form-item>
                 <el-form-item label="路径">
                   <el-input v-model='uri'></el-input>
                 </el-form-item>
@@ -34,7 +37,9 @@ export default {
 
         return {
             name: null,
-            uri: null
+            uri: null,
+            parent_name:null,
+            parent_menu:null
         }
     },
     methods:{
@@ -42,6 +47,7 @@ export default {
             this.$http.post('/admin/menus/create',{
                 name:this.$data.name,
                 uri:this.$data.uri,
+                parent:this.$data.parent_menu
             }).then(response=>{
                 console.log(response.body)
             },response=>{
@@ -52,10 +58,11 @@ export default {
 
         },
         back: function() {
-            this.$router.push('/manage/menu/menuTree')
+            this.$router.push('/manage/menu')
         },
         nodeClick:function(obj) {
-            console.log(obj)
+            this.$data.parent_name=obj.name
+            this.$data.parent_menu=obj
         }
     },
     components:{

@@ -1,8 +1,5 @@
 <template lang="html">
-    <!-- 表格中并没有将全部信息都显示出来,显示的是主要信息，全部信息可以在每条记录的详细页面中查看 -->
-    <!-- -->
-    <div >
-
+    <div>
         <el-tree class='tree-div'
           :data="treeData"
           :props="props"

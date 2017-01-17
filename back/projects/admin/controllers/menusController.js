@@ -24,15 +24,25 @@ exports.rolemenus = function*(){
 
 exports.create = function*() {
     let body = this.request.body
+
     try {
         let currentUser = this.nosession.get('user')
-        logger.info(currentUser)
-        yield Menu.create(body.name,body.uri,body.pid,currentUser.id)
+        logger.info(body)
+
+        let parent = body.parent
+        let pid=0
+        let level = 0
+        let menu_icon = ''
+        if(undefined !== parent) {
+            pid = parent.id
+            level = parent.level+1
+        }
+
+        yield Menu.create(pid,body.name,body.uri,menu_icon,level,currentUser.id)
         this.reply({})
     } catch(err) {
         logger.error(err)
         this.reply({ok:false,error_msg:'服务发生错误'})
     }
-
 
 }

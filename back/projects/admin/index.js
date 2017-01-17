@@ -2,7 +2,7 @@ const path = require('path')
 const co = require('co')
 const colors = require('colors/safe')
 const yaml = require('js-yaml')
-
+const fs = require('fs')
 const mongoose= require('../../dawan/common/db/mongoose')
 
 const config=global.dawan.config
@@ -28,10 +28,10 @@ global.projects.admin.project_config=appConfigYaml
 // readBanner();
 
 co(function * readBanner() {
-	var banner = yield common.file.readFile(path.resolve(__dirname,'./banner.txt'))
-	var banner2 = yield common.file.readFile(path.resolve(__dirname,'./banner2.txt'))
+    var banner = yield common.file.readFile(path.resolve(__dirname,'./banner.txt'))
+    var banner2 = yield common.file.readFile(path.resolve(__dirname,'./banner2.txt'))
 	// console.log(banner.toString())
-	console.log(colors.rainbow(banner.toString()))
+    console.log(colors.rainbow(banner.toString()))
 
 })
 
