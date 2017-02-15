@@ -20,7 +20,10 @@
     "url": "https://github.com/xunull/noadmin-koa/issues"
   },
   "homepage": "https://github.com/xunull/noadmin-koa#readme",
-  "dependencies": {
-    
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^3.15.0",
+    "eslint-config-airbnb-base": "^11.1.0",
+    "eslint-plugin-import": "^2.2.0"
   }
 }

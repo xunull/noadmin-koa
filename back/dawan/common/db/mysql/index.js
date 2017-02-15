@@ -1,15 +1,18 @@
-var mysql = require('mysql')
-var logger = require('../../logger/log4js')
-var Connection = require('./connection')
+const mysql = require('mysql');
 
-exports.connect = function(host,user,password,database) {
-    var pool = mysql.createPool({
+const logger = require('../../logger/log4js');
+
+const Connection = require('./connection');
+
+exports.connect = function (host, user, password, database) {
+    const pool = mysql.createPool({
         connectionLimit: 10,
-        host: host,
-        user: user,
-        password: password,
-        database: database
-    })
-    return new Connection(pool)
-}
+        host,
+        user,
+        password,
+        database,
+    });
+    return new Connection(pool);
+};
+
 

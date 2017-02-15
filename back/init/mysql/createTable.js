@@ -1,40 +1,13 @@
-/**
- * 
- */
-const co = require('co')
-const logger = global.dawan.logger
 
-module.exports = function (connection) {
+const co = require('co');
 
-    return new Promise((resolve,reject)=>{
-        co(function* (){
-            yield connection.execute(userTable)
-            logger.info('user table create success!')
-            yield connection.execute(roleTable)
-            logger.info('role table create success!')
-            yield connection.execute(userRoleTable)
-            logger.info('user_role table create success!')
-            yield connection.execute(menusTable)
-            logger.info('menu table create success!')
-            yield connection.execute(roleMenuTable)
-            logger.info('role_menu table create success!')
-            return Promise.resolve(true)
-        }).then(val=>{
-            resolve(val)
-        },err=>{
-            reject(err)
-        })
-    })
-    
-    
-}
-
+const logger = global.dawan.logger;
 
 /**
  * sql
  */
 
-let userTable=  `
+const userTable = `
                 create table users(
                     id int auto_increment,
                     user_code varchar(255) not null,
@@ -53,12 +26,12 @@ let userTable=  `
                     is_deleted int,
                     primary key(id) ,index(id)
                 )
-                `
+                `;
 /**
  * mysql 用外键表示相互关系
  * 目前这个系统,role 是否需要继承,所属?
  */
-let roleTable=   `
+const roleTable = `
             create table roles(
                 id int auto_increment,
                 description varchar(255),
@@ -74,9 +47,9 @@ let roleTable=   `
                 is_deleted int,
                 primary key(id) ,index(id)
             )
-            `
+            `;
 
-let userRoleTable = `
+const userRoleTable = `
                     create table user_role (
                         id int auto_increment,
                         role_id int not null,
@@ -92,9 +65,9 @@ let userRoleTable = `
                         is_deleted int,
                         primary key(id) ,index(id)
                     )
-                    `
+                    `;
 
-let menusTable =    `
+const menusTable = `
                     create table menus (
                         id int auto_increment,
                         pid int,
@@ -113,9 +86,9 @@ let menusTable =    `
                         is_deleted int,
                         primary key(id) ,index(id)
                     )
-                    `
+                    `;
 
-let roleMenuTable = `
+const roleMenuTable = `
                     create table role_menu (
                         id int auto_increment,
                         role_id int not null,
@@ -131,4 +104,27 @@ let roleMenuTable = `
                         is_deleted int,
                         primary key(id) ,index(id)
                     )
-                    `
+                    `;
+
+
+module.exports = function (connection) {
+    return new Promise((resolve, reject) => {
+        co(function* () {
+            yield connection.execute(userTable);
+            logger.info('user table create success!');
+            yield connection.execute(roleTable);
+            logger.info('role table create success!');
+            yield connection.execute(userRoleTable);
+            logger.info('user_role table create success!');
+            yield connection.execute(menusTable);
+            logger.info('menu table create success!');
+            yield connection.execute(roleMenuTable);
+            logger.info('role_menu table create success!');
+            return Promise.resolve(true);
+        }).then((val) => {
+            resolve(val);
+        }, (err) => {
+            reject(err);
+        });
+    });
+};

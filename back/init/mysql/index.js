@@ -1,15 +1,18 @@
-var common = require('../../dawan/common')
-var config = require('../../conf/dawan.config')
-var logger = require('../../dawan/common/logger/log4js')
+const common = require('../../dawan/common');
+const config = require('../../conf/dawan.config');
+const logger = require('../../dawan/common/logger/log4js');
 
 global.dawan = {
-    config: config,
-    logger: logger,
-    common: common
-}
+    config,
+    logger,
+    common,
+};
 
-var mysql = common.db.mysql
-let mysqlConfig = config.db.mysql
-let connection = mysql.connect(mysqlConfig.host,mysqlConfig.user,mysqlConfig.password,mysqlConfig.database)
+const mysql = common.db.mysql;
+const mysqlConfig = config.db.mysql;
+const connection = mysql.connect(mysqlConfig.host,
+                                    mysqlConfig.user,
+                                    mysqlConfig.password,
+                                    mysqlConfig.database);
 
-require('./init')(connection)
+require('./init')(connection);

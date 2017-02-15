@@ -3,30 +3,27 @@
  * 默认使用了pool
  */
 function Connection(pool) {
-    this.pool = pool
+    this.pool = pool;
 }
 
-module.exports = Connection
+module.exports = Connection;
 
 Connection.prototype.execute = function (sql, params) {
     return new Promise((resolve, reject) => {
-        this.pool.getConnection(function (err, connection) {
+        this.pool.getConnection((err, connection) => {
             if (err) {
-                reject(err)
+                reject(err);
             } else {
-                connection.query(sql, params, function (err, result) {
-                    connection.release()
+                connection.query(sql, params, (err, result) => {
+                    connection.release();
                     if (err) {
-                        reject(err)
+                        reject(err);
                     } else {
-                        resolve(result)
+                        resolve(result);
                     }
-
-                })
+                });
             }
+        });
+    });
+};
 
-
-        })
-    })
-
-}

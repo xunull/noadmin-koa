@@ -1,3 +1,4 @@
-require('babel-core/register')
+require('babel-core/register');
 
-require('./mysql')
+// 使用mysql 数据库的版本
+require('./mysql');
